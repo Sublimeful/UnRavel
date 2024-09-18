@@ -2,7 +2,7 @@
   "name": "unravel",
   "type": "module",
   "scripts": {
-    "dev": "vite"
+    "dev": "bun server.ts"
   },
   "devDependencies": {
     "@types/bun": "latest",
