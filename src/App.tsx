@@ -1,28 +1,13 @@
 export default function App() {
   return (
-    <div className="h-screen w-screen flex flex-col items-center bg-[#FBF6CD]">
-      <div className="flex flex-row items-center mt-2">
-        <h1 className="text-8xl font-bold text-red-500 drop-shadow">UnRavel</h1>
-        <img src="/logo.png" className="aspect-square w-28" />
-      </div>
-      {/* Match selection */}
-      <div className="flex flex-row gap-5 w-full h-full p-5 pt-2">
-        <div className="bg-[#8FCCE1] h-full w-1/2 rounded-xl p-5">
-          {/* Ranked Match */}
-          <h2 className="text-5xl font-bold mb-5">Ranked Match</h2>
-          <p className="mr-60">
-            blah blah blah match yes blah blah blah blah match yes blah blah
-            blah blah match yes blah
-          </p>
-        </div>
-        <div className="bg-[#F4868A] h-full w-1/2 rounded-xl p-5">
-          {/* Private Match */}
-          <h2 className="text-5xl font-bold mb-5">Private Match</h2>
-          <p className="mr-60">
-            blah blah blah match yes blah blah blah blah match yes blah blah
-            blah blah match yes blah
-          </p>
-        </div>
+    <div className="h-screen w-screen bg-[#040039]">
+      <div className="absolute h-full w-full grid grid-rows-10 grid-cols-10">
+        {/* RED */}
+        <div className="row-start-2 col-start-2 row-span-3 col-span-2 bg-[#E24F3B] rounded-full h-full aspect-square place-self-center" />
+        {/* CYAN */}
+        <div className="row-start-1 col-start-7 row-span-5 col-span-4 bg-[#4DDBDB] rounded-full h-full aspect-square place-self-center" />
+        {/* BLUE */}
+        <div className="row-start-7 col-start-3 row-span-4 col-span-3 bg-[#4754E5] rounded-full h-full aspect-square place-self-center" />
       </div>
     </div>
   );
