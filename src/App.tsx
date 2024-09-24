@@ -1,23 +1,83 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { Canvas, useFrame, useThree } from "@react-three/fiber";
+import { Vector2, type ShaderMaterial } from "three";
 
-export default function App() {
-  const glslCanvas = useRef<HTMLCanvasElement>(null);
+function Background() {
+  const [fragmentShader, setFragmentShader] = useState("");
+  const [vertexShader, setVertexShader] = useState("");
+  const [mouse, setMouse] = useState<Vector2>();
+  const { viewport } = useThree();
+
+  const shaderMaterialRef = useRef<ShaderMaterial>(null);
 
   useEffect(() => {
-    if (!glslCanvas.current) return;
-    // Component is mounted, window is available
-    glslCanvas.current.width = window.innerWidth;
-    glslCanvas.current.height = window.innerHeight;
-  }, [glslCanvas.current]);
+    // Component is mounted
+    fetch("/background.frag").then((res) => {
+      res.text().then((shader) => setFragmentShader(shader));
+    });
+    fetch("/background.vert").then((res) => {
+      res.text().then((shader) => setVertexShader(shader));
+    });
+    window.addEventListener("mousemove", (ev) => {
+      setMouse(
+        new Vector2(ev.x / window.innerWidth, 1 - ev.y / window.innerHeight),
+      );
+      console.log(ev.x / window.innerWidth, ev.y / window.innerHeight);
+    });
+  }, []);
 
+  useEffect(() => {
+    if (!shaderMaterialRef.current) return;
+    shaderMaterialRef.current.uniforms["u_aspect"].value = viewport.aspect;
+  }, [viewport.aspect]);
+
+  useFrame((_, delta) => {
+    if (mouse && shaderMaterialRef.current) {
+      const redCirclePos: Vector2 =
+        shaderMaterialRef.current.uniforms["u_redCirclePos"].value;
+      const redCirclePosDelta = mouse
+        .clone()
+        .sub(redCirclePos)
+        .multiplyScalar(delta);
+      redCirclePos.add(redCirclePosDelta);
+    }
+  });
+
+  const uniforms = useMemo(
+    () => ({
+      u_aspect: {
+        value: viewport.aspect,
+      },
+      u_redCirclePos: {
+        value: new Vector2(0.15, 0.75),
+      },
+    }),
+    [],
+  );
+
+  if (fragmentShader === "" || vertexShader === "") {
+    return null;
+  } else {
+    return (
+      <mesh>
+        <planeGeometry args={[viewport.width, viewport.height]} />
+        <shaderMaterial
+          ref={shaderMaterialRef}
+          fragmentShader={fragmentShader}
+          vertexShader={vertexShader}
+          uniforms={uniforms}
+        />
+      </mesh>
+    );
+  }
+}
+
+export default function App() {
   return (
     <div className="h-screen w-screen bg-[#040039] flex items-center justify-center">
-      <canvas
-        ref={glslCanvas}
-        className="glslCanvas w-full h-full"
-        data-fragment-url="/shader.frag?raw"
-        data-textures="/moon.jpg"
-      ></canvas>
+      <Canvas className="w-full h-full blur-3xl">
+        <Background />
+      </Canvas>
       <div className="absolute h-5/6 w-3/4 max-w-xl bg-[#000625] bg-opacity-50 rounded-xl border border-white flex flex-col items-center justify-center text-white">
         <img src="/logo.png" className="w-40 aspect-square" />
         <h1 className="text-[#DB1F3C] text-5xl font-bold">UnRavel</h1>
