@@ -2,11 +2,29 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { Vector2, type ShaderMaterial } from "three";
 
-function Background() {
+interface BackgroundProps {
+  redCircleInitPos: Vector2;
+  blueCircleInitPos: Vector2;
+  tealCircleInitPos: Vector2;
+}
+
+function Background(props: BackgroundProps) {
+  const { redCircleInitPos, blueCircleInitPos, tealCircleInitPos } = props;
   const [fragmentShader, setFragmentShader] = useState("");
   const [vertexShader, setVertexShader] = useState("");
-  const [mouse, setMouse] = useState<Vector2>();
+  const [pointer, setPointer] = useState<Vector2>();
   const { viewport } = useThree();
+
+  const circleInitPos = useRef<Vector2[]>([
+    redCircleInitPos,
+    blueCircleInitPos,
+    tealCircleInitPos,
+  ]);
+  const circlePos = useRef<Vector2[]>([
+    redCircleInitPos.clone(),
+    blueCircleInitPos.clone(),
+    tealCircleInitPos.clone(),
+  ]);
 
   const shaderMaterialRef = useRef<ShaderMaterial>(null);
 
@@ -18,11 +36,11 @@ function Background() {
     fetch("/background.vert").then((res) => {
       res.text().then((shader) => setVertexShader(shader));
     });
+    // Track mouse movement
     window.addEventListener("mousemove", (ev) => {
-      setMouse(
+      setPointer(
         new Vector2(ev.x / window.innerWidth, 1 - ev.y / window.innerHeight),
       );
-      console.log(ev.x / window.innerWidth, ev.y / window.innerHeight);
     });
   }, []);
 
@@ -32,14 +50,17 @@ function Background() {
   }, [viewport.aspect]);
 
   useFrame((_, delta) => {
-    if (mouse && shaderMaterialRef.current) {
-      const redCirclePos: Vector2 =
-        shaderMaterialRef.current.uniforms["u_redCirclePos"].value;
-      const redCirclePosDelta = mouse
-        .clone()
-        .sub(redCirclePos)
-        .multiplyScalar(delta);
-      redCirclePos.add(redCirclePosDelta);
+    if (pointer && shaderMaterialRef.current) {
+      for (let i = 0; i < circlePos.current.length; i++) {
+        const deltaPos = pointer
+          .clone()
+          .sub(circleInitPos.current[i])
+          .setLength(0.05)
+          .add(circleInitPos.current[i])
+          .sub(circlePos.current[i])
+          .multiplyScalar(delta);
+        circlePos.current[i].add(deltaPos);
+      }
     }
   });
 
@@ -49,7 +70,13 @@ function Background() {
         value: viewport.aspect,
       },
       u_redCirclePos: {
-        value: new Vector2(0.15, 0.75),
+        value: circlePos.current[0],
+      },
+      u_blueCirclePos: {
+        value: circlePos.current[1],
+      },
+      u_tealCirclePos: {
+        value: circlePos.current[2],
       },
     }),
     [],
@@ -76,7 +103,11 @@ export default function App() {
   return (
     <div className="h-screen w-screen bg-[#040039] flex items-center justify-center">
       <Canvas className="w-full h-full blur-3xl">
-        <Background />
+        <Background
+          redCircleInitPos={new Vector2(0.15, 0.75)}
+          blueCircleInitPos={new Vector2(0.22, 0.27)}
+          tealCircleInitPos={new Vector2(0.79, 0.69)}
+        />
       </Canvas>
       <div className="absolute h-5/6 w-3/4 max-w-xl bg-[#000625] bg-opacity-50 rounded-xl border border-white flex flex-col items-center justify-center text-white">
         <img src="/logo.png" className="w-40 aspect-square" />

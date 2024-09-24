@@ -1,6 +1,8 @@
 varying vec2 vUv;
 uniform float u_aspect;
 uniform vec2 u_redCirclePos;
+uniform vec2 u_blueCirclePos;
+uniform vec2 u_tealCirclePos;
 
 void main() {
   vec3 fragColor = vec3(4.0/255.0, 0, 57.0/255.0);
@@ -13,14 +15,14 @@ void main() {
   }
 
   // Blue Circle
-  vec2 blueCirclePos = vec2(0.22 * u_aspect, 0.27);
+  vec2 blueCirclePos = vec2(u_blueCirclePos.x * u_aspect, u_blueCirclePos.y);
   float blueCircleDist = distance(blueCirclePos, vec2(vUv.x * u_aspect, vUv.y)) / 0.25;
   if (blueCircleDist < 1.0) {
     fragColor = vec3(71.0/255.0, 84.0/255.0, 229.0/255.0);
   }
 
   // Teal Circle
-  vec2 tealCirclePos = vec2(0.79 * u_aspect, 0.69);
+  vec2 tealCirclePos = vec2(u_tealCirclePos.x * u_aspect, u_tealCirclePos.y);
   float tealCircleDist = distance(tealCirclePos, vec2(vUv.x * u_aspect, vUv.y)) / 0.30;
   if (tealCircleDist < 1.0) {
     fragColor = vec3(77.0/255.0, 219.0/255.0, 219.0/255.0);
