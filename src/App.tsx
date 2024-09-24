@@ -102,14 +102,14 @@ function Background(props: BackgroundProps) {
 export default function App() {
   return (
     <div className="h-screen w-screen bg-[#040039] flex items-center justify-center">
-      <Canvas className="w-full h-full blur-3xl">
+      <Canvas className="canvasBG w-full h-full blur-3xl animate-pulse">
         <Background
           redCircleInitPos={new Vector2(0.15, 0.75)}
           blueCircleInitPos={new Vector2(0.22, 0.27)}
           tealCircleInitPos={new Vector2(0.79, 0.69)}
         />
       </Canvas>
-      <div className="absolute h-5/6 w-3/4 max-w-xl bg-[#000625] bg-opacity-50 rounded-xl border border-white flex flex-col items-center justify-center text-white">
+      <div className="absolute h-5/6 w-3/4 max-w-xl bg-[#000625] bg-opacity-50 rounded-xl border border-neutral-500 flex flex-col items-center justify-center text-white">
         <img src="/logo.png" className="w-40 aspect-square" />
         <h1 className="text-[#DB1F3C] text-5xl font-bold">UnRavel</h1>
         <h2 className="text-3xl font-light">The Ultimate Guessing Game</h2>
