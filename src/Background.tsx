@@ -30,10 +30,10 @@ export default function Background(props: BackgroundProps) {
 
   useEffect(() => {
     // Component is mounted
-    fetch("/background.frag").then((res) => {
+    fetch("background.frag").then((res) => {
       res.text().then((shader) => setFragmentShader(shader));
     });
-    fetch("/background.vert").then((res) => {
+    fetch("background.vert").then((res) => {
       res.text().then((shader) => setVertexShader(shader));
     });
     // Track mouse movement

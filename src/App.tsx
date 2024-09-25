@@ -1,7 +1,11 @@
+import "bootstrap-icons/font/bootstrap-icons.css";
+
 import { Canvas } from "@react-three/fiber";
 import { Vector2 } from "three";
+
 import Background from "./Background";
-import MainMenu from "./MainMenu";
+// import MainMenu from "./MainMenu";
+import HowToPlay from "./HowToPlay";
 
 export default function App() {
   return (
@@ -13,7 +17,7 @@ export default function App() {
           tealCircleInitPos={new Vector2(0.79, 0.69)}
         />
       </Canvas>
-      <MainMenu />
+      <HowToPlay />
     </div>
   );
 }
