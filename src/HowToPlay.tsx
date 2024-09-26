@@ -1,6 +1,6 @@
 export default function HowToPlay() {
   return (
-    <div className="absolute transition-[width] h-[98%] xl:w-[75%] lg:w-[90%] w-[98%] bg-[#000625] bg-opacity-50 rounded-xl border border-neutral-500 flex flex-col items-center p-10 text-white overflow-y-scroll overflow-x-clip">
+    <div className="absolute transition-[width] h-[98%] xl:w-[75%] w-[98%] bg-[#000625] bg-opacity-50 rounded-xl border border-neutral-500 flex flex-col items-center p-10 text-white overflow-y-scroll overflow-x-clip">
       <div className="flex flex-row w-full justify-between">
         <button className="self-start text-lg font-light flex items-center justify-center gap-2">
           <i className="bi bi-arrow-left"></i>Back to Menu
@@ -11,7 +11,7 @@ export default function HowToPlay() {
         How to Play UnRavel
       </h1>
       <div className="shrink-0 flex flex-row w-full min-h-max gap-4 mt-8 overflow-x-scroll overflow-y-clip">
-        <div className="bg-[#1A1C38] flex-1 flex flex-col items-center gap-1 p-5 rounded-xl">
+        <div className="bg-[#1A1C38] flex-1 flex flex-col items-center min-w-40 gap-1 p-5 rounded-xl">
           <i className="bi bi-people-fill text-6xl text-teal-400"></i>
           <h1 className="text-xl">Join a Game</h1>
           <p className="text-gray-400">
@@ -19,14 +19,14 @@ export default function HowToPlay() {
             players.
           </p>
         </div>
-        <div className="bg-[#1A1C38] flex-1 flex flex-col items-center gap-1 p-5 rounded-xl">
+        <div className="bg-[#1A1C38] flex-1 flex flex-col items-center min-w-40 gap-1 p-5 rounded-xl">
           <i className="w-[3.75rem] aspect-square bg-red-400 [mask-size:contain] [mask-image:url(brain.svg)]" />
           <h1 className="text-xl">Get Your Secret Word</h1>
           <p className="text-gray-400">
             An AI will choose a random word from a selected category.
           </p>
         </div>
-        <div className="bg-[#1A1C38] flex-1 flex flex-col items-center gap-1 p-5 rounded-xl">
+        <div className="bg-[#1A1C38] flex-1 flex flex-col items-center min-w-40 gap-1 p-5 rounded-xl">
           <i className="bi bi-chat text-6xl text-yellow-400"></i>
           <h1 className="text-xl">Ask Questions</h1>
           <p className="text-gray-400">
@@ -34,7 +34,7 @@ export default function HowToPlay() {
             word.
           </p>
         </div>
-        <div className="bg-[#1A1C38] flex-1 flex flex-col items-center gap-1 p-5 rounded-xl">
+        <div className="bg-[#1A1C38] flex-1 flex flex-col items-center min-w-40 gap-1 p-5 rounded-xl">
           <i className="bi bi-stars text-6xl text-purple-500"></i>
           <h1 className="text-xl">Make Your Guess</h1>
           <p className="text-gray-400">
@@ -42,7 +42,7 @@ export default function HowToPlay() {
             word.
           </p>
         </div>
-        <div className="bg-[#1A1C38] flex-1 flex flex-col items-center gap-1 p-5 rounded-xl">
+        <div className="bg-[#1A1C38] flex-1 flex flex-col items-center min-w-40 gap-1 p-5 rounded-xl">
           <i className="bi bi-trophy text-6xl text-lime-500"></i>
           <h1 className="text-xl">Win the Game</h1>
           <p className="text-gray-400">
