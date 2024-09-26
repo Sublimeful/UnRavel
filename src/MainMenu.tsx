@@ -1,6 +1,6 @@
 export default function MainMenu() {
   return (
-    <div className="absolute h-5/6 w-3/4 max-w-xl bg-[#000625] bg-opacity-50 rounded-xl border border-neutral-500 flex flex-col items-center justify-center text-white">
+    <div className="absolute transition-[height,width] lg:h-5/6 h-[98%] md:w-3/4 w-[98%] max-w-xl bg-[#000625] bg-opacity-50 rounded-xl border border-neutral-500 flex flex-col items-center justify-center text-white overflow-y-scroll">
       <img src="logo.png" className="w-40 aspect-square" />
       <h1 className="text-[#DB1F3C] text-5xl font-bold">UnRavel</h1>
       <h2 className="text-3xl font-light">The Ultimate Guessing Game</h2>

@@ -1,6 +1,6 @@
 export default function HowToPlay() {
   return (
-    <div className="absolute h-5/6 w-3/4 bg-[#000625] bg-opacity-50 rounded-xl border border-neutral-500 flex flex-col items-center p-10 text-white overflow-y-scroll overflow-x-clip">
+    <div className="absolute transition-[width] h-[98%] xl:w-[75%] lg:w-[90%] w-[98%] bg-[#000625] bg-opacity-50 rounded-xl border border-neutral-500 flex flex-col items-center p-10 text-white overflow-y-scroll overflow-x-clip">
       <div className="flex flex-row w-full justify-between">
         <button className="self-start text-lg font-light flex items-center justify-center gap-2">
           <i className="bi bi-arrow-left"></i>Back to Menu
