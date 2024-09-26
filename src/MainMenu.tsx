@@ -8,21 +8,21 @@ export default function MainMenu() {
       <h2 className="text-center text-3xl font-light">
         The Ultimate Guessing Game
       </h2>
-      <button className="mx-auto w-3/4 min-h-16 mt-8 rounded text-2xl font-light bg-gradient-to-r from-[#AC1C1C] to-[#003089] flex items-center justify-center gap-2">
+      <button className="mx-auto transition-[width,font-size] sm:w-3/4 w-full min-h-16 mt-8 rounded sm:text-2xl text-xl font-light bg-gradient-to-r from-[#AC1C1C] to-[#003089] flex items-center justify-center gap-2">
         Join a Random Room
         <i className="bi bi-shuffle"></i>
       </button>
-      <div className="mx-auto w-3/4 mt-5 flex flex-row gap-2">
-        <button className="w-1/2 min-h-16 rounded text-lg font-light bg-[#595858] flex items-center justify-center gap-2">
+      <div className="mx-auto transition-[width] sm:w-3/4 w-full mt-5 flex flex-row gap-2">
+        <button className="w-1/2 min-h-16 rounded transition-[font-size] sm:text-lg text-sm font-light bg-[#595858] flex items-center justify-center gap-2">
           Create a Room
           <i className="bi bi-plus-square"></i>
         </button>
-        <button className="w-1/2 min-h-16 rounded text-lg font-light bg-[#595858] flex items-center justify-center gap-2">
+        <button className="w-1/2 min-h-16 rounded transition-[font-size] sm:text-lg text-sm font-light bg-[#595858] flex items-center justify-center gap-2">
           Join a Room
           <i className="bi bi-people-fill"></i>
         </button>
       </div>
-      <button className="mx-auto w-3/4 min-h-16 mt-5 rounded text-2xl font-light bg-[#595858] flex items-center justify-center gap-2">
+      <button className="mx-auto transition-[width,font-size] sm:w-3/4 w-full min-h-16 mt-5 rounded sm:text-2xl text-xl font-light bg-[#595858] flex items-center justify-center gap-2">
         How to Play
         <i className="bi bi-question-circle"></i>
       </button>
