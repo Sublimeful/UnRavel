@@ -1,24 +1,28 @@
 export default function MainMenu() {
   return (
-    <div className="absolute transition-[height,width] lg:h-5/6 h-[98%] md:w-3/4 w-[98%] max-w-xl bg-[#000625] bg-opacity-50 rounded-xl border border-neutral-500 flex flex-col items-center justify-center text-white overflow-y-scroll">
-      <img src="logo.png" className="w-40 aspect-square" />
-      <h1 className="text-[#DB1F3C] text-5xl font-bold">UnRavel</h1>
-      <h2 className="text-3xl font-light">The Ultimate Guessing Game</h2>
-      <button className="w-3/4 h-16 mt-10 rounded text-2xl font-light bg-gradient-to-r from-[#AC1C1C] to-[#003089] flex items-center justify-center gap-2">
+    <div className="absolute transition-[height,width] lg:h-[90%] h-[98%] md:w-3/4 w-[98%] max-w-xl bg-[#000625] bg-opacity-50 rounded-xl border border-neutral-500 flex flex-col text-white overflow-y-scroll p-10 gap-1">
+      <div className="w-full flex justify-center">
+        <img src="logo.png" className="w-40 aspect-square" />
+      </div>
+      <h1 className="text-center text-[#DB1F3C] text-5xl font-bold">UnRavel</h1>
+      <h2 className="text-center text-3xl font-light">
+        The Ultimate Guessing Game
+      </h2>
+      <button className="mx-auto w-3/4 min-h-16 mt-8 rounded text-2xl font-light bg-gradient-to-r from-[#AC1C1C] to-[#003089] flex items-center justify-center gap-2">
         Join a Random Room
         <i className="bi bi-shuffle"></i>
       </button>
-      <div className="w-3/4 mt-6 flex flex-row gap-2">
-        <button className="w-1/2 h-16 rounded text-lg font-light bg-[#595858] flex items-center justify-center gap-2">
+      <div className="mx-auto w-3/4 mt-5 flex flex-row gap-2">
+        <button className="w-1/2 min-h-16 rounded text-lg font-light bg-[#595858] flex items-center justify-center gap-2">
           Create a Room
           <i className="bi bi-plus-square"></i>
         </button>
-        <button className="w-1/2 h-16 rounded text-lg font-light bg-[#595858] flex items-center justify-center gap-2">
+        <button className="w-1/2 min-h-16 rounded text-lg font-light bg-[#595858] flex items-center justify-center gap-2">
           Join a Room
           <i className="bi bi-people-fill"></i>
         </button>
       </div>
-      <button className="w-3/4 h-16 mt-6 rounded text-2xl font-light bg-[#595858] flex items-center justify-center gap-2">
+      <button className="mx-auto w-3/4 min-h-16 mt-5 rounded text-2xl font-light bg-[#595858] flex items-center justify-center gap-2">
         How to Play
         <i className="bi bi-question-circle"></i>
       </button>

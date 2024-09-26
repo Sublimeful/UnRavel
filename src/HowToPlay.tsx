@@ -54,10 +54,19 @@ export default function HowToPlay() {
         <h1 className="text-xl font-bold">Tips for Success</h1>
         <div className="list-disc text-gray-400">
           <li>Ask strategic questions to narrow down possibilities quickly.</li>
-          <li>Pay attention to other players' questions and the AI's answers.</li>
-          <li>Don't be afraid to make a guess if you think you know the answer!</li>
-          <li>Use process of elimination to rule out categories or types of words.</li>
-          <li>Start with broad questions and get more specific as you gather information.</li>
+          <li>
+            Pay attention to other players' questions and the AI's answers.
+          </li>
+          <li>
+            Don't be afraid to make a guess if you think you know the answer!
+          </li>
+          <li>
+            Use process of elimination to rule out categories or types of words.
+          </li>
+          <li>
+            Start with broad questions and get more specific as you gather
+            information.
+          </li>
         </div>
       </div>
     </div>
