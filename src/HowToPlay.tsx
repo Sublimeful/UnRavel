@@ -1,6 +1,6 @@
 export default function HowToPlay() {
   return (
-    <div className="absolute h-5/6 w-3/4 bg-[#000625] bg-opacity-50 rounded-xl border border-neutral-500 flex flex-col items-center p-10 text-white overflow-y-scroll">
+    <div className="absolute h-5/6 w-3/4 bg-[#000625] bg-opacity-50 rounded-xl border border-neutral-500 flex flex-col items-center p-10 text-white overflow-y-scroll overflow-x-clip">
       <div className="flex flex-row w-full justify-between">
         <button className="self-start text-lg font-light flex items-center justify-center gap-2">
           <i className="bi bi-arrow-left"></i>Back to Menu
@@ -10,8 +10,7 @@ export default function HowToPlay() {
       <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-[#55CED2] to-[#DB1F3C]">
         How to Play UnRavel
       </h1>
-
-      <div className="flex flex-row w-full min-h-max gap-4 mt-8 overflow-x-scroll">
+      <div className="shrink-0 flex flex-row w-full min-h-max gap-4 mt-8 overflow-x-scroll overflow-y-clip">
         <div className="bg-[#1A1C38] flex-1 flex flex-col items-center gap-1 p-5 rounded-xl">
           <i className="bi bi-people-fill text-6xl text-teal-400"></i>
           <h1 className="text-xl">Join a Game</h1>
