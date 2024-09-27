@@ -1,8 +1,18 @@
+import { useContext } from "react";
+
+import PageContext from "./PageContext";
+import MainMenu from "./MainMenu";
+
 export default function HowToPlay() {
+  const { setPage } = useContext(PageContext);
+
   return (
     <div className="absolute transition-[width] h-[98%] xl:w-[75%] w-[98%] bg-[#000625] bg-opacity-50 rounded-xl border border-neutral-500 flex flex-col items-center p-10 text-white overflow-y-scroll overflow-x-clip">
       <div className="flex flex-row w-full justify-between">
-        <button className="self-start text-lg font-light flex items-center justify-center gap-2">
+        <button
+          onClick={() => setPage(<MainMenu />)}
+          className="self-start text-lg font-light flex items-center justify-center gap-2"
+        >
           <i className="bi bi-arrow-left"></i>Back to Menu
         </button>
         <img src="logo.png" className="w-24 aspect-square" />

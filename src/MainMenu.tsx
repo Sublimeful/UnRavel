@@ -1,4 +1,11 @@
+import { useContext } from "react";
+
+import HowToPlay from "./HowToPlay";
+import PageContext from "./PageContext";
+
 export default function MainMenu() {
+  const { setPage } = useContext(PageContext);
+
   return (
     <div className="absolute transition-[height,width] lg:h-[90%] h-[98%] md:w-3/4 w-[98%] max-w-xl bg-[#000625] bg-opacity-50 rounded-xl border border-neutral-500 flex flex-col text-white overflow-y-scroll p-10 gap-1">
       <div className="w-full flex justify-center">
@@ -22,7 +29,10 @@ export default function MainMenu() {
           <i className="bi bi-people-fill"></i>
         </button>
       </div>
-      <button className="mx-auto transition-[width,font-size] sm:w-3/4 w-full min-h-16 mt-5 rounded sm:text-2xl text-xl font-light bg-[#595858] flex items-center justify-center gap-2">
+      <button
+        onClick={() => setPage(<HowToPlay />)}
+        className="mx-auto transition-[width,font-size] sm:w-3/4 w-full min-h-16 mt-5 rounded sm:text-2xl text-xl font-light bg-[#595858] flex items-center justify-center gap-2"
+      >
         How to Play
         <i className="bi bi-question-circle"></i>
       </button>
