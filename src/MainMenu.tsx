@@ -2,6 +2,7 @@ import { useContext } from "react";
 
 import HowToPlay from "./HowToPlay";
 import PageContext from "./PageContext";
+import JoinARoom from "./JoinARoom";
 
 export default function MainMenu() {
   const { setPage } = useContext(PageContext);
@@ -15,7 +16,10 @@ export default function MainMenu() {
       <h2 className="text-center text-3xl font-light">
         The Ultimate Guessing Game
       </h2>
-      <button className="mx-auto transition-[width,font-size] sm:w-3/4 w-full min-h-16 mt-8 rounded sm:text-2xl text-xl font-light bg-gradient-to-r from-[#AC1C1C] to-[#003089] flex items-center justify-center gap-2">
+      <button
+        onClick={() => setPage(<JoinARoom />)}
+        className="mx-auto transition-[width,font-size] sm:w-3/4 w-full min-h-16 mt-8 rounded sm:text-2xl text-xl font-light bg-gradient-to-r from-[#AC1C1C] to-[#003089] flex items-center justify-center gap-2"
+      >
         Join a Random Room
         <i className="bi bi-shuffle"></i>
       </button>
