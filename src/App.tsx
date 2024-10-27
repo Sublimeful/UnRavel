@@ -13,7 +13,7 @@ export default function App() {
 
   return (
     <PageContext.Provider value={{ currPage, setPage }}>
-      <div className="h-screen w-screen bg-[#040039] flex items-center justify-center">
+      <div className="h-screen w-screen bg-[#040039] flex items-center justify-center overflow-y-clip overflow-x-clip">
         <Canvas className="w-full h-full blur-3xl animate-pulse">
           <Background
             redCircleInitPos={new Vector2(0.15, 0.75)}
