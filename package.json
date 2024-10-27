@@ -2,7 +2,7 @@
   "name": "unravel",
   "type": "module",
   "scripts": {
-    "dev": "deno server.ts"
+    "dev": "deno run -A server.ts"
   },
   "devDependencies": {
     "@types/express": "^4.17.21",
