@@ -28,7 +28,7 @@ async function createServer() {
     try {
       // 1. Read index.html
       let template = fs.readFileSync(
-        path.resolve(__dirname, "index.html"),
+        path.resolve(import.meta.dirname, "index.html"),
         "utf-8",
       );
 
