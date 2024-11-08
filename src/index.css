@@ -7,3 +7,17 @@
     font-family: "Inter", sans-serif;
   }
 }
+
+::-webkit-scrollbar {
+  width: 0.5rem;
+  border-radius: 0.5rem;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #babac0;
+  border-radius: 0.5rem;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #999999;
+}
