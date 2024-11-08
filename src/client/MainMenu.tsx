@@ -3,6 +3,7 @@ import { useContext } from "react";
 import HowToPlay from "./HowToPlay";
 import PageContext from "./PageContext";
 import JoinARoom from "./JoinARoom";
+import CreateARoom from "./CreateARoom";
 
 export default function MainMenu() {
   const { setPage } = useContext(PageContext);
@@ -21,7 +22,10 @@ export default function MainMenu() {
         <i className="bi bi-shuffle"></i>
       </button>
       <div className="mx-auto transition-[width] sm:w-3/4 w-full mt-5 flex flex-row gap-2">
-        <button className="w-1/2 min-h-16 rounded transition-[font-size] sm:text-lg text-sm font-light bg-[#595858] flex items-center justify-center gap-2">
+        <button
+          onClick={() => setPage(<CreateARoom />)}
+          className="w-1/2 min-h-16 rounded transition-[font-size] sm:text-lg text-sm font-light bg-[#595858] flex items-center justify-center gap-2"
+        >
           Create a Room
           <i className="bi bi-plus-square"></i>
         </button>

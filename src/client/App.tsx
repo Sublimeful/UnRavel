@@ -2,14 +2,39 @@ import "bootstrap-icons/font/bootstrap-icons.css";
 
 import { Canvas } from "@react-three/fiber";
 import { Vector2 } from "three";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import Background from "./Background";
 import MainMenu from "./MainMenu";
 import PageContext from "./PageContext";
 
+import { socket } from "./socket";
+
 export default function App() {
   const [currPage, setPage] = useState<JSX.Element | null>(<MainMenu />);
+
+  const [_, setIsConnected] = useState(socket.connected);
+
+  useEffect(() => {
+    function onConnect() {
+      console.log(socket.id, "connect");
+      setIsConnected(true);
+    }
+
+    function onDisconnect() {
+      setIsConnected(false);
+    }
+
+    socket.on("connect", onConnect);
+    socket.on("disconnect", onDisconnect);
+
+    socket.connect(); // Connect to the websocket server
+
+    return () => {
+      socket.off("connect", onConnect);
+      socket.off("disconnect", onDisconnect);
+    };
+  }, []);
 
   return (
     <PageContext.Provider value={{ currPage, setPage }}>
