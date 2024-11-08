@@ -9,15 +9,19 @@ export default function CreateARoom() {
   const { setPage } = useContext(PageContext);
   const usernameInputRef = useRef<HTMLInputElement>(null);
   const [username, setUsername] = useState("");
+  const [disableBtn, setDisableBtn] = useState(false);
 
   function requestRoom(event: FormEvent) {
     event.preventDefault();
 
-    socket.emit("requestRoom", []);
-    console.log(socket.id, "requestRoom");
+    setDisableBtn(true); // Disable button spamming
 
-    socket.once("room", () => {
-      // TODO: Join room and switch to room page
+    console.log(socket.id, "room-request");
+    socket.emit("room-request", []);
+
+    socket.once("room-joined", (roomCode) => {
+      // TODO: switch to room page
+      console.log(socket.id, "room-joined", roomCode);
     });
   }
 
@@ -50,7 +54,7 @@ export default function CreateARoom() {
         <button
           type="submit"
           className="mx-auto transition-[font-size] w-full min-h-16 mt-8 rounded-lg sm:text-2xl text-xl font-light bg-gradient-to-r from-[#AC1C1C] to-[#2AAAD9] flex items-center justify-center gap-2 disabled:brightness-50"
-          disabled={username ? false : true}
+          disabled={!disableBtn && username ? false : true}
         >
           Create Room
           <i className="bi bi-arrow-right"></i>
