@@ -3,6 +3,7 @@ import path from "node:path";
 import express from "express";
 import { createServer as createViteServer } from "vite";
 import "./src/server/socket.ts";
+import routes from "./src/server/routes.ts";
 
 async function createServer() {
   const app = express();
@@ -62,6 +63,8 @@ async function createServer() {
       }
     }
   });
+
+  app.use(routes);
 
   app.listen(5173, () => {
     console.log("Server running at: http://localhost:5173/");

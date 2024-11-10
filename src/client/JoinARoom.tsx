@@ -28,6 +28,7 @@ export default function JoinARoom() {
             type="text"
             placeholder="Enter room code"
             className="focus:outline-none text-xl w-full h-14 p-5 bg-[#343434] placeholder:text-[#787878] rounded-lg border border-[#787878] mt-1"
+            required
           >
           </input>
           <i className="bi bi-people-fill text-[#7d7d7d] text-xl absolute right-5 top-11">
@@ -39,17 +40,18 @@ export default function JoinARoom() {
             type="text"
             placeholder="Enter your name"
             className="focus:outline-none text-xl w-full h-14 p-5 bg-[#343434] placeholder:text-[#787878] rounded-lg border border-[#787878] mt-1"
+            required
           >
           </input>
         </label>
+        <button
+          className="mx-auto transition-[font-size] w-full min-h-16 mt-8 rounded-lg sm:text-2xl text-xl font-light bg-gradient-to-r from-[#AC1C1C] to-[#2AAAD9] flex items-center justify-center gap-2 disabled:brightness-50"
+          disabled
+        >
+          Join Game
+          <i className="bi bi-arrow-right"></i>
+        </button>
       </form>
-      <button
-        className="mx-auto transition-[font-size] w-full min-h-16 mt-8 rounded-lg sm:text-2xl text-xl font-light bg-gradient-to-r from-[#AC1C1C] to-[#2AAAD9] flex items-center justify-center gap-2 disabled:brightness-50"
-        disabled
-      >
-        Join Game
-        <i className="bi bi-arrow-right"></i>
-      </button>
       <h3 className="text-center mt-12">
         Don’t have a room code?{" "}
         <a

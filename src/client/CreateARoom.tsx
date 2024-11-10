@@ -48,6 +48,7 @@ export default function CreateARoom() {
             type="text"
             placeholder="Enter your name"
             className="focus:outline-none text-xl w-full h-14 p-5 bg-[#343434] placeholder:text-[#787878] rounded-lg border border-[#787878] mt-1"
+            required
           >
           </input>
         </label>
