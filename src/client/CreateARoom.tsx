@@ -4,6 +4,7 @@ import PageContext from "./PageContext";
 import MainMenu from "./MainMenu";
 
 import { socket } from "./socket";
+import { roomRequest as apiRoomRequest, playerSignIn as apiPlayerSignIn } from "./api";
 import Room from "./Room";
 
 export default function CreateARoom() {
@@ -12,34 +13,20 @@ export default function CreateARoom() {
   const [username, setUsername] = useState("");
   const [disableBtn, setDisableBtn] = useState(false);
 
-  async function requestRoom(event: FormEvent) {
+  async function roomRequest(event: FormEvent) {
     event.preventDefault();
 
     setDisableBtn(true); // Disable button spamming
 
-    try {
-      if (!username) return;
+    if (!socket.id || !username) return;
 
-      const roomRequestRes = await fetch("/room-request", {
-        method: "POST",
-        headers: {
-          "Accept": "application/json",
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          sid: socket.id,
-          username,
-        }),
-      });
+    await apiPlayerSignIn(socket.id, username);
 
-      const { roomCode } = await roomRequestRes.json();
+    const roomCode = await apiRoomRequest(socket.id);
 
-      if (!roomCode) return;
+    if (!roomCode) return;
 
-      setPage(<Room roomCode={roomCode} />);
-    } catch (error) {
-      console.error(error);
-    }
+    setPage(<Room roomCode={roomCode} />);
   }
 
   return (
@@ -56,7 +43,7 @@ export default function CreateARoom() {
       <h1 className="text-center text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-[#55CED2] to-[#DB1F3C]">
         Create a Room
       </h1>
-      <form className="mt-8 flex flex-col gap-8" onSubmit={requestRoom}>
+      <form className="mt-8 flex flex-col gap-8" onSubmit={roomRequest}>
         <label className="text-left font-light">
           Your Name
           <input

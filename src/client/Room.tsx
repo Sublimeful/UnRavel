@@ -1,36 +1,48 @@
 import { useContext, useEffect, useState } from "react";
 
-import { socket } from "./socket";
-
 import PageContext from "./PageContext";
 import MainMenu from "./MainMenu";
+import { roomGetPlayers as apiRoomGetPlayers, roomLeave } from "./api";
+import { socket } from "./socket";
+import type { PlayerSanitized, RoomCode } from "../types";
 
 interface RoomProps {
-  roomCode: string;
+  roomCode: RoomCode;
 }
 
 export default function Room(props: RoomProps) {
   const { setPage } = useContext(PageContext);
   const { roomCode } = props;
 
-  const [players, setPlayers] = useState([]);
-
-  function requestPlayers() {
-    socket.emit("request-players", () => {
-      
-    });
-    
-  }
+  const [players, setPlayers] = useState<PlayerSanitized[]>([]);
 
   useEffect(() => {
-    requestPlayers();
+    function updatePlayerList() {
+      if (!socket.id) return;
+      apiRoomGetPlayers(socket.id, roomCode).then((_players) => {
+        if (_players) setPlayers(_players);
+      });
+    }
+
+    updatePlayerList(); // Initially update the player list
+
+    socket.on("room-player-joined", () => {
+      updatePlayerList();
+    });
+
+    socket.on("room-player-left", () => {
+      updatePlayerList();
+    });
   }, []);
 
   return (
     <div className="absolute transition-[width] h-[98%] lg:w-[50%] w-[98%] bg-[#000625] bg-opacity-50 rounded-xl border border-neutral-500 flex flex-col items-center p-10 text-white overflow-y-scroll overflow-x-clip">
       <div className="flex flex-row w-full justify-between">
         <button
-          onClick={() => setPage(<MainMenu />)}
+          onClick={() => {
+            if (socket.id) roomLeave(socket.id, roomCode); // Back button pressed leaves room
+            setPage(<MainMenu />);
+          }}
           className="self-start text-lg font-light flex items-center justify-center gap-2"
         >
           <i className="bi bi-arrow-left"></i>Back to Menu
@@ -58,12 +70,17 @@ export default function Room(props: RoomProps) {
       <div className="w-full flex flex-col mt-3 bg-[#343434] border border-[#787878] rounded-lg px-5 py-3">
         <h1 className="flex items-baseline gap-2">
           <i className="bi bi-people-fill text-white text-xl" />
-          Players (3/4)
+          Players ({players.length})
         </h1>
         <ul className="mt-2 flex flex-col gap-2">
-          <li className="w-full bg-[#595959] rounded-lg px-3 py-2">Player 1</li>
-          <li className="w-full bg-[#595959] rounded-lg px-3 py-2">Player 2</li>
-          <li className="w-full bg-[#595959] rounded-lg px-3 py-2">Player 3</li>
+          {players.map((player, index) => (
+            <li
+              key={index}
+              className="w-full bg-[#595959] rounded-lg px-3 py-2"
+            >
+              {player.username}
+            </li>
+          ))}
         </ul>
       </div>
       <div className="w-full flex flex-col mt-3 bg-[#343434] border border-[#787878] rounded-lg px-5 py-3">
