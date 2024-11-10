@@ -4,6 +4,7 @@ import PageContext from "./PageContext";
 import MainMenu from "./MainMenu";
 
 import { socket } from "./socket";
+import Room from "./Room";
 
 export default function CreateARoom() {
   const { setPage } = useContext(PageContext);
@@ -11,18 +12,34 @@ export default function CreateARoom() {
   const [username, setUsername] = useState("");
   const [disableBtn, setDisableBtn] = useState(false);
 
-  function requestRoom(event: FormEvent) {
+  async function requestRoom(event: FormEvent) {
     event.preventDefault();
 
     setDisableBtn(true); // Disable button spamming
 
-    console.log(socket.id, "room-request");
-    socket.emit("room-request", []);
+    try {
+      if (!username) return;
 
-    socket.once("room-joined", (roomCode) => {
-      // TODO: switch to room page
-      console.log(socket.id, "room-joined", roomCode);
-    });
+      const roomRequestRes = await fetch("/room-request", {
+        method: "POST",
+        headers: {
+          "Accept": "application/json",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          sid: socket.id,
+          username,
+        }),
+      });
+
+      const { roomCode } = await roomRequestRes.json();
+
+      if (!roomCode) return;
+
+      setPage(<Room roomCode={roomCode} />);
+    } catch (error) {
+      console.error(error);
+    }
   }
 
   return (

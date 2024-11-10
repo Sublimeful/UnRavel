@@ -13,4 +13,9 @@ io.on("connection", (socket) => {
   });
 });
 
+io.sockets.adapter.on("join-room", (roomCode, sid) => {
+  const socket = io.sockets.sockets.get(sid)!;
+  console.log(socket.id, "join-room", roomCode);
+});
+
 io.listen(5174);
