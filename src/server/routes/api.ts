@@ -9,8 +9,13 @@ router.post("/room-request", (req, res) => {
     return Math.random().toString(36).slice(2).toUpperCase();
   }
 
+  const { sid, username } = req.body;
+
+  // Bad request if either sid or username is not in the json
+  if (!sid || !username) return res.status(400).send("invalid data");
+
   // Get the associated socket
-  const socket = io.sockets.sockets.get(req.body.sid);
+  const socket = io.sockets.sockets.get(sid);
 
   // Bad request if socket does not exist
   if (!socket) return res.status(400).send("sid is not valid");
