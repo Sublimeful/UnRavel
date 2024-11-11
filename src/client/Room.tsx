@@ -2,7 +2,13 @@ import { useContext, useEffect, useState } from "react";
 
 import PageContext from "./PageContext";
 import MainMenu from "./MainMenu";
-import { roomGetHost, roomGetPlayers, roomLeave, roomStartGame } from "./api";
+import {
+  getPlayer,
+  roomGetHost,
+  roomGetPlayers,
+  roomLeave,
+  roomStartGame,
+} from "./api";
 import { socket } from "./socket";
 import type { PlayerID, PlayerSanitized, RoomCode } from "../types";
 import Game from "./Game";
@@ -16,16 +22,20 @@ export default function Room(props: RoomProps) {
   const { roomCode } = props;
 
   const [host, setHost] = useState<PlayerID | null>(null);
+  const [player, setPlayer] = useState<PlayerSanitized | null>(null);
   const [players, setPlayers] = useState<PlayerSanitized[]>([]);
 
   useEffect(() => {
     function updatePlayerList() {
       if (!socket.id) return;
-      roomGetPlayers(socket.id, roomCode).then((_players) => {
-        if (_players) setPlayers(_players);
-      });
       roomGetHost(socket.id, roomCode).then((_host) => {
         if (_host) setHost(_host);
+      });
+      getPlayer(socket.id).then((_player) => {
+        if (_player) setPlayer(_player);
+      });
+      roomGetPlayers(socket.id, roomCode).then((_players) => {
+        if (_players) setPlayers(_players);
       });
     }
 
@@ -101,46 +111,50 @@ export default function Room(props: RoomProps) {
           ))}
         </ul>
       </div>
-      <div className="w-full flex flex-col mt-3 bg-[#343434] border border-[#787878] rounded-lg px-5 py-3">
-        <h1 className="flex items-baseline gap-2">
-          <i className="bi bi-gear-fill text-white text-xl" />
-          Game Settings
-        </h1>
-        <div className="flex flex-row gap-3 mt-1">
-          <div className="flex-1 relative flex items-center">
-            <input
-              type="text"
-              className="[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none focus:outline-none text-xl w-full h-14 p-5 bg-[#595959] rounded-lg peer"
-              required
-            >
-            </input>
-            <span className="absolute left-5 text-[#989898] pointer-events-none peer-focus:text-xs peer-focus:-translate-y-[1.15rem] peer-[&:not(:focus):valid]:text-xs peer-[&:not(:focus):valid]:-translate-y-[1.15rem] transition-all">
-              Category
-            </span>
+      {host && player && host === player.id && (
+        <>
+          <div className="w-full flex flex-col mt-3 bg-[#343434] border border-[#787878] rounded-lg px-5 py-3">
+            <h1 className="flex items-baseline gap-2">
+              <i className="bi bi-gear-fill text-white text-xl" />
+              Game Settings
+            </h1>
+            <div className="flex flex-row gap-3 mt-1">
+              <div className="flex-1 relative flex items-center">
+                <input
+                  type="text"
+                  className="[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none focus:outline-none text-xl w-full h-14 p-5 bg-[#595959] rounded-lg peer"
+                  required
+                >
+                </input>
+                <span className="absolute left-5 text-[#989898] pointer-events-none peer-focus:text-xs peer-focus:-translate-y-[1.15rem] peer-[&:not(:focus):valid]:text-xs peer-[&:not(:focus):valid]:-translate-y-[1.15rem] transition-all">
+                  Category
+                </span>
+              </div>
+              <div className="flex-1 relative flex items-center">
+                <input
+                  type="number"
+                  className="[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none focus:outline-none text-xl w-full h-14 p-5 bg-[#595959] rounded-lg peer"
+                  required
+                >
+                </input>
+                <span className="absolute left-5 text-[#989898] pointer-events-none peer-focus:text-xs peer-focus:-translate-y-[1.15rem] peer-[&:not(:focus):valid]:text-xs peer-[&:not(:focus):valid]:-translate-y-[1.15rem] transition-all">
+                  Max Players
+                </span>
+              </div>
+            </div>
           </div>
-          <div className="flex-1 relative flex items-center">
-            <input
-              type="number"
-              className="[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none focus:outline-none text-xl w-full h-14 p-5 bg-[#595959] rounded-lg peer"
-              required
-            >
-            </input>
-            <span className="absolute left-5 text-[#989898] pointer-events-none peer-focus:text-xs peer-focus:-translate-y-[1.15rem] peer-[&:not(:focus):valid]:text-xs peer-[&:not(:focus):valid]:-translate-y-[1.15rem] transition-all">
-              Max Players
-            </span>
-          </div>
-        </div>
-      </div>
-      <button
-        className="mx-auto transition-[font-size] w-full min-h-16 mt-3 rounded-lg sm:text-2xl text-xl font-light bg-gradient-to-r from-[#AC1C1C] to-[#2AAAD9] flex items-center justify-center gap-2 disabled:brightness-50"
-        onClick={() => {
-          if (!socket.id) return;
-          roomStartGame(socket.id, roomCode);
-        }}
-      >
-        Start Game
-        <i className="bi bi-arrow-right"></i>
-      </button>
+          <button
+            className="mx-auto transition-[font-size] w-full min-h-16 mt-3 rounded-lg sm:text-2xl text-xl font-light bg-gradient-to-r from-[#AC1C1C] to-[#2AAAD9] flex items-center justify-center gap-2 disabled:brightness-50"
+            onClick={() => {
+              if (!socket.id) return;
+              roomStartGame(socket.id, roomCode);
+            }}
+          >
+            Start Game
+            <i className="bi bi-arrow-right"></i>
+          </button>
+        </>
+      )}
     </div>
   );
 }

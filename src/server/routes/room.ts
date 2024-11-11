@@ -94,9 +94,8 @@ router.get("/:roomCode/players", (req, res) => {
 
   return res.status(200).send(JSON.stringify(
     Array.from(players).map((sid) => {
-      const player = state[`player:${sid}`] as Player;
       // Return a sanitized list of player information
-      return getSanitizedPlayerData(player);
+      return getSanitizedPlayerData(state[`player:${sid}`] as Player);
     }),
   ));
 });

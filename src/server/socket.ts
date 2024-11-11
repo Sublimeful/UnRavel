@@ -1,8 +1,7 @@
 import { Server } from "socket.io";
 
 import state from "./state.ts";
-import type { Player, Room } from "./types.ts";
-import { getSanitizedPlayerData } from "./utils/misc.ts";
+import type { Room } from "./types.ts";
 import type { SID } from "../types.ts";
 
 export const io = new Server({
@@ -39,11 +38,8 @@ io.sockets.adapter.on("join-room", (roomCode, sid) => {
     roomState.host = sid;
   }
 
-  // Get player data
-  const player = state[`player:${sid}`] as Player;
-
   // Inform other players in the room of the added player
-  io.to(roomCode).emit("room-player-joined", getSanitizedPlayerData(player));
+  io.to(roomCode).emit("room-player-joined");
 });
 
 io.sockets.adapter.on("leave-room", (roomCode, sid) => {
@@ -64,11 +60,8 @@ io.sockets.adapter.on("leave-room", (roomCode, sid) => {
     roomState.host = Array.from(players)[0];
   }
 
-  // Get player data
-  const player = state[`player:${sid}`] as Player;
-
   // Inform other players in the room of the removed player
-  io.to(roomCode).emit("room-player-left", getSanitizedPlayerData(player));
+  io.to(roomCode).emit("room-player-left");
 });
 
 io.sockets.adapter.on("create-room", (roomCode) => {

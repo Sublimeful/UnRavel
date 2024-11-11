@@ -115,6 +115,30 @@ export async function roomGetPlayers(
   }
 }
 
+export async function getPlayer(
+  sid: SID,
+): Promise<PlayerSanitized | null> {
+  const res = await fetch(
+    `/player`,
+    {
+      method: "GET",
+      headers: {
+        "Authorization": `SID ${sid}`,
+      },
+    },
+  );
+
+  if (res.status === 200) {
+    const player = await res.json();
+
+    return player;
+  } else {
+    console.error(await res.text());
+
+    return null;
+  }
+}
+
 export async function roomGetHost(
   sid: SID,
   roomCode: RoomCode,
