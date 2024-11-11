@@ -12,5 +12,5 @@ export interface Room {
     state: "room" | "in progress" | "ended";
     timeLimit: number;
     startTime: number;
-  }
+  };
 }

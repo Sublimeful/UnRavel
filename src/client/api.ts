@@ -72,7 +72,6 @@ export async function playerSignIn(
   const res = await fetch("/player-sign-in", {
     method: "POST",
     headers: {
-      "Accept": "application/json",
       "Content-Type": "application/json",
       "Authorization": `SID ${sid}`,
     },

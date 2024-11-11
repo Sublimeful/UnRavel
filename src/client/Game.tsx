@@ -17,12 +17,22 @@ export default function Game(props: GameProps) {
   const [timeLeft, setTimeLeft] = useState(0);
 
   useEffect(() => {
-    if (!socket.id) return;
+    function syncTimeLeft() {
+      if (!socket.id) return;
 
-    gameGetTimeLeft(socket.id, roomCode).then((_timeLeft) => {
-      if (!_timeLeft) return;
-      setTimeLeft(_timeLeft);
-    });
+      gameGetTimeLeft(socket.id, roomCode).then((_timeLeft) => {
+        if (!_timeLeft) return;
+        setTimeLeft(_timeLeft);
+      });
+    }
+
+    // Sync time left initially
+    syncTimeLeft();
+
+    // Every 5 seconds, sync time left
+    const syncTimeLeftInterval = setInterval(syncTimeLeft, 5000);
+
+    return () => clearInterval(syncTimeLeftInterval);
   }, []);
 
   // Update the timer every second
