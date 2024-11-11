@@ -45,8 +45,14 @@ router.get("/:roomCode/join", (req, res) => {
   // Bad request
   if (!socket) return res.status(400).send("could not authenticate client");
 
-  // Player joins room
   const roomCode = req.params.roomCode;
+
+  // Check if the room state exists
+  if (!(`room:${roomCode}` in state)) {
+    return res.status(400).send("room not found");
+  }
+
+  // Player joins room
   socket.join(roomCode);
 
   return res.status(200).send();
@@ -86,7 +92,7 @@ router.get("/:roomCode/players", (req, res) => {
 
   // If the room state is not found, then something went wrong
   if (!(`room:${roomCode}` in state)) {
-    return res.status(500).send("an error has occurred");
+    return res.status(400).send("an error has occurred");
   }
 
   // Retrieve the list of players
@@ -113,9 +119,9 @@ router.get("/:roomCode/host", (req, res) => {
     return res.status(400).send("you are not in this room");
   }
 
-  // If the room state is not found, then something went wrong
+  // Check if the room state exists
   if (!(`room:${roomCode}` in state)) {
-    return res.status(500).send("an error has occurred");
+    return res.status(400).send("room not found");
   }
 
   // Get the host player

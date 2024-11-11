@@ -18,7 +18,7 @@ router.post("/player-sign-in", (req, res) => {
 
   const { username } = req.body;
 
-  // Bad request if username is not in the json
+  // Bad request if username is not in the JSON
   if (!username) return res.status(400).send("invalid data");
 
   // Validate and get socket

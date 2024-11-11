@@ -1,10 +1,17 @@
-import { useContext, useEffect, useState } from "react";
+import { type FormEvent, useContext, useEffect, useState } from "react";
 
 import PageContext from "./PageContext";
 import MainMenu from "./MainMenu";
-import { gameGetTimeLeft, roomLeave } from "./api";
+import {
+  gameAsk as apiGameAsk,
+  gameGetTimeLeft,
+  getPlayer,
+  roomGetPlayers,
+  roomLeave,
+} from "./api";
 import { socket } from "./socket";
-import type { RoomCode } from "../types";
+import type { PlayerSanitized, RoomCode } from "../types";
+import type { Interaction } from "./types";
 
 interface GameProps {
   roomCode: RoomCode;
@@ -15,6 +22,25 @@ export default function Game(props: GameProps) {
   const { setPage } = useContext(PageContext);
 
   const [timeLeft, setTimeLeft] = useState(0);
+
+  const [question, setQuestion] = useState("");
+
+  const [interactions, setInteractions] = useState<Interaction[]>([]);
+
+  const [player, setPlayer] = useState<PlayerSanitized | null>(null);
+  const [players, setPlayers] = useState<PlayerSanitized[]>([]);
+
+  async function gameAsk(event: FormEvent) {
+    event.preventDefault();
+
+    if (!socket.id || !question) return;
+
+    const answer = await apiGameAsk(socket.id, roomCode, question);
+
+    if (!answer) return;
+
+    setInteractions([...interactions, { question, answer }]);
+  }
 
   useEffect(() => {
     function syncTimeLeft() {
@@ -47,6 +73,28 @@ export default function Game(props: GameProps) {
 
     return () => clearTimeout(timerTimeout);
   }, [timeLeft]);
+
+  useEffect(() => {
+    function updatePlayerList() {
+      if (!socket.id) return;
+      getPlayer(socket.id).then((_player) => {
+        if (_player) setPlayer(_player);
+      });
+      roomGetPlayers(socket.id, roomCode).then((_players) => {
+        if (_players) setPlayers(_players);
+      });
+    }
+
+    socket.on("room-player-left", updatePlayerList);
+
+    updatePlayerList(); // Initially update the player list
+
+    return () => {
+      // Unregister all event listeners when component is unmounted
+      // Otherwise they may trigger in the future unexpectedly
+      socket.off("room-player-left", updatePlayerList);
+    };
+  }, []);
 
   function timerFormat(timeLeft: number) {
     const secondInMS = 1000;
@@ -111,8 +159,9 @@ export default function Game(props: GameProps) {
               <span className="font-bold">AI:</span>Yes, she has a gyatt.
             </h1>
           </div>
-          <form className="flex-1 flex flex-row gap-3">
+          <form className="flex-1 flex flex-row gap-3" onSubmit={gameAsk}>
             <input
+              onInput={(event) => setQuestion(event.currentTarget.value)}
               type="text"
               placeholder="Ask a yes/no question..."
               className="flex-[6] focus:outline-none text-base w-full bg-[#343434] placeholder:text-[#787878] rounded-lg border border-[#787878] px-3"

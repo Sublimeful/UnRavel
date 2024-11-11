@@ -216,3 +216,30 @@ export async function gameGetTimeLeft(
     return null;
   }
 }
+
+export async function gameAsk(
+  sid: SID,
+  roomCode: RoomCode,
+  question: string,
+): Promise<string | null> {
+  const res = await fetch(
+    `/${roomCode}/game/ask`,
+    {
+      method: "GET",
+      headers: {
+        "Authorization": `SID ${sid}`,
+      },
+      body: JSON.stringify({ question }),
+    },
+  );
+
+  if (res.status === 200) {
+    const { answer } = await res.json();
+
+    return answer;
+  } else {
+    console.error(await res.text());
+
+    return null;
+  }
+}

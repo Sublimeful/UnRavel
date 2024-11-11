@@ -6,7 +6,10 @@ import state from "../state.ts";
 import { getSocketFromAuthHeader } from "../utils/misc.ts";
 import type { Room } from "../types.ts";
 import type { GameSettings } from "../../types.ts";
-import { getSecretPhraseFromCategory } from "../utils/ai.ts";
+import {
+  askYesOrNoQuestion,
+  getSecretPhraseFromCategory,
+} from "../utils/ai.ts";
 
 const router = Router();
 
@@ -30,9 +33,9 @@ router.post("/:roomCode/start-game", async (req, res) => {
     return res.status(400).send("you are not in this room");
   }
 
-  // If the room state is not found, then something went wrong
+  // Check if the room state exists
   if (!(`room:${roomCode}` in state)) {
-    return res.status(500).send("an error has occurred");
+    return res.status(400).send("room not found");
   }
 
   // Check if player is the host
@@ -44,6 +47,7 @@ router.post("/:roomCode/start-game", async (req, res) => {
   // Get the secret phrase and set the game state secretPhrase
   const secretPhrase = await getSecretPhraseFromCategory(category);
   roomState.game.secretPhrase = secretPhrase;
+  console.log(roomCode, "category", category, "secret phrase", secretPhrase);
 
   // Set the game state to "in progress"
   roomState.game.state = "in progress";
@@ -78,9 +82,9 @@ router.get("/:roomCode/game/time-left", (req, res) => {
     return res.status(400).send("you are not in this room");
   }
 
-  // If the room state is not found, then something went wrong
+  // Check if the room state exists
   if (!(`room:${roomCode}` in state)) {
-    return res.status(500).send("an error has occurred");
+    return res.status(400).send("room not found");
   }
 
   // Check that the game is in progress
@@ -94,6 +98,46 @@ router.get("/:roomCode/game/time-left", (req, res) => {
     (Date.now() - roomState.game.startTime);
 
   return res.status(200).send(JSON.stringify({ timeLeft }));
+});
+
+router.get("/:roomCode/game/ask", async (req, res) => {
+  const { question } = req.body;
+
+  // Bad request if question is not in the JSON
+  if (!question) {
+    return res.status(400).send("invalid data");
+  }
+
+  // Validate and get socket
+  const socket = getSocketFromAuthHeader(req.headers.authorization);
+
+  // Bad request
+  if (!socket) return res.status(400).send("could not authenticate client");
+
+  // Check if socket is in the requested room
+  const roomCode = req.params.roomCode;
+  if (!socket.rooms.has(roomCode)) {
+    return res.status(400).send("you are not in this room");
+  }
+
+  // Check if the room state exists
+  if (!(`room:${roomCode}` in state)) {
+    return res.status(400).send("room not found");
+  }
+
+  // Check that the game is in progress
+  const roomState = state[`room:${roomCode}`] as Room;
+  if (roomState.game.state !== "in progress") {
+    return res.status(400).send("game is not in progress");
+  }
+
+  // Ask the ai
+  const answer = await askYesOrNoQuestion(
+    roomState.game.secretPhrase,
+    question,
+  );
+
+  return res.status(200).send(JSON.stringify({ answer }));
 });
 
 export default router;
