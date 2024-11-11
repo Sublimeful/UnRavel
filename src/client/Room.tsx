@@ -2,7 +2,7 @@ import { useContext, useEffect, useState } from "react";
 
 import PageContext from "./PageContext";
 import MainMenu from "./MainMenu";
-import { roomGetPlayers as apiRoomGetPlayers, roomLeave } from "./api";
+import { roomGetPlayers, roomLeave } from "./api";
 import { socket } from "./socket";
 import type { PlayerSanitized, RoomCode } from "../types";
 
@@ -19,7 +19,7 @@ export default function Room(props: RoomProps) {
   useEffect(() => {
     function updatePlayerList() {
       if (!socket.id) return;
-      apiRoomGetPlayers(socket.id, roomCode).then((_players) => {
+      roomGetPlayers(socket.id, roomCode).then((_players) => {
         if (_players) setPlayers(_players);
       });
     }

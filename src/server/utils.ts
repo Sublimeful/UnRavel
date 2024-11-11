@@ -1,4 +1,4 @@
-import { io } from "./socket.ts"
+import { io } from "./socket.ts";
 import type { Player } from "./types.ts";
 import type { PlayerSanitized } from "../types.ts";
 

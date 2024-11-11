@@ -67,6 +67,8 @@ router.get("/:roomCode/join", (req, res) => {
   // Player joins room
   const roomCode = req.params.roomCode;
   socket.join(roomCode);
+
+  return res.status(200).send();
 });
 
 router.get("/:roomCode/leave", (req, res) => {
@@ -84,6 +86,8 @@ router.get("/:roomCode/leave", (req, res) => {
 
   // Player leaves room
   socket.leave(roomCode);
+
+  return res.status(200).send();
 });
 
 router.get("/:roomCode/players", (req, res) => {

@@ -1,5 +1,5 @@
 export interface PlayerSanitized {
-  username: string
+  username: string;
 }
 
 // Socket ID

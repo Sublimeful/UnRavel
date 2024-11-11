@@ -4,7 +4,7 @@ import PageContext from "./PageContext";
 import MainMenu from "./MainMenu";
 
 import { socket } from "./socket";
-import { roomRequest as apiRoomRequest, playerSignIn as apiPlayerSignIn } from "./api";
+import { playerSignIn, roomRequest as apiRoomRequest } from "./api";
 import Room from "./Room";
 
 export default function CreateARoom() {
@@ -16,17 +16,21 @@ export default function CreateARoom() {
   async function roomRequest(event: FormEvent) {
     event.preventDefault();
 
-    setDisableBtn(true); // Disable button spamming
-
     if (!socket.id || !username) return;
 
-    await apiPlayerSignIn(socket.id, username);
+    setDisableBtn(true); // Disable button spamming
 
-    const roomCode = await apiRoomRequest(socket.id);
+    try {
+      await playerSignIn(socket.id, username);
 
-    if (!roomCode) return;
+      const roomCode = await apiRoomRequest(socket.id);
 
-    setPage(<Room roomCode={roomCode} />);
+      if (!roomCode) return;
+
+      setPage(<Room roomCode={roomCode} />);
+    } catch (_) {
+      setDisableBtn(false);
+    }
   }
 
   return (
@@ -59,7 +63,7 @@ export default function CreateARoom() {
         <button
           type="submit"
           className="mx-auto transition-[font-size] w-full min-h-16 mt-8 rounded-lg sm:text-2xl text-xl font-light bg-gradient-to-r from-[#AC1C1C] to-[#2AAAD9] flex items-center justify-center gap-2 disabled:brightness-50"
-          disabled={!disableBtn && username ? false : true}
+          disabled={disableBtn || !username}
         >
           Create Room
           <i className="bi bi-arrow-right"></i>

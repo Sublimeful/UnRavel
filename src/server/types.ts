@@ -1,10 +1,10 @@
 import type { SID } from "../types";
 
 export interface Player {
-  username: string
+  username: string;
 }
 
 export interface Room {
-  players: Set<SID>,
-  host: SID,
+  players: Set<SID>;
+  host: SID;
 }

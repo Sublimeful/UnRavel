@@ -19,6 +19,29 @@ export async function roomRequest(sid: SID): Promise<RoomCode | null> {
   }
 }
 
+export async function roomJoin(
+  sid: SID,
+  roomCode: RoomCode,
+): Promise<boolean> {
+  const res = await fetch(
+    `/${roomCode}/join`,
+    {
+      method: "GET",
+      headers: {
+        "Authorization": `SID ${sid}`,
+      },
+    },
+  );
+
+  if (res.status === 200) {
+    return true;
+  } else {
+    console.error(await res.text());
+
+    return false;
+  }
+}
+
 export async function roomLeave(
   sid: SID,
   roomCode: RoomCode,
