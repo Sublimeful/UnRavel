@@ -1,4 +1,5 @@
 export interface PlayerSanitized {
+  id: PlayerID;
   username: string;
 }
 
@@ -6,3 +7,5 @@ export interface PlayerSanitized {
 export type SID = string;
 
 export type RoomCode = string;
+
+export type PlayerID = string;

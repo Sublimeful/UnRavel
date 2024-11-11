@@ -2,7 +2,7 @@ import { Server } from "socket.io";
 
 import state from "./state.ts";
 import type { Player, Room } from "./types.ts";
-import { getSanitizedPlayerData } from "./utils.ts";
+import { getSanitizedPlayerData } from "./utils/misc.ts";
 import type { SID } from "../types.ts";
 
 export const io = new Server({

@@ -1,4 +1,4 @@
-import type { PlayerSanitized, RoomCode, SID } from "../types";
+import type { PlayerID, PlayerSanitized, RoomCode, SID } from "../types";
 
 export async function roomRequest(sid: SID): Promise<RoomCode | null> {
   const res = await fetch("/room-request", {
@@ -108,6 +108,31 @@ export async function roomGetPlayers(
     const players: PlayerSanitized[] = await res.json();
 
     return players;
+  } else {
+    console.error(await res.text());
+
+    return null;
+  }
+}
+
+export async function roomGetHost(
+  sid: SID,
+  roomCode: RoomCode,
+): Promise<PlayerID | null> {
+  const res = await fetch(
+    `/${roomCode}/host`,
+    {
+      method: "GET",
+      headers: {
+        "Authorization": `SID ${sid}`,
+      },
+    },
+  );
+
+  if (res.status === 200) {
+    const { host } = await res.json();
+
+    return host;
   } else {
     console.error(await res.text());
 

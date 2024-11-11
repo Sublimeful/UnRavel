@@ -2,9 +2,9 @@ import { useContext, useEffect, useState } from "react";
 
 import PageContext from "./PageContext";
 import MainMenu from "./MainMenu";
-import { roomGetPlayers, roomLeave, roomStartGame } from "./api";
+import { roomGetHost, roomGetPlayers, roomLeave, roomStartGame } from "./api";
 import { socket } from "./socket";
-import type { PlayerSanitized, RoomCode } from "../types";
+import type { PlayerID, PlayerSanitized, RoomCode } from "../types";
 import Game from "./Game";
 
 interface RoomProps {
@@ -15,6 +15,7 @@ export default function Room(props: RoomProps) {
   const { setPage } = useContext(PageContext);
   const { roomCode } = props;
 
+  const [host, setHost] = useState<PlayerID | null>(null);
   const [players, setPlayers] = useState<PlayerSanitized[]>([]);
 
   useEffect(() => {
@@ -22,6 +23,9 @@ export default function Room(props: RoomProps) {
       if (!socket.id) return;
       roomGetPlayers(socket.id, roomCode).then((_players) => {
         if (_players) setPlayers(_players);
+      });
+      roomGetHost(socket.id, roomCode).then((_host) => {
+        if (_host) setHost(_host);
       });
     }
 
@@ -40,6 +44,9 @@ export default function Room(props: RoomProps) {
       socket.off("room-player-left", updatePlayerList);
     };
   }, []);
+
+  console.log(JSON.stringify(players));
+  console.log(host);
 
   return (
     <div className="absolute transition-[width] h-[98%] lg:w-[50%] w-[98%] bg-[#000625] bg-opacity-50 rounded-xl border border-neutral-500 flex flex-col items-center p-10 text-white overflow-y-scroll overflow-x-clip">
@@ -79,12 +86,17 @@ export default function Room(props: RoomProps) {
           Players ({players.length})
         </h1>
         <ul className="mt-2 flex flex-col gap-2">
-          {players.map((player, index) => (
+          {players.map((player) => (
             <li
-              key={index}
-              className="w-full bg-[#595959] rounded-lg px-3 py-2"
+              key={player.id}
+              className="flex flex-row justify-between w-full bg-[#595959] rounded-lg px-3 py-2"
             >
               {player.username}
+              {host && host === player.id && (
+                <div className="bg-red-500 rounded-lg self-end w-14 grid place-items-center">
+                  Host
+                </div>
+              )}
             </li>
           ))}
         </ul>

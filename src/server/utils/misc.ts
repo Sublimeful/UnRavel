@@ -1,6 +1,6 @@
-import { io } from "./socket.ts";
-import type { Player } from "./types.ts";
-import type { PlayerSanitized } from "../types.ts";
+import { io } from "../socket.ts";
+import type { Player } from "../types.ts";
+import type { PlayerSanitized } from "../../types.ts";
 
 export function getSocketFromAuthHeader(authHeader: string | undefined) {
   if (authHeader && authHeader.startsWith("SID ")) {
@@ -19,5 +19,5 @@ export function getSocketFromAuthHeader(authHeader: string | undefined) {
 }
 
 export function getSanitizedPlayerData(player: Player): PlayerSanitized {
-  return { username: player.username };
+  return { id: player.id, username: player.username };
 }

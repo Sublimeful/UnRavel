@@ -2,7 +2,7 @@ import { useContext, useEffect, useState } from "react";
 
 import PageContext from "./PageContext";
 import MainMenu from "./MainMenu";
-import { gameGetTimeLeft } from "./api";
+import { gameGetTimeLeft, roomLeave } from "./api";
 import { socket } from "./socket";
 import type { RoomCode } from "../types";
 
@@ -60,7 +60,10 @@ export default function Game(props: GameProps) {
     <div className="absolute transition-[width] h-[98%] xl:w-[75%] w-[98%] bg-[#000625] bg-opacity-50 rounded-xl border border-neutral-500 flex flex-col items-center p-8 text-white overflow-y-scroll overflow-x-clip">
       <div className="flex flex-row w-full justify-between">
         <button
-          onClick={() => setPage(<MainMenu />)}
+          onClick={() => {
+            if (socket.id) roomLeave(socket.id, roomCode); // Back button pressed leaves game/room
+            setPage(<MainMenu />);
+          }}
           className="self-start text-lg font-light flex items-center justify-center gap-2"
         >
           <i className="bi bi-arrow-left"></i>Leave Game
