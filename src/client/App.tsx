@@ -33,6 +33,8 @@ export default function App() {
     socket.connect(); // Connect to the websocket server
 
     return () => {
+      // Unregister all event listeners when component is unmounted
+      // Otherwise they may trigger in the future unexpectedly
       socket.off("connect", onConnect);
       socket.off("disconnect", onDisconnect);
     };

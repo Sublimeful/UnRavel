@@ -24,15 +24,17 @@ export default function Room(props: RoomProps) {
       });
     }
 
+    socket.on("room-player-joined", updatePlayerList);
+    socket.on("room-player-left", updatePlayerList);
+
     updatePlayerList(); // Initially update the player list
 
-    socket.on("room-player-joined", () => {
-      updatePlayerList();
-    });
-
-    socket.on("room-player-left", () => {
-      updatePlayerList();
-    });
+    return () => {
+      // Unregister all event listeners when component is unmounted
+      // Otherwise they may trigger in the future unexpectedly
+      socket.off("room-player-joined", updatePlayerList);
+      socket.off("room-player-left", updatePlayerList);
+    };
   }, []);
 
   return (
