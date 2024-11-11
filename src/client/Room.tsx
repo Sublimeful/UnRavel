@@ -2,9 +2,10 @@ import { useContext, useEffect, useState } from "react";
 
 import PageContext from "./PageContext";
 import MainMenu from "./MainMenu";
-import { roomGetPlayers, roomLeave } from "./api";
+import { roomGetPlayers, roomLeave, roomStartGame } from "./api";
 import { socket } from "./socket";
 import type { PlayerSanitized, RoomCode } from "../types";
+import Game from "./Game";
 
 interface RoomProps {
   roomCode: RoomCode;
@@ -23,6 +24,9 @@ export default function Room(props: RoomProps) {
         if (_players) setPlayers(_players);
       });
     }
+
+    // Switch to the game page when the game starts
+    socket.once("room-game-start", () => setPage(<Game roomCode={roomCode} />));
 
     socket.on("room-player-joined", updatePlayerList);
     socket.on("room-player-left", updatePlayerList);
@@ -117,7 +121,10 @@ export default function Room(props: RoomProps) {
       </div>
       <button
         className="mx-auto transition-[font-size] w-full min-h-16 mt-3 rounded-lg sm:text-2xl text-xl font-light bg-gradient-to-r from-[#AC1C1C] to-[#2AAAD9] flex items-center justify-center gap-2 disabled:brightness-50"
-        disabled
+        onClick={() => {
+          if (!socket.id) return;
+          roomStartGame(socket.id, roomCode);
+        }}
       >
         Start Game
         <i className="bi bi-arrow-right"></i>

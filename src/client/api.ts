@@ -114,3 +114,54 @@ export async function roomGetPlayers(
     return null;
   }
 }
+
+export async function roomStartGame(
+  sid: SID,
+  roomCode: RoomCode,
+): Promise<boolean> {
+  const res = await fetch(
+    `/${roomCode}/start-game`,
+    {
+      method: "GET",
+      headers: {
+        "Authorization": `SID ${sid}`,
+      },
+    },
+  );
+
+  if (res.status === 200) {
+    return true;
+  } else {
+    console.error(await res.text());
+
+    return false;
+  }
+}
+
+/**
+  Gets the current countdown time
+*/
+export async function gameGetTimeLeft(
+  sid: SID,
+  roomCode: RoomCode,
+): Promise<number | null> {
+  const res = await fetch(
+    `/${roomCode}/game/time-left`,
+    {
+      method: "GET",
+      headers: {
+        "Authorization": `SID ${sid}`,
+      },
+    },
+  );
+
+  if (res.status === 200) {
+    const { timeLeft } = await res.json();
+
+    return timeLeft;
+  } else {
+    console.error(await res.text());
+
+    return null;
+  }
+}

@@ -78,7 +78,13 @@ io.sockets.adapter.on("create-room", (roomCode) => {
   console.log("create-room", roomCode);
 
   // Initialize the room state
-  state[`room:${roomCode}`] = { players: new Set<SID>() } as Room;
+  state[`room:${roomCode}`] = {
+    players: new Set<SID>(),
+    game: {
+      state: "room", // Means we are still in the room, perhaps tinkering with settings? Who knows.
+      timeLimit: 1000 * 60 * 15, // 15 minutes for now, subject to change (i.e. through game settings)
+    },
+  } as Room;
 });
 
 io.sockets.adapter.on("delete-room", (roomCode) => {

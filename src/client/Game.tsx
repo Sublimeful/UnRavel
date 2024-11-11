@@ -1,10 +1,60 @@
-import { useContext } from "react";
+import { useContext, useEffect, useState } from "react";
 
 import PageContext from "./PageContext";
 import MainMenu from "./MainMenu";
+import { gameGetTimeLeft } from "./api";
+import { socket } from "./socket";
+import type { RoomCode } from "../types";
 
-export default function Game() {
+interface GameProps {
+  roomCode: RoomCode;
+}
+
+export default function Game(props: GameProps) {
+  const { roomCode } = props;
   const { setPage } = useContext(PageContext);
+
+  const [timeLeft, setTimeLeft] = useState(0);
+
+  useEffect(() => {
+    if (!socket.id) return;
+
+    gameGetTimeLeft(socket.id, roomCode).then((_timeLeft) => {
+      if (!_timeLeft) return;
+      setTimeLeft(_timeLeft);
+    });
+  }, []);
+
+  // Update the timer every second
+  useEffect(() => {
+    const timerTimeout = setTimeout(() => {
+      if (timeLeft >= 1000) {
+        setTimeLeft(timeLeft - 1000);
+      } else {
+        setTimeLeft(0);
+      }
+    }, 1000);
+
+    return () => clearTimeout(timerTimeout);
+  }, [timeLeft]);
+
+  function timerFormat(timeLeft: number) {
+    const secondInMS = 1000;
+    const minuteInMS = secondInMS * 60;
+    const hourInMS = minuteInMS * 60;
+    const HH = Math.floor(timeLeft / hourInMS);
+    const MM = Math.floor((timeLeft % hourInMS) / minuteInMS);
+    const SS = Math.floor((timeLeft % minuteInMS) / secondInMS);
+    if (timeLeft >= 1000 * 60 * 60) {
+      return `${HH}:${MM.toString().padStart(2, "0")}:${
+        SS.toString().padStart(2, "0")
+      }`;
+    } else if (timeLeft >= 1000 * 60) {
+      return `${MM}:${SS.toString().padStart(2, "0")}`;
+    } else {
+      return `${SS}`;
+    }
+  }
 
   return (
     <div className="absolute transition-[width] h-[98%] xl:w-[75%] w-[98%] bg-[#000625] bg-opacity-50 rounded-xl border border-neutral-500 flex flex-col items-center p-8 text-white overflow-y-scroll overflow-x-clip">
@@ -18,7 +68,8 @@ export default function Game() {
         <img src="logo.png" className="w-10 aspect-square" />
       </div>
       <div className="flex flex-row gap-2 text-2xl text-[#28dded] font-semibold">
-        <i className="bi bi-clock"></i>2:31
+        <i className="bi bi-clock"></i>
+        {timerFormat(timeLeft)}
       </div>
       <div className="grow w-full py-5 flex flex-row gap-2">
         <div className="flex-1 bg-[#424242] bg-opacity-70 rounded-lg flex flex-col p-4 gap-4">

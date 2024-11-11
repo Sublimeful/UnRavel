@@ -7,4 +7,9 @@ export interface Player {
 export interface Room {
   players: Set<SID>;
   host: SID;
+  game: {
+    state: "room" | "in progress" | "ended";
+    timeLimit: number;
+    startTime: number;
+  }
 }
