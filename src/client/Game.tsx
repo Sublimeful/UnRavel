@@ -4,6 +4,7 @@ import PageContext from "./PageContext";
 import MainMenu from "./MainMenu";
 import {
   gameAsk as apiGameAsk,
+  gameGuess as apiGameGuess,
   gameGetCategory,
   gameGetTimeLeft,
   getPlayer,
@@ -24,6 +25,7 @@ export default function Game(props: GameProps) {
 
   const [timeLeft, setTimeLeft] = useState(0);
   const [question, setQuestion] = useState("");
+  const [guess, setGuess] = useState("");
   const [interactions, setInteractions] = useState<Interaction[]>([]);
   const [player, setPlayer] = useState<PlayerSanitized | null>(null);
   const [players, setPlayers] = useState<PlayerSanitized[]>([]);
@@ -42,6 +44,21 @@ export default function Game(props: GameProps) {
     if (!answer) return;
 
     setInteractions([...interactions, { question, answer }]);
+  }
+
+  async function gameGuess(event: FormEvent) {
+    event.preventDefault();
+
+    if (!socket.id || !guess) return;
+
+    // Reset form to prevent spamming questions
+    (event.currentTarget as HTMLFormElement).reset();
+
+    const proximity = await apiGameGuess(socket.id, roomCode, guess);
+
+    if (!proximity) return;
+
+    console.log(proximity);
   }
 
   useEffect(() => {
@@ -197,8 +214,9 @@ export default function Game(props: GameProps) {
               <i className="bi bi-send-fill"></i>
             </button>
           </form>
-          <form className="flex-1 flex flex-row gap-3">
+          <form className="flex-1 flex flex-row gap-3" onSubmit={gameGuess}>
             <input
+              onInput={(event) => setGuess(event.currentTarget.value)}
               type="text"
               placeholder="Make a guess..."
               className="flex-[6] focus:outline-none text-base w-full bg-[#343434] placeholder:text-[#787878] rounded-lg border border-[#787878] px-3"

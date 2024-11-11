@@ -31,13 +31,14 @@ async function promptGemini(prompt: string, systemPrompt: string = "") {
     const { content } = firstCandidate;
 
     // This means that the ai did not respond because of safety reasons or something else
+    // TODO: Maybe handle this case in the future?
     if (!content) return null;
 
     const { parts } = content;
     const firstPart = parts[0];
     const { text } = firstPart;
 
-    return text;
+    return (text as string).trim();
   } else {
     console.error(await res.text());
 
@@ -45,7 +46,7 @@ async function promptGemini(prompt: string, systemPrompt: string = "") {
   }
 }
 
-export async function getSecretPhraseFromCategory(category: string) {
+export async function generateSecretPhraseFromCategory(category: string) {
   return await promptGemini(
     `Give me a random word/phrase from the category: ${category}`,
     "Just say the word/phrase, no extra fluff",

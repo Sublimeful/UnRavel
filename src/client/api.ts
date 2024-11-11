@@ -270,3 +270,31 @@ export async function gameAsk(
     return null;
   }
 }
+
+export async function gameGuess(
+  sid: SID,
+  roomCode: RoomCode,
+  guess: string,
+): Promise<string | null> {
+  const res = await fetch(
+    `/${roomCode}/game/guess`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `SID ${sid}`,
+      },
+      body: JSON.stringify({ guess }),
+    },
+  );
+
+  if (res.status === 200) {
+    const { proximity } = await res.json();
+
+    return proximity;
+  } else {
+    console.error(await res.text());
+
+    return null;
+  }
+}
