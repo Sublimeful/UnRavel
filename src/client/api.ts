@@ -174,6 +174,7 @@ export async function roomStartGame(
     {
       method: "POST",
       headers: {
+        "Content-Type": "application/json",
         "Authorization": `SID ${sid}`,
       },
       body: JSON.stringify(settings),
@@ -217,6 +218,31 @@ export async function gameGetTimeLeft(
   }
 }
 
+export async function gameGetCategory(
+  sid: SID,
+  roomCode: RoomCode,
+): Promise<string | null> {
+  const res = await fetch(
+    `/${roomCode}/game/category`,
+    {
+      method: "GET",
+      headers: {
+        "Authorization": `SID ${sid}`,
+      },
+    },
+  );
+
+  if (res.status === 200) {
+    const { category } = await res.json();
+
+    return category;
+  } else {
+    console.error(await res.text());
+
+    return null;
+  }
+}
+
 export async function gameAsk(
   sid: SID,
   roomCode: RoomCode,
@@ -225,8 +251,9 @@ export async function gameAsk(
   const res = await fetch(
     `/${roomCode}/game/ask`,
     {
-      method: "GET",
+      method: "POST",
       headers: {
+        "Content-Type": "application/json",
         "Authorization": `SID ${sid}`,
       },
       body: JSON.stringify({ question }),

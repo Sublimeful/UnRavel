@@ -14,7 +14,9 @@ import {
 const router = Router();
 
 router.post("/:roomCode/start-game", async (req, res) => {
+  console.log(req.body);
   const { category } = req.body as GameSettings;
+  console.log(category);
 
   // Bad request if settings are not sent properly
   if (!category) {
@@ -43,6 +45,9 @@ router.post("/:roomCode/start-game", async (req, res) => {
   if (roomState.host !== socket.id) {
     return res.status(400).send("you are not the room host");
   }
+
+  // Set the game state category
+  roomState.game.category = category;
 
   // Get the secret phrase and set the game state secretPhrase
   const secretPhrase = await getSecretPhraseFromCategory(category);
@@ -100,7 +105,36 @@ router.get("/:roomCode/game/time-left", (req, res) => {
   return res.status(200).send(JSON.stringify({ timeLeft }));
 });
 
-router.get("/:roomCode/game/ask", async (req, res) => {
+router.get("/:roomCode/game/category", (req, res) => {
+  // Validate and get socket
+  const socket = getSocketFromAuthHeader(req.headers.authorization);
+
+  // Bad request
+  if (!socket) return res.status(400).send("could not authenticate client");
+
+  // Check if socket is in the requested room
+  const roomCode = req.params.roomCode;
+  if (!socket.rooms.has(roomCode)) {
+    return res.status(400).send("you are not in this room");
+  }
+
+  // Check if the room state exists
+  if (!(`room:${roomCode}` in state)) {
+    return res.status(400).send("room not found");
+  }
+
+  // Check that the game is in progress
+  const roomState = state[`room:${roomCode}`] as Room;
+  if (roomState.game.state !== "in progress") {
+    return res.status(400).send("game is not in progress");
+  }
+
+  return res.status(200).send(
+    JSON.stringify({ category: roomState.game.category }),
+  );
+});
+
+router.post("/:roomCode/game/ask", async (req, res) => {
   const { question } = req.body;
 
   // Bad request if question is not in the JSON

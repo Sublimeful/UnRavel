@@ -4,6 +4,7 @@ import PageContext from "./PageContext";
 import MainMenu from "./MainMenu";
 import {
   gameAsk as apiGameAsk,
+  gameGetCategory,
   gameGetTimeLeft,
   getPlayer,
   roomGetPlayers,
@@ -22,18 +23,19 @@ export default function Game(props: GameProps) {
   const { setPage } = useContext(PageContext);
 
   const [timeLeft, setTimeLeft] = useState(0);
-
   const [question, setQuestion] = useState("");
-
   const [interactions, setInteractions] = useState<Interaction[]>([]);
-
   const [player, setPlayer] = useState<PlayerSanitized | null>(null);
   const [players, setPlayers] = useState<PlayerSanitized[]>([]);
+  const [category, setCategory] = useState("");
 
   async function gameAsk(event: FormEvent) {
     event.preventDefault();
 
     if (!socket.id || !question) return;
+
+    // Reset form to prevent spamming questions
+    (event.currentTarget as HTMLFormElement).reset();
 
     const answer = await apiGameAsk(socket.id, roomCode, question);
 
@@ -83,6 +85,9 @@ export default function Game(props: GameProps) {
       roomGetPlayers(socket.id, roomCode).then((_players) => {
         if (_players) setPlayers(_players);
       });
+      gameGetCategory(socket.id, roomCode).then((_category) => {
+        if (_category) setCategory(_category);
+      });
     }
 
     socket.on("room-player-left", updatePlayerList);
@@ -119,7 +124,7 @@ export default function Game(props: GameProps) {
       <div className="flex flex-row w-full justify-between">
         <button
           onClick={() => {
-            if (socket.id) roomLeave(socket.id, roomCode); // Back button pressed leaves game/room
+            if (socket.id) roomLeave(socket.id, roomCode); // Backbutton pressed leaves game/room
             setPage(<MainMenu />);
           }}
           className="self-start text-lg font-light flex items-center justify-center gap-2"
@@ -132,32 +137,48 @@ export default function Game(props: GameProps) {
         <i className="bi bi-clock"></i>
         {timerFormat(timeLeft)}
       </div>
-      <div className="grow w-full py-5 flex flex-row gap-2">
-        <div className="flex-1 bg-[#424242] bg-opacity-70 rounded-lg flex flex-col p-4 gap-4">
+      <div className="w-full h-[71vh] py-5 flex flex-row gap-2">
+        <div className="flex-1 bg-[#424242] bg-opacity-70 rounded-lg flex flex-col p-4 gap-4 overflow-y-scroll">
           <h1 className="text-2xl flex gap-2 font-semibold">
             <i className="bi bi-people-fill"></i>Players
           </h1>
-          <div className="h-12 w-full rounded-lg bg-gradient-to-r from-[#AC1C1C] to-[#2AAAD9] flex flex-row items-center px-3 text-xl">
-            You
-          </div>
-          <div className="h-12 w-full rounded-lg bg-[#5e5e5e] flex flex-row items-center px-3 text-xl">
-            Player 1
-          </div>
-          <div className="h-12 w-full rounded-lg bg-[#5e5e5e] flex flex-row items-center px-3 text-xl">
-            Player 2
-          </div>
+          {players.map((_player) =>
+            (player && _player.id === player.id)
+              ? (
+                <div
+                  key={_player.id}
+                  className="h-12 w-full rounded-lg bg-gradient-to-r from-[#AC1C1C] to-[#2AAAD9] flex flex-row items-center px-3 text-xl"
+                >
+                  You
+                </div>
+              )
+              : (
+                <div
+                  key={_player.id}
+                  className="h-12 w-full rounded-lg bg-[#5e5e5e] flex flex-row items-center px-3 text-xl"
+                >
+                  {_player.username}
+                </div>
+              )
+          )}
         </div>
         <div className="flex-[3] flex flex-col gap-3">
           <div className="flex-[3] bg-[#424242] bg-opacity-70 rounded-lg grid place-items-center text-2xl font-semibold">
-            Category: Your Mom
+            Category: {category}
           </div>
-          <div className="flex-[8] bg-[#424242] bg-opacity-70 rounded-lg p-5">
-            <h1 className="flex gap-2">
-              <span className="font-bold">Player 2:</span>Does she have a gyatt?
-            </h1>
-            <h1 className="flex gap-2 text-[#28dded] ml-3">
-              <span className="font-bold">AI:</span>Yes, she has a gyatt.
-            </h1>
+          <div className="flex-[8] flex flex-col gap-3 overflow-y-scroll bg-[#424242] bg-opacity-70 rounded-lg p-5">
+            {interactions.map((interaction, index) => (
+              <div key={index}>
+                <h1 className="flex gap-2">
+                  <span className="font-bold">Player:</span>
+                  {interaction.question}
+                </h1>
+                <h1 className="flex gap-2 text-[#28dded] ml-3">
+                  <span className="font-bold">AI:</span>
+                  {interaction.answer}
+                </h1>
+              </div>
+            ))}
           </div>
           <form className="flex-1 flex flex-row gap-3" onSubmit={gameAsk}>
             <input

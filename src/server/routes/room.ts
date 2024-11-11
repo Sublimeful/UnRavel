@@ -52,6 +52,11 @@ router.get("/:roomCode/join", (req, res) => {
     return res.status(400).send("room not found");
   }
 
+  // Check if socket is already in the requested room
+  if (socket.rooms.has(roomCode)) {
+    return res.status(400).send("you are already in this room");
+  }
+
   // Player joins room
   socket.join(roomCode);
 

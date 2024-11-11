@@ -120,13 +120,13 @@ export default function Room(props: RoomProps) {
           Players ({players.length})
         </h1>
         <ul className="mt-2 flex flex-col gap-2">
-          {players.map((player) => (
+          {players.map((_player) => (
             <li
-              key={player.id}
+              key={_player.id}
               className="flex flex-row justify-between w-full bg-[#595959] rounded-lg px-3 py-2"
             >
-              {player.username}
-              {host && host === player.id && (
+              {_player.username}
+              {host && host === _player.id && (
                 <div className="bg-red-500 rounded-lg self-end w-14 grid place-items-center">
                   Host
                 </div>
