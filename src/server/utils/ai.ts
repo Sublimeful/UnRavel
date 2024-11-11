@@ -24,9 +24,15 @@ async function promptGemini(prompt: string, systemPrompt: string = "") {
   );
 
   if (res.status === 200) {
-    const { candidates } = await res.json();
+    const json = await res.json();
+    console.log("Prompt:", prompt, systemPrompt, JSON.stringify(json));
+    const { candidates } = json;
     const firstCandidate = candidates[0];
     const { content } = firstCandidate;
+
+    // This means that the ai did not respond because of safety reasons or something else
+    if (!content) return null;
+
     const { parts } = content;
     const firstPart = parts[0];
     const { text } = firstPart;
