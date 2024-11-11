@@ -5,6 +5,7 @@ import { io } from "../socket.ts";
 import state from "../state.ts";
 import { getSocketFromAuthHeader } from "../utils/misc.ts";
 import type { Room } from "../types.ts";
+import { getPhraseFromCategory } from "../utils/ai.ts";
 
 const router = Router();
 
@@ -31,6 +32,9 @@ router.get("/:roomCode/start-game", (req, res) => {
   if (roomState.host !== socket.id) {
     return res.status(400).send("you are not the room host");
   }
+
+  // Get the secret phrase
+  // await getPhraseFromCategory(
 
   // Set the game state to "in progress"
   roomState.game.state = "in progress";

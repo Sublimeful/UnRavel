@@ -112,7 +112,13 @@ export default function Room(props: RoomProps) {
         </ul>
       </div>
       {host && player && host === player.id && (
-        <>
+        <form
+          className="w-full"
+          onSubmit={() => {
+            if (!socket.id) return;
+            roomStartGame(socket.id, roomCode);
+          }}
+        >
           <div className="w-full flex flex-col mt-3 bg-[#343434] border border-[#787878] rounded-lg px-5 py-3">
             <h1 className="flex items-baseline gap-2">
               <i className="bi bi-gear-fill text-white text-xl" />
@@ -122,38 +128,34 @@ export default function Room(props: RoomProps) {
               <div className="flex-1 relative flex items-center">
                 <input
                   type="text"
+                  defaultValue={"Marvel or DC Superhero"}
                   className="[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none focus:outline-none text-xl w-full h-14 p-5 bg-[#595959] rounded-lg peer"
                   required
                 >
                 </input>
-                <span className="absolute left-5 text-[#989898] pointer-events-none peer-focus:text-xs peer-focus:-translate-y-[1.15rem] peer-[&:not(:focus):valid]:text-xs peer-[&:not(:focus):valid]:-translate-y-[1.15rem] transition-all">
+                <span className="absolute left-5 text-[#989898] pointer-events-none peer-focus:text-xs peer-focus:-translate-y-[1.1rem] peer-[&:not(:focus):valid]:text-xs peer-[&:not(:focus):valid]:-translate-y-[1.1rem] transition-all">
                   Category
                 </span>
               </div>
               <div className="flex-1 relative flex items-center">
                 <input
                   type="number"
+                  defaultValue={4}
                   className="[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none focus:outline-none text-xl w-full h-14 p-5 bg-[#595959] rounded-lg peer"
                   required
                 >
                 </input>
-                <span className="absolute left-5 text-[#989898] pointer-events-none peer-focus:text-xs peer-focus:-translate-y-[1.15rem] peer-[&:not(:focus):valid]:text-xs peer-[&:not(:focus):valid]:-translate-y-[1.15rem] transition-all">
+                <span className="absolute left-5 text-[#989898] pointer-events-none peer-focus:text-xs peer-focus:-translate-y-[1.1rem] peer-[&:not(:focus):valid]:text-xs peer-[&:not(:focus):valid]:-translate-y-[1.1rem] transition-all">
                   Max Players
                 </span>
               </div>
             </div>
           </div>
-          <button
-            className="mx-auto transition-[font-size] w-full min-h-16 mt-3 rounded-lg sm:text-2xl text-xl font-light bg-gradient-to-r from-[#AC1C1C] to-[#2AAAD9] flex items-center justify-center gap-2 disabled:brightness-50"
-            onClick={() => {
-              if (!socket.id) return;
-              roomStartGame(socket.id, roomCode);
-            }}
-          >
+          <button className="mx-auto transition-[font-size] w-full min-h-16 mt-3 rounded-lg sm:text-2xl text-xl font-light bg-gradient-to-r from-[#AC1C1C] to-[#2AAAD9] flex items-center justify-center gap-2 disabled:brightness-50">
             Start Game
             <i className="bi bi-arrow-right"></i>
           </button>
-        </>
+        </form>
       )}
     </div>
   );
