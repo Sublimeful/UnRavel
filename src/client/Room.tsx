@@ -47,7 +47,7 @@ export default function Room(props: RoomProps) {
           }}
           className="self-start text-lg font-light flex items-center justify-center gap-2"
         >
-          <i className="bi bi-arrow-left"></i>Back to Menu
+          <i className="bi bi-arrow-left"></i>Leave Room
         </button>
         <img src="logo.png" className="w-24 aspect-square" />
       </div>
@@ -91,7 +91,7 @@ export default function Room(props: RoomProps) {
           Game Settings
         </h1>
         <div className="flex flex-row gap-3 mt-1">
-          <div className="grow relative flex items-center">
+          <div className="flex-1 relative flex items-center">
             <input
               type="text"
               className="[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none focus:outline-none text-xl w-full h-14 p-5 bg-[#595959] rounded-lg peer"
@@ -102,7 +102,7 @@ export default function Room(props: RoomProps) {
               Category
             </span>
           </div>
-          <div className="grow relative flex items-center">
+          <div className="flex-1 relative flex items-center">
             <input
               type="number"
               className="[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none focus:outline-none text-xl w-full h-14 p-5 bg-[#595959] rounded-lg peer"

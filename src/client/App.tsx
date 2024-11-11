@@ -5,15 +5,15 @@ import { Vector2 } from "three";
 import { useEffect, useState } from "react";
 
 import Background from "./Background";
-import MainMenu from "./MainMenu";
-// import Room from "./Room";
+// import MainMenu from "./MainMenu";
+import Game from "./Game";
 import PageContext from "./PageContext";
 
 import { socket } from "./socket";
 
 export default function App() {
-  const [currPage, setPage] = useState<JSX.Element | null>(<MainMenu />);
-  // const [currPage, setPage] = useState<JSX.Element | null>(<Room roomCode="Test" />);
+  // const [currPage, setPage] = useState<JSX.Element | null>(<MainMenu />);
+  const [currPage, setPage] = useState<JSX.Element | null>(<Game />);
 
   const [_, setIsConnected] = useState(socket.connected);
 
