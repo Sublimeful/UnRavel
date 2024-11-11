@@ -10,6 +10,7 @@ export interface Room {
   host: SID;
   game: {
     state: "room" | "in progress" | "ended";
+    secretPhrase: string;
     timeLimit: number;
     startTime: number;
   };

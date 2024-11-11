@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from "react";
+import { type FormEvent, useContext, useEffect, useState } from "react";
 
 import PageContext from "./PageContext";
 import MainMenu from "./MainMenu";
@@ -12,6 +12,7 @@ import {
 import { socket } from "./socket";
 import type { PlayerID, PlayerSanitized, RoomCode } from "../types";
 import Game from "./Game";
+import type { GameSettings } from "../types";
 
 interface RoomProps {
   roomCode: RoomCode;
@@ -24,6 +25,29 @@ export default function Room(props: RoomProps) {
   const [host, setHost] = useState<PlayerID | null>(null);
   const [player, setPlayer] = useState<PlayerSanitized | null>(null);
   const [players, setPlayers] = useState<PlayerSanitized[]>([]);
+  const [gameSettings, setGameSettings] = useState<GameSettings>({
+    category: "Marvel or DC Superhero",
+  });
+
+  const [startButtonDisabled, setStartButtonDisabled] = useState(false);
+
+  async function startGame(event: FormEvent) {
+    event.preventDefault();
+
+    if (!socket.id) return;
+
+    setStartButtonDisabled(true);
+
+    const success = await roomStartGame(
+      socket.id,
+      roomCode,
+      gameSettings,
+    );
+
+    if (!success) {
+      setStartButtonDisabled(false);
+    }
+  }
 
   useEffect(() => {
     function updatePlayerList() {
@@ -114,10 +138,7 @@ export default function Room(props: RoomProps) {
       {host && player && host === player.id && (
         <form
           className="w-full"
-          onSubmit={() => {
-            if (!socket.id) return;
-            roomStartGame(socket.id, roomCode);
-          }}
+          onSubmit={startGame}
         >
           <div className="w-full flex flex-col mt-3 bg-[#343434] border border-[#787878] rounded-lg px-5 py-3">
             <h1 className="flex items-baseline gap-2">
@@ -127,8 +148,13 @@ export default function Room(props: RoomProps) {
             <div className="flex flex-row gap-3 mt-1">
               <div className="flex-1 relative flex items-center">
                 <input
+                  onInput={(event) =>
+                    setGameSettings({
+                      ...gameSettings,
+                      category: event.currentTarget.value,
+                    })}
                   type="text"
-                  defaultValue={"Marvel or DC Superhero"}
+                  defaultValue={gameSettings.category}
                   className="[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none focus:outline-none text-xl w-full h-14 p-5 bg-[#595959] rounded-lg peer"
                   required
                 >
@@ -151,7 +177,10 @@ export default function Room(props: RoomProps) {
               </div>
             </div>
           </div>
-          <button className="mx-auto transition-[font-size] w-full min-h-16 mt-3 rounded-lg sm:text-2xl text-xl font-light bg-gradient-to-r from-[#AC1C1C] to-[#2AAAD9] flex items-center justify-center gap-2 disabled:brightness-50">
+          <button
+            className="mx-auto transition-[font-size] w-full min-h-16 mt-3 rounded-lg sm:text-2xl text-xl font-light bg-gradient-to-r from-[#AC1C1C] to-[#2AAAD9] flex items-center justify-center gap-2 disabled:brightness-50"
+            disabled={startButtonDisabled}
+          >
             Start Game
             <i className="bi bi-arrow-right"></i>
           </button>

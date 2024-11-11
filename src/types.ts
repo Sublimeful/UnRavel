@@ -3,6 +3,10 @@ export interface PlayerSanitized {
   username: string;
 }
 
+export interface GameSettings {
+  category: string;
+}
+
 // Socket ID
 export type SID = string;
 

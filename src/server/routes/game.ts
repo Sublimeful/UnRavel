@@ -5,11 +5,19 @@ import { io } from "../socket.ts";
 import state from "../state.ts";
 import { getSocketFromAuthHeader } from "../utils/misc.ts";
 import type { Room } from "../types.ts";
-import { getPhraseFromCategory } from "../utils/ai.ts";
+import type { GameSettings } from "../../types.ts";
+import { getSecretPhraseFromCategory } from "../utils/ai.ts";
 
 const router = Router();
 
-router.get("/:roomCode/start-game", (req, res) => {
+router.post("/:roomCode/start-game", async (req, res) => {
+  const { category } = req.body as GameSettings;
+
+  // Bad request if settings are not sent properly
+  if (!category) {
+    return res.status(400).send("invalid data");
+  }
+
   // Validate and get socket
   const socket = getSocketFromAuthHeader(req.headers.authorization);
 
@@ -33,8 +41,9 @@ router.get("/:roomCode/start-game", (req, res) => {
     return res.status(400).send("you are not the room host");
   }
 
-  // Get the secret phrase
-  // await getPhraseFromCategory(
+  // Get the secret phrase and set the game state secretPhrase
+  const secretPhrase = await getSecretPhraseFromCategory(category);
+  roomState.game.secretPhrase = secretPhrase;
 
   // Set the game state to "in progress"
   roomState.game.state = "in progress";

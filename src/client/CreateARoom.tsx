@@ -1,4 +1,4 @@
-import { type FormEvent, useContext, useRef, useState } from "react";
+import { type FormEvent, useContext, useState } from "react";
 
 import PageContext from "./PageContext";
 import MainMenu from "./MainMenu";
@@ -9,7 +9,7 @@ import Room from "./Room";
 
 export default function CreateARoom() {
   const { setPage } = useContext(PageContext);
-  const usernameInputRef = useRef<HTMLInputElement>(null);
+
   const [username, setUsername] = useState("");
   const [disableBtn, setDisableBtn] = useState(false);
 
@@ -51,8 +51,7 @@ export default function CreateARoom() {
         <label className="text-left font-light">
           Your Name
           <input
-            ref={usernameInputRef}
-            onInput={() => setUsername(usernameInputRef.current!.value)}
+            onInput={(event) => setUsername(event.currentTarget.value)}
             type="text"
             placeholder="Enter your name"
             className="focus:outline-none text-xl w-full h-14 p-5 bg-[#343434] placeholder:text-[#787878] rounded-lg border border-[#787878] mt-1"

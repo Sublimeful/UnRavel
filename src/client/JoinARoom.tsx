@@ -1,4 +1,4 @@
-import { type FormEvent, useContext, useRef, useState } from "react";
+import { type FormEvent, useContext, useState } from "react";
 
 import PageContext from "./PageContext";
 import MainMenu from "./MainMenu";
@@ -11,8 +11,6 @@ import Room from "./Room";
 export default function JoinARoom() {
   const { setPage } = useContext(PageContext);
 
-  const roomCodeInputRef = useRef<HTMLInputElement>(null);
-  const usernameInputRef = useRef<HTMLInputElement>(null);
   const [roomCode, setRoomCode] = useState<RoomCode>("");
   const [username, setUsername] = useState<string>("");
 
@@ -54,8 +52,7 @@ export default function JoinARoom() {
         <label className="text-left font-light relative">
           Room Code
           <input
-            ref={roomCodeInputRef}
-            onInput={() => setRoomCode(roomCodeInputRef.current!.value)}
+            onInput={(event) => setRoomCode(event.currentTarget.value)}
             type="text"
             placeholder="Enter room code"
             className="focus:outline-none text-xl w-full h-14 p-5 bg-[#343434] placeholder:text-[#787878] rounded-lg border border-[#787878] mt-1"
@@ -68,8 +65,7 @@ export default function JoinARoom() {
         <label className="text-left font-light">
           Your Name
           <input
-            ref={usernameInputRef}
-            onInput={() => setUsername(usernameInputRef.current!.value)}
+            onInput={(event) => setUsername(event.currentTarget.value)}
             type="text"
             placeholder="Enter your name"
             className="focus:outline-none text-xl w-full h-14 p-5 bg-[#343434] placeholder:text-[#787878] rounded-lg border border-[#787878] mt-1"

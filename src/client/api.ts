@@ -1,3 +1,4 @@
+import type { GameSettings } from "../types";
 import type { PlayerID, PlayerSanitized, RoomCode, SID } from "../types";
 
 export async function roomRequest(sid: SID): Promise<RoomCode | null> {
@@ -166,14 +167,16 @@ export async function roomGetHost(
 export async function roomStartGame(
   sid: SID,
   roomCode: RoomCode,
+  settings: GameSettings,
 ): Promise<boolean> {
   const res = await fetch(
     `/${roomCode}/start-game`,
     {
-      method: "GET",
+      method: "POST",
       headers: {
         "Authorization": `SID ${sid}`,
       },
+      body: JSON.stringify(settings),
     },
   );
 
