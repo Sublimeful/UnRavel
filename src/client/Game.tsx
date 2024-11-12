@@ -238,8 +238,12 @@ export default function Game(props: GameProps) {
         <i className="flex bi bi-snow text-blue-500"></i>
         <div className="w-11/12 h-8 bg-[#343434] rounded-2xl overflow-clip">
           <div
-            style={{ width: `${proximity * 100}%` }}
-            className="h-8 bg-[#ffd04f] rounded-2xl transition-[width] duration-1000"
+            style={{
+              "maskImage": "linear-gradient(90deg, blue, red)",
+              "maskSize": `${proximity * 100}%`,
+              "maskRepeat": "no-repeat",
+            }}
+            className="w-full h-8 rounded-2xl transition-all bg-gradient-to-r from-blue-500 to-red-500 duration-1000"
           >
           </div>
         </div>
