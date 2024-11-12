@@ -138,7 +138,7 @@ export default function Game(props: GameProps) {
   }
 
   return (
-    <div className="absolute transition-[width] h-[98%] xl:w-[75%] w-[98%] bg-[#000625] bg-opacity-50 rounded-xl border border-neutral-500 flex flex-col items-center p-8 text-white overflow-y-scroll overflow-x-clip">
+    <div className="absolute transition-[width] h-[98%] xl:w-[75%] w-[98%] bg-[#000625] bg-opacity-50 rounded-xl border border-neutral-500 flex flex-col items-center px-8 pt-8 text-white overflow-y-scroll overflow-x-clip">
       <div className="flex flex-row w-full justify-between">
         <button
           onClick={() => {
@@ -155,7 +155,7 @@ export default function Game(props: GameProps) {
         <i className="bi bi-clock"></i>
         {timerFormat(timeLeft)}
       </div>
-      <div className="w-full h-[71vh] py-5 flex flex-row gap-2">
+      <div className="w-full h-[74vh] pt-5 flex flex-row gap-2">
         <div className="flex-1 bg-[#424242] bg-opacity-70 rounded-lg flex flex-col p-4 gap-4 overflow-y-scroll">
           <h1 className="text-2xl flex gap-2 font-semibold">
             <i className="bi bi-people-fill"></i>Players
@@ -234,7 +234,7 @@ export default function Game(props: GameProps) {
           </form>
         </div>
       </div>
-      <div className="w-full flex flex-row text-3xl justify-between items-center">
+      <div className="flex-1 w-full flex flex-row py-3 text-3xl justify-between items-center">
         <i className="flex bi bi-snow text-blue-500"></i>
         <div className="w-11/12 h-8 bg-[#343434] rounded-2xl overflow-clip">
           <div
