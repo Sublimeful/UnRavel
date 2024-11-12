@@ -4,9 +4,9 @@ import PageContext from "./PageContext";
 import MainMenu from "./MainMenu";
 import {
   gameAsk as apiGameAsk,
-  gameGuess as apiGameGuess,
   gameGetCategory,
   gameGetTimeLeft,
+  gameGuess as apiGameGuess,
   getPlayer,
   roomGetPlayers,
   roomLeave,
@@ -30,6 +30,7 @@ export default function Game(props: GameProps) {
   const [player, setPlayer] = useState<PlayerSanitized | null>(null);
   const [players, setPlayers] = useState<PlayerSanitized[]>([]);
   const [category, setCategory] = useState("");
+  const [proximity, setProximity] = useState(0);
 
   async function gameAsk(event: FormEvent) {
     event.preventDefault();
@@ -58,7 +59,7 @@ export default function Game(props: GameProps) {
 
     if (!proximity) return;
 
-    console.log(proximity);
+    setProximity(proximity);
   }
 
   useEffect(() => {
@@ -232,6 +233,17 @@ export default function Game(props: GameProps) {
             </button>
           </form>
         </div>
+      </div>
+      <div className="w-full flex flex-row text-3xl justify-between items-center">
+        <i className="flex bi bi-snow text-blue-500"></i>
+        <div className="w-11/12 h-8 bg-[#343434] rounded-2xl overflow-clip">
+          <div
+            style={{ width: `${proximity * 100}%` }}
+            className="h-8 bg-[#ffd04f] rounded-2xl transition-[width] duration-1000"
+          >
+          </div>
+        </div>
+        <i className="flex bi bi-thermometer text-red-500"></i>
       </div>
     </div>
   );

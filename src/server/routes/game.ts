@@ -226,15 +226,14 @@ router.post("/:roomCode/game/guess", async (req, res) => {
         );
       }
     }
-    console.log(arr);
     return arr[t.length][s.length];
   }
 
   // Get the proximity
-  const proximity = levenshteinDistance(
+  const proximity = 1 - (levenshteinDistance(
     guess.toLowerCase(),
     roomState.game.secretPhrase.toLowerCase(),
-  ) / Math.max(guess.length, roomState.game.secretPhrase.length);
+  ) / Math.max(guess.length, roomState.game.secretPhrase.length));
 
   return res.status(200).send(JSON.stringify({ proximity }));
 });

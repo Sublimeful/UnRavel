@@ -275,7 +275,7 @@ export async function gameGuess(
   sid: SID,
   roomCode: RoomCode,
   guess: string,
-): Promise<string | null> {
+): Promise<number | null> {
   const res = await fetch(
     `/${roomCode}/game/guess`,
     {
@@ -289,7 +289,7 @@ export async function gameGuess(
   );
 
   if (res.status === 200) {
-    const { proximity } = await res.json();
+    const { proximity } = await res.json() as { proximity: number };
 
     return proximity;
   } else {
