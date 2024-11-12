@@ -4,11 +4,16 @@ import { io } from "../socket.ts";
 
 import state from "../state.ts";
 import {
-  getSanitizedPlayerData,
+  getSanitizedPlayer,
+  getSanitizedPlayerStats,
   getSocketFromAuthHeader,
 } from "../utils/misc.ts";
 import type { Player, Room } from "../types.ts";
-import type { GameSettings } from "../../types.ts";
+import type {
+  GameSettings,
+  PlayerID,
+  PlayerStatsSanitized,
+} from "../../types.ts";
 import {
   askYesOrNoQuestion,
   generateSecretPhraseFromCategory,
@@ -48,6 +53,22 @@ router.post("/:roomCode/start-game", async (req, res) => {
   if (roomState.host !== socket.id) {
     return res.status(400).send("you are not the room host");
   }
+
+  // Initialize the game state
+  roomState.game = {
+    state: "room", // Means we are still in the room, perhaps tinkering with settings? Who knows.
+    category: "",
+    secretPhrase: "",
+    playerStats: {},
+    timeLimit: 1000 * 60 * 15, // 15 minutes for now, subject to change (i.e. through game settings)
+    startTime: 0,
+    winner: null,
+  };
+
+  // Initialize player stats
+  roomState.players.forEach((sid) => {
+    roomState.game.playerStats[sid] = { interactions: [], guesses: [] };
+  });
 
   // Set the game state category
   roomState.game.category = category;
@@ -183,6 +204,19 @@ router.post("/:roomCode/game/ask", async (req, res) => {
     question,
   );
 
+  // AI doesn't want to answer the question because it sucks
+  if (!answer) {
+    return res.status(400).send("no answer from ai");
+  }
+
+  // Log the interaction
+  if (socket.id in roomState.game.playerStats) {
+    roomState.game.playerStats[socket.id].interactions.push({
+      question,
+      answer,
+    });
+  }
+
   return res.status(200).send(JSON.stringify({ answer }));
 });
 
@@ -215,6 +249,11 @@ router.post("/:roomCode/game/guess", async (req, res) => {
   const roomState = state[`room:${roomCode}`] as Room;
   if (roomState.game.state !== "in progress") {
     return res.status(400).send("game is not in progress");
+  }
+
+  // Log the guess
+  if (socket.id in roomState.game.playerStats) {
+    roomState.game.playerStats[socket.id].guesses.push(guess);
   }
 
   function levenshteinDistance(s: string, t: string) {
@@ -281,7 +320,7 @@ router.get("/:roomCode/game/winner", (req, res) => {
   const winner = state[`player:${roomState.game.winner}`] as Player;
 
   return res.status(200).send(
-    JSON.stringify({ winner: getSanitizedPlayerData(winner) }),
+    JSON.stringify({ winner: getSanitizedPlayer(winner) }),
   );
 });
 
@@ -311,6 +350,44 @@ router.get("/:roomCode/game/secret-phrase", (req, res) => {
 
   return res.status(200).send(
     JSON.stringify({ secretPhrase: roomState.game.secretPhrase }),
+  );
+});
+
+router.get("/:roomCode/game/player-stats", (req, res) => {
+  // Validate and get socket
+  const socket = getSocketFromAuthHeader(req.headers.authorization);
+
+  // Bad request
+  if (!socket) return res.status(400).send("could not authenticate client");
+
+  // Check if socket is in the requested room
+  const roomCode = req.params.roomCode;
+  if (!socket.rooms.has(roomCode)) {
+    return res.status(400).send("you are not in this room");
+  }
+
+  // Check if the room state exists
+  if (!(`room:${roomCode}` in state)) {
+    return res.status(400).send("room not found");
+  }
+
+  // Check that the game has ended
+  const roomState = state[`room:${roomCode}`] as Room;
+  if (roomState.game.state !== "ended" || !roomState.game.winner) {
+    return res.status(400).send("game has not ended");
+  }
+
+  // Get sanitized player stats
+  const playerStatsSanitized: Record<PlayerID, PlayerStatsSanitized> = {};
+  Object.entries(roomState.game.playerStats).forEach(([sid, playerStats]) => {
+    // Check if player state exists
+    if (!(`player:${sid}` in state)) return;
+    const player = state[`player:${sid}`] as Player;
+    playerStatsSanitized[player.id] = getSanitizedPlayerStats(playerStats);
+  });
+
+  return res.status(200).send(
+    JSON.stringify({ playerStats: playerStatsSanitized }),
   );
 });
 

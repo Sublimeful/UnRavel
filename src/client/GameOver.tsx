@@ -4,9 +4,15 @@ import PageContext from "./PageContext";
 import MainMenu from "./MainMenu";
 import Room from "./Room";
 import { socket } from "./socket";
-import type { PlayerSanitized, RoomCode } from "../types";
+import type {
+  PlayerID,
+  PlayerSanitized,
+  PlayerStatsSanitized,
+  RoomCode,
+} from "../types";
 import {
   gameGetCategory,
+  gameGetPlayerStats,
   gameGetSecretPhrase,
   gameGetWinner,
   getPlayer,
@@ -23,12 +29,18 @@ export default function GameOver(props: GameOverProps) {
   const { setPage } = useContext(PageContext);
   const [player, setPlayer] = useState<PlayerSanitized | null>(null);
   const [players, setPlayers] = useState<PlayerSanitized[]>([]);
+  const [playerStats, setPlayerStats] = useState<
+    Record<PlayerID, PlayerStatsSanitized>
+  >({});
   const [category, setCategory] = useState("");
   const [winner, setWinner] = useState<PlayerSanitized | null>(null);
   const [secretPhrase, setSecretPhrase] = useState("");
 
   useEffect(() => {
     if (!socket.id) return;
+    gameGetPlayerStats(socket.id, roomCode).then((_playerStats) => {
+      if (_playerStats) setPlayerStats(_playerStats);
+    });
     gameGetCategory(socket.id, roomCode).then((_category) => {
       if (_category) setCategory(_category);
     });
@@ -81,37 +93,50 @@ export default function GameOver(props: GameOverProps) {
         <i className="text-3xl text-yellow-400 bi bi-trophy-fill"></i>
         {winner ? winner.username : ""} Wins!
       </h1>
-      <div className="flex-[3] flex flex-col justify-center items-center gap-2 mt-3 p-2 bg-[#333333] bg-opacity-80 rounded-lg">
+      <div className="flex-[3_1_0] flex flex-col justify-center items-center gap-2 mt-3 p-2 bg-[#333333] bg-opacity-80 rounded-lg">
         <h1 className="text-xl">The secret phrase was:</h1>
         <h1 className="text-3xl font-semibold text-cyan-400">{secretPhrase}</h1>
         <h1>Category: {category}</h1>
       </div>
-      <div className="flex-[7] flex flex-col items-center mt-3 px-5 bg-[#333333] bg-opacity-60 rounded-lg">
+      <div className="flex-[7_1_0] flex flex-col items-center mt-3 px-5 bg-[#333333] bg-opacity-60 rounded-lg">
         <h1 className="flex-1 self-start text-lg flex items-center">
           Game Stats
         </h1>
-        <ul className="w-full flex flex-col gap-2">
-          {players.map((_player) =>
-            (player && _player.id === player.id)
-              ? (
-                <li
-                  key={_player.id}
-                  className="flex flex-row justify-between w-full bg-[#595959] bg-opacity-60 rounded-lg px-3 py-2"
-                >
-                  You
-                </li>
-              )
-              : (
-                <li
-                  key={_player.id}
-                  className="flex flex-row justify-between w-full bg-[#595959] bg-opacity-60 rounded-lg px-3 py-2"
-                >
-                  {_player.username}
-                </li>
-              )
-          )}
+        <ul className="flex-[3_1_0] w-full flex flex-col gap-2 overflow-y-scroll">
+          {players.map((_player) => (
+            <li
+              key={_player.id}
+              className="flex flex-row justify-between w-full bg-[#595959] bg-opacity-60 rounded-lg px-3 py-2"
+            >
+              {player && player.id === _player.id ? "You" : _player.username}
+              <div className="flex flex-row gap-2 text-[#C0C0C0]">
+                {player && (
+                  <h1>
+                    {playerStats[player.id].interactions.length}{" "}
+                    {playerStats[player.id].interactions.length === 1
+                      ? "question"
+                      : "questions"}
+                  </h1>
+                )}
+                <h1>•</h1>
+                {player && (
+                  <h1>
+                    {playerStats[player.id].guesses.length}{" "}
+                    {playerStats[player.id].guesses.length === 1
+                      ? "guess"
+                      : "guesses"}
+                  </h1>
+                )}
+              </div>
+            </li>
+          ))}
         </ul>
-        <h1 className="flex-1 text-lg flex items-center">Total Questions: 8</h1>
+        <h1 className="flex-1 text-lg flex items-center">
+          Total Questions: {Object.values(playerStats).map(({ interactions }) =>
+            interactions.length
+          ).reduce((a, b) =>
+            a + b, 0)}
+        </h1>
       </div>
       <button
         onClick={() => {

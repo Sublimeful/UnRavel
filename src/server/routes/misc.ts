@@ -2,10 +2,7 @@ import { Router } from "express";
 
 import state from "../state.ts";
 
-import {
-  getSanitizedPlayerData,
-  getSocketFromAuthHeader,
-} from "../utils/misc.ts";
+import { getSanitizedPlayer, getSocketFromAuthHeader } from "../utils/misc.ts";
 import { io } from "../socket.ts";
 import type { Player } from "../types.ts";
 
@@ -63,7 +60,7 @@ router.get("/player", (req, res) => {
   // Sanitize the data before sending it to the user
   return res.status(200).send(
     JSON.stringify(
-      getSanitizedPlayerData(state[`player:${socket.id}`] as Player),
+      getSanitizedPlayer(state[`player:${socket.id}`] as Player),
     ),
   );
 });

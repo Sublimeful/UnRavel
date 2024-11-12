@@ -12,8 +12,7 @@ import {
   roomLeave,
 } from "./api";
 import { socket } from "./socket";
-import type { PlayerSanitized, RoomCode } from "../types";
-import type { Interaction } from "./types";
+import type { Interaction, PlayerSanitized, RoomCode } from "../types";
 import GameOver from "./GameOver";
 
 interface GameProps {
@@ -186,11 +185,11 @@ export default function Game(props: GameProps) {
               )
           )}
         </div>
-        <div className="flex-[3] flex flex-col gap-3">
-          <div className="flex-[3] bg-[#424242] bg-opacity-70 rounded-lg grid place-items-center text-2xl font-semibold">
+        <div className="flex-[3_1_0] flex flex-col gap-3">
+          <div className="flex-[3_1_0] bg-[#424242] bg-opacity-70 rounded-lg grid place-items-center text-2xl font-semibold">
             Category: {category}
           </div>
-          <div className="flex-[8] flex flex-col gap-3 overflow-y-scroll bg-[#424242] bg-opacity-70 rounded-lg p-5">
+          <div className="flex-[8_1_0] flex flex-col gap-3 overflow-y-scroll bg-[#424242] bg-opacity-70 rounded-lg p-5">
             {interactions.map((interaction, index) => (
               <div key={index}>
                 <h1 className="flex gap-2">
@@ -209,7 +208,7 @@ export default function Game(props: GameProps) {
               onInput={(event) => setQuestion(event.currentTarget.value)}
               type="text"
               placeholder="Ask a yes/no question..."
-              className="flex-[6] focus:outline-none text-base w-full bg-[#343434] placeholder:text-[#787878] rounded-lg border border-[#787878] px-3"
+              className="flex-[6_1_0] focus:outline-none text-base w-full bg-[#343434] placeholder:text-[#787878] rounded-lg border border-[#787878] px-3"
               required
             >
             </input>
@@ -226,7 +225,7 @@ export default function Game(props: GameProps) {
               onInput={(event) => setGuess(event.currentTarget.value)}
               type="text"
               placeholder="Make a guess..."
-              className="flex-[6] focus:outline-none text-base w-full bg-[#343434] placeholder:text-[#787878] rounded-lg border border-[#787878] px-3"
+              className="flex-[6_1_0] focus:outline-none text-base w-full bg-[#343434] placeholder:text-[#787878] rounded-lg border border-[#787878] px-3"
               required
             >
             </input>

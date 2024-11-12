@@ -3,10 +3,7 @@ import { Router } from "express";
 import { io } from "../socket.ts";
 
 import state from "../state.ts";
-import {
-  getSanitizedPlayerData,
-  getSocketFromAuthHeader,
-} from "../utils/misc.ts";
+import { getSanitizedPlayer, getSocketFromAuthHeader } from "../utils/misc.ts";
 import type { Player, Room } from "../types.ts";
 import type { SID } from "../../types.ts";
 
@@ -106,7 +103,7 @@ router.get("/:roomCode/players", (req, res) => {
   return res.status(200).send(JSON.stringify(
     Array.from(players).map((sid) => {
       // Return a sanitized list of player information
-      return getSanitizedPlayerData(state[`player:${sid}`] as Player);
+      return getSanitizedPlayer(state[`player:${sid}`] as Player);
     }),
   ));
 });

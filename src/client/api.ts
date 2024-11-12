@@ -1,4 +1,4 @@
-import type { GameSettings } from "../types";
+import type { GameSettings, PlayerStatsSanitized } from "../types";
 import type { PlayerID, PlayerSanitized, RoomCode, SID } from "../types";
 
 export async function roomRequest(sid: SID): Promise<RoomCode | null> {
@@ -342,6 +342,33 @@ export async function gameGetSecretPhrase(
     const { secretPhrase } = await res.json() as { secretPhrase: string };
 
     return secretPhrase;
+  } else {
+    console.error(await res.text());
+
+    return null;
+  }
+}
+
+export async function gameGetPlayerStats(
+  sid: SID,
+  roomCode: RoomCode,
+): Promise<Record<PlayerID, PlayerStatsSanitized> | null> {
+  const res = await fetch(
+    `/${roomCode}/game/player-stats`,
+    {
+      method: "GET",
+      headers: {
+        "Authorization": `SID ${sid}`,
+      },
+    },
+  );
+
+  if (res.status === 200) {
+    const { playerStats } = await res.json() as {
+      playerStats: Record<PlayerID, PlayerStatsSanitized>;
+    };
+
+    return playerStats;
   } else {
     console.error(await res.text());
 
