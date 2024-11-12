@@ -298,3 +298,53 @@ export async function gameGuess(
     return null;
   }
 }
+
+export async function gameGetWinner(
+  sid: SID,
+  roomCode: RoomCode,
+): Promise<PlayerSanitized | null> {
+  const res = await fetch(
+    `/${roomCode}/game/winner`,
+    {
+      method: "GET",
+      headers: {
+        "Authorization": `SID ${sid}`,
+      },
+    },
+  );
+
+  if (res.status === 200) {
+    const { winner } = await res.json() as { winner: PlayerSanitized };
+
+    return winner;
+  } else {
+    console.error(await res.text());
+
+    return null;
+  }
+}
+
+export async function gameGetSecretPhrase(
+  sid: SID,
+  roomCode: RoomCode,
+): Promise<string | null> {
+  const res = await fetch(
+    `/${roomCode}/game/secret-phrase`,
+    {
+      method: "GET",
+      headers: {
+        "Authorization": `SID ${sid}`,
+      },
+    },
+  );
+
+  if (res.status === 200) {
+    const { secretPhrase } = await res.json() as { secretPhrase: string };
+
+    return secretPhrase;
+  } else {
+    console.error(await res.text());
+
+    return null;
+  }
+}

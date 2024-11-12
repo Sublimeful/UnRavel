@@ -14,5 +14,6 @@ export interface Room {
     secretPhrase: string;
     timeLimit: number;
     startTime: number;
+    winner: SID | null;
   };
 }

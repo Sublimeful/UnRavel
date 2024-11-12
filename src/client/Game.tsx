@@ -14,6 +14,7 @@ import {
 import { socket } from "./socket";
 import type { PlayerSanitized, RoomCode } from "../types";
 import type { Interaction } from "./types";
+import GameOver from "./GameOver";
 
 interface GameProps {
   roomCode: RoomCode;
@@ -65,7 +66,6 @@ export default function Game(props: GameProps) {
   useEffect(() => {
     function syncTimeLeft() {
       if (!socket.id) return;
-
       gameGetTimeLeft(socket.id, roomCode).then((_timeLeft) => {
         if (!_timeLeft) return;
         setTimeLeft(_timeLeft);
@@ -95,6 +95,13 @@ export default function Game(props: GameProps) {
   }, [timeLeft]);
 
   useEffect(() => {
+    if (!socket.id) return;
+    gameGetCategory(socket.id, roomCode).then((_category) => {
+      if (_category) setCategory(_category);
+    });
+  }, []);
+
+  useEffect(() => {
     function updatePlayerList() {
       if (!socket.id) return;
       getPlayer(socket.id).then((_player) => {
@@ -103,10 +110,9 @@ export default function Game(props: GameProps) {
       roomGetPlayers(socket.id, roomCode).then((_players) => {
         if (_players) setPlayers(_players);
       });
-      gameGetCategory(socket.id, roomCode).then((_category) => {
-        if (_category) setCategory(_category);
-      });
     }
+
+    socket.once("game-winner", () => setPage(<GameOver roomCode={roomCode} />));
 
     socket.on("room-player-left", updatePlayerList);
 
