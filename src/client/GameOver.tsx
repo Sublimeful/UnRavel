@@ -78,7 +78,7 @@ export default function GameOver(props: GameOverProps) {
     <div className="absolute transition-[height,width] h-[98%] w-[98%] max-w-3xl bg-[#000625] bg-opacity-50 rounded-xl border border-neutral-500 flex flex-col text-white overflow-y-scroll p-10 gap-1">
       <div className="flex flex-row w-full justify-between">
         <button
-          onClick={() => setPage(<Room roomCode="test" />)}
+          onClick={() => setPage(<Room roomCode={roomCode} />)}
           className="self-start text-lg font-light flex items-center justify-center gap-2"
         >
           <i className="bi bi-arrow-left"></i>Back to Room
@@ -89,11 +89,16 @@ export default function GameOver(props: GameOverProps) {
         <span className="text-cyan-400">Game</span>{" "}
         <span className="text-red-500">Over</span>
       </h1>
-      <h1 className="flex justify-center items-center gap-3 text-2xl">
-        <i className="text-3xl text-yellow-400 bi bi-trophy-fill"></i>
+      <h1 className="flex justify-center items-center gap-2 text-2xl">
+        {winner
+          ? <i className="mr-1 text-3xl text-yellow-400 bi bi-trophy-fill"></i>
+          : (
+            <i className="mr-1 text-3xl text-yellow-400 bi bi-emoji-frown-fill">
+            </i>
+          )}
         <span className="max-w-[50%] text-nowrap break-all truncate">
-          {winner ? winner.username : ""}
-        </span>{" "}
+          {winner ? winner.username : "Nobody"}
+        </span>
         Wins!
       </h1>
       <div className="flex-[3_0_0] flex flex-col gap-2 mt-3 p-2 bg-[#333333] bg-opacity-80 rounded-lg overflow-y-scroll">

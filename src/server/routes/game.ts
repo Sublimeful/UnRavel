@@ -60,7 +60,7 @@ router.post("/:roomCode/start-game", async (req, res) => {
     category: "",
     secretPhrase: "",
     playerStats: {},
-    timeLimit: 1000 * 60 * 15, // 15 minutes for now, subject to change (i.e. through game settings)
+    timeLimit: 1000 * 6, // 15 minutes for now, subject to change (i.e. through game settings)
     startTime: 0,
     winner: null,
   };
@@ -283,7 +283,7 @@ router.post("/:roomCode/game/guess", async (req, res) => {
   if (proximity === 1) {
     roomState.game.state = "ended";
     roomState.game.winner = socket.id;
-    io.to(roomCode).emit("game-winner");
+    io.to(roomCode).emit("room-game-end");
   }
 
   return res.status(200).send(JSON.stringify({ proximity }));
@@ -309,8 +309,15 @@ router.get("/:roomCode/game/winner", (req, res) => {
 
   // Check that the game has ended
   const roomState = state[`room:${roomCode}`] as Room;
-  if (roomState.game.state !== "ended" || !roomState.game.winner) {
+  if (roomState.game.state !== "ended") {
     return res.status(400).send("game has not ended");
+  }
+
+  // If winner is null, then it was a tie
+  if (!roomState.game.winner) {
+    return res.status(200).send(
+      JSON.stringify({ winner: null }),
+    );
   }
 
   // Get the winner
@@ -344,7 +351,7 @@ router.get("/:roomCode/game/secret-phrase", (req, res) => {
 
   // Check that the game has ended
   const roomState = state[`room:${roomCode}`] as Room;
-  if (roomState.game.state !== "ended" || !roomState.game.winner) {
+  if (roomState.game.state !== "ended") {
     return res.status(400).send("game has not ended");
   }
 
@@ -373,7 +380,7 @@ router.get("/:roomCode/game/player-stats", (req, res) => {
 
   // Check that the game has ended
   const roomState = state[`room:${roomCode}`] as Room;
-  if (roomState.game.state !== "ended" || !roomState.game.winner) {
+  if (roomState.game.state !== "ended") {
     return res.status(400).send("game has not ended");
   }
 

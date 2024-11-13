@@ -111,7 +111,10 @@ export default function Game(props: GameProps) {
       });
     }
 
-    socket.once("game-winner", () => setPage(<GameOver roomCode={roomCode} />));
+    socket.once(
+      "room-game-end",
+      () => setPage(<GameOver roomCode={roomCode} />),
+    );
 
     socket.on("room-player-left", updatePlayerList);
 
