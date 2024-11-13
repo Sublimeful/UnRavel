@@ -222,7 +222,7 @@ export default function Game(props: GameProps) {
             <input
               onInput={(event) => setQuestion(event.currentTarget.value)}
               type="text"
-              placeholder="Ask a yes/no question..."
+              placeholder="Ask a close ended question..."
               className="flex-[6_0_0] focus:outline-none text-base w-full bg-[#343434] placeholder:text-[#787878] rounded-lg border border-[#787878] px-3"
               required
             >

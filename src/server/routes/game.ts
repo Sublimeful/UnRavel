@@ -15,7 +15,7 @@ import type {
   PlayerStatsSanitized,
 } from "../../types.ts";
 import {
-  askYesOrNoQuestion,
+  askClosedEndedQuestion,
   generateSecretPhraseFromCategory,
 } from "../utils/ai.ts";
 
@@ -192,8 +192,9 @@ router.post("/:roomCode/game/ask", async (req, res) => {
   }
 
   // Ask the ai
-  const answer = await askYesOrNoQuestion(
+  const answer = await askClosedEndedQuestion(
     roomState.game.secretPhrase,
+    roomState.game.category,
     question,
   );
 
