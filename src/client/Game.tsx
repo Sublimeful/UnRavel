@@ -160,8 +160,8 @@ export default function Game(props: GameProps) {
         <i className="bi bi-clock"></i>
         {timerFormat(timeLeft)}
       </div>
-      <div className="w-full h-[74vh] pt-5 flex flex-row gap-2">
-        <div className="flex-[1_0_0] bg-[#424242] bg-opacity-70 rounded-lg flex flex-col p-4 gap-4 overflow-y-scroll">
+      <div className="w-full h-[74vh] min-h-[36rem] pt-5 flex flex-row gap-2">
+        <div className="flex-[1_0_0] bg-[#424242] bg-opacity-70 rounded-lg flex flex-col p-4 gap-4 overflow-x-clip overflow-y-scroll">
           <h1 className="text-2xl flex gap-2 font-semibold">
             <i className="bi bi-people-fill"></i>Players
           </h1>
@@ -170,34 +170,38 @@ export default function Game(props: GameProps) {
               ? (
                 <div
                   key={_player.id}
-                  className="h-12 w-full rounded-lg bg-gradient-to-r from-[#AC1C1C] to-[#2AAAD9] flex flex-row items-center px-3 text-xl"
+                  className="min-h-12 max-h-12 w-full rounded-lg bg-gradient-to-r from-[#AC1C1C] to-[#2AAAD9] flex flex-row items-center px-3"
                 >
-                  You
+                  <h1 className="w-full text-xl text-nowrap break-all truncate">
+                    You
+                  </h1>
                 </div>
               )
               : (
                 <div
                   key={_player.id}
-                  className="h-12 w-full rounded-lg bg-[#5e5e5e] flex flex-row items-center px-3 text-xl"
+                  className="min-h-12 max-h-12 w-full rounded-lg bg-gradient-to-r from-[#AC1C1C] to-[#2AAAD9] flex flex-row items-center px-3"
                 >
-                  {_player.username}
+                  <h1 className="w-full text-xl text-nowrap break-all truncate">
+                    {_player.username}
+                  </h1>
                 </div>
               )
           )}
         </div>
-        <div className="flex-[3_0_0] flex flex-col gap-3">
-          <div className="flex-[3_0_0] bg-[#424242] bg-opacity-70 rounded-lg grid place-items-center text-2xl font-semibold">
+        <div className="flex-[3_0_0] min-w-0 flex flex-col gap-3">
+          <div className="flex-[2_0_0] bg-[#424242] bg-opacity-70 rounded-lg grid place-items-center text-2xl font-semibold p-5 min-h-0 overflow-y-scroll text-wrap break-all">
             Category: {category}
           </div>
           <div className="flex-[8_0_0] flex flex-col gap-3 overflow-y-scroll bg-[#424242] bg-opacity-70 rounded-lg p-5">
             {interactions.map((interaction, index) => (
               <div key={index}>
-                <h1 className="flex gap-2">
-                  <span className="font-bold">Player:</span>
+                <h1 className="flex gap-2 text-wrap break-all">
+                  <span className="font-bold text-nowrap">Player:</span>
                   {interaction.question}
                 </h1>
-                <h1 className="flex gap-2 text-[#28dded] ml-3">
-                  <span className="font-bold">AI:</span>
+                <h1 className="flex gap-2 text-[#28dded] ml-8 text-wrap break-all">
+                  <span className="font-bold text-nowrap">AI:</span>
                   {interaction.answer}
                 </h1>
               </div>

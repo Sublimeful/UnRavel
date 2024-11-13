@@ -75,7 +75,7 @@ export default function GameOver(props: GameOverProps) {
   }, []);
 
   return (
-    <div className="absolute transition-[height,width] lg:h-[90%] h-[98%] w-[98%] max-w-3xl bg-[#000625] bg-opacity-50 rounded-xl border border-neutral-500 flex flex-col text-white overflow-y-scroll p-10 gap-1">
+    <div className="absolute transition-[height,width] h-[98%] w-[98%] max-w-3xl bg-[#000625] bg-opacity-50 rounded-xl border border-neutral-500 flex flex-col text-white overflow-y-scroll p-10 gap-1">
       <div className="flex flex-row w-full justify-between">
         <button
           onClick={() => setPage(<Room roomCode="test" />)}
@@ -91,28 +91,39 @@ export default function GameOver(props: GameOverProps) {
       </h1>
       <h1 className="flex justify-center items-center gap-3 text-2xl">
         <i className="text-3xl text-yellow-400 bi bi-trophy-fill"></i>
-        {winner ? winner.username : ""} Wins!
+        <span className="max-w-[50%] text-nowrap break-all truncate">
+          {winner ? winner.username : ""}
+        </span>{" "}
+        Wins!
       </h1>
-      <div className="flex-[3_0_0] flex flex-col justify-center items-center gap-2 mt-3 p-2 bg-[#333333] bg-opacity-80 rounded-lg">
-        <h1 className="text-xl">The secret phrase was:</h1>
-        <h1 className="text-3xl font-semibold text-cyan-400">{secretPhrase}</h1>
-        <h1>Category: {category}</h1>
+      <div className="flex-[3_0_0] flex flex-col gap-2 mt-3 p-2 bg-[#333333] bg-opacity-80 rounded-lg overflow-y-scroll">
+        <h1 className="m-auto text-xl text-center">The secret phrase was:</h1>
+        <h1 className="m-auto text-3xl font-semibold text-cyan-400 text-center text-wrap break-all">
+          {secretPhrase}
+        </h1>
+        <h1 className="m-auto text-center text-wrap break-all">
+          Category: {category}
+        </h1>
       </div>
       <div className="flex-[7_0_0] flex flex-col items-center mt-3 px-5 bg-[#333333] bg-opacity-60 rounded-lg">
-        <h1 className="flex-[1_0_0] self-start text-lg flex items-center">
+        <h1 className="flex-[1_0_0] min-h-14 max-h-14 self-start text-lg flex items-center">
           Game Stats
         </h1>
-        <ul className="flex-[3_0_0] w-full flex flex-col gap-2 overflow-y-scroll">
+        <ul className="flex-[3_0_0] min-h-40 w-full flex flex-col gap-2 overflow-y-scroll">
           {players.map((_player) => (
             <li
               key={_player.id}
-              className="flex flex-row justify-between w-full bg-[#595959] bg-opacity-60 rounded-lg px-3 py-2"
+              className="flex flex-row gap-6 justify-between w-full bg-[#595959] bg-opacity-60 rounded-lg px-3 py-2"
             >
-              {player && player.id === _player.id ? "You" : _player.username}
-              <div className="flex flex-row gap-2 text-[#C0C0C0]">
+              <span className="flex-[1_0_0] text-nowrap break-all truncate">
+                {player && player.id === _player.id ? "You" : _player.username}
+              </span>
+              <div className="max-w-max flex flex-row gap-2 text-[#C0C0C0]">
                 {player && (
-                  <h1>
-                    {playerStats[player.id].interactions.length}{" "}
+                  <h1 className="flex flex-row gap-1">
+                    <span className="max-w-16 text-nowrap break-all truncate">
+                      {playerStats[player.id].interactions.length}
+                    </span>{" "}
                     {playerStats[player.id].interactions.length === 1
                       ? "question"
                       : "questions"}
@@ -120,8 +131,10 @@ export default function GameOver(props: GameOverProps) {
                 )}
                 <h1>•</h1>
                 {player && (
-                  <h1>
-                    {playerStats[player.id].guesses.length}{" "}
+                  <h1 className="flex flex-row gap-1">
+                    <span className="max-w-16 text-nowrap break-all truncate">
+                      {playerStats[player.id].guesses.length}
+                    </span>{" "}
                     {playerStats[player.id].guesses.length === 1
                       ? "guess"
                       : "guesses"}
@@ -131,7 +144,7 @@ export default function GameOver(props: GameOverProps) {
             </li>
           ))}
         </ul>
-        <h1 className="flex-[1_0_0] text-lg flex items-center">
+        <h1 className="flex-[1_0_0] min-h-14 max-h-14 text-lg w-full text-center text-nowrap break-all truncate">
           Total Questions: {Object.values(playerStats).map(({ interactions }) =>
             interactions.length
           ).reduce((a, b) =>

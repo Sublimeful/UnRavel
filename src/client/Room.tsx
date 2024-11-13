@@ -125,7 +125,9 @@ export default function Room(props: RoomProps) {
               key={_player.id}
               className="flex flex-row justify-between w-full bg-[#595959] rounded-lg px-3 py-2"
             >
-              {_player.username}
+              <h1 className="w-full text-xl text-nowrap break-all truncate">
+                {_player.username}
+              </h1>
               {host && host === _player.id && (
                 <div className="bg-red-500 rounded-lg self-end w-14 grid place-items-center">
                   Host
