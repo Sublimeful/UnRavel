@@ -170,7 +170,13 @@ export default function Game(props: GameProps) {
           <h1 className="text-2xl flex gap-2 font-semibold">
             <i className="bi bi-people-fill"></i>Players
           </h1>
-          {players.map((_player) =>
+          {players.sort((a, b) => {
+            if (player && (player.id === a.id || player.id === b.id)) {
+              return (b.id === player.id) ? 1 : -1;
+            } else {
+              return a.username.localeCompare(b.username);
+            }
+          }).map((_player) =>
             (player && _player.id === player.id)
               ? (
                 <div

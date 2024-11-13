@@ -123,7 +123,13 @@ export default function GameOver(props: GameOverProps) {
           Game Stats
         </h1>
         <ul className="flex-[3_0_0] min-h-40 w-full flex flex-col gap-2 overflow-y-scroll">
-          {players.map((_player) => (
+          {players.sort((a, b) => {
+            if (player && (player.id === a.id || player.id === b.id)) {
+              return (b.id === player.id) ? 1 : -1;
+            } else {
+              return a.username.localeCompare(b.username);
+            }
+          }).map((_player) => (
             <li
               key={_player.id}
               className="flex flex-row gap-6 justify-between w-full bg-[#595959] bg-opacity-60 rounded-lg px-3 py-2"

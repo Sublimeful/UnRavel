@@ -125,7 +125,13 @@ export default function Room(props: RoomProps) {
           Players ({players.length})
         </h1>
         <ul className="mt-2 flex flex-col gap-2">
-          {players.map((_player) => (
+          {players.sort((a, b) => {
+            if (player && (player.id === a.id || player.id === b.id)) {
+              return (b.id === player.id) ? 1 : -1;
+            } else {
+              return a.username.localeCompare(b.username);
+            }
+          }).map((_player) => (
             <li
               key={_player.id}
               className="flex flex-row justify-between w-full bg-[#595959] rounded-lg px-3 py-2"
