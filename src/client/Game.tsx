@@ -180,7 +180,7 @@ export default function Game(props: GameProps) {
               : (
                 <div
                   key={_player.id}
-                  className="min-h-12 max-h-12 w-full rounded-lg bg-gradient-to-r from-[#AC1C1C] to-[#2AAAD9] flex flex-row items-center px-3"
+                  className="min-h-12 max-h-12 w-full rounded-lg bg-[#5e5e5e] flex flex-row items-center px-3"
                 >
                   <h1 className="w-full text-xl text-nowrap break-all truncate">
                     {_player.username}

@@ -122,9 +122,9 @@ export default function GameOver(props: GameOverProps) {
                 {player && (
                   <h1 className="flex flex-row gap-1">
                     <span className="max-w-16 text-nowrap break-all truncate">
-                      {playerStats[player.id].interactions.length}
+                      {playerStats[_player.id].interactions.length}
                     </span>{" "}
-                    {playerStats[player.id].interactions.length === 1
+                    {playerStats[_player.id].interactions.length === 1
                       ? "question"
                       : "questions"}
                   </h1>
@@ -133,9 +133,9 @@ export default function GameOver(props: GameOverProps) {
                 {player && (
                   <h1 className="flex flex-row gap-1">
                     <span className="max-w-16 text-nowrap break-all truncate">
-                      {playerStats[player.id].guesses.length}
+                      {playerStats[_player.id].guesses.length}
                     </span>{" "}
-                    {playerStats[player.id].guesses.length === 1
+                    {playerStats[_player.id].guesses.length === 1
                       ? "guess"
                       : "guesses"}
                   </h1>
