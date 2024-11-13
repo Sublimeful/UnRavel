@@ -161,7 +161,7 @@ export default function Game(props: GameProps) {
         {timerFormat(timeLeft)}
       </div>
       <div className="w-full h-[74vh] pt-5 flex flex-row gap-2">
-        <div className="flex-1 bg-[#424242] bg-opacity-70 rounded-lg flex flex-col p-4 gap-4 overflow-y-scroll">
+        <div className="flex-[1_0_0] bg-[#424242] bg-opacity-70 rounded-lg flex flex-col p-4 gap-4 overflow-y-scroll">
           <h1 className="text-2xl flex gap-2 font-semibold">
             <i className="bi bi-people-fill"></i>Players
           </h1>
@@ -185,11 +185,11 @@ export default function Game(props: GameProps) {
               )
           )}
         </div>
-        <div className="flex-[3_1_0] flex flex-col gap-3">
-          <div className="flex-[3_1_0] bg-[#424242] bg-opacity-70 rounded-lg grid place-items-center text-2xl font-semibold">
+        <div className="flex-[3_0_0] flex flex-col gap-3">
+          <div className="flex-[3_0_0] bg-[#424242] bg-opacity-70 rounded-lg grid place-items-center text-2xl font-semibold">
             Category: {category}
           </div>
-          <div className="flex-[8_1_0] flex flex-col gap-3 overflow-y-scroll bg-[#424242] bg-opacity-70 rounded-lg p-5">
+          <div className="flex-[8_0_0] flex flex-col gap-3 overflow-y-scroll bg-[#424242] bg-opacity-70 rounded-lg p-5">
             {interactions.map((interaction, index) => (
               <div key={index}>
                 <h1 className="flex gap-2">
@@ -203,35 +203,38 @@ export default function Game(props: GameProps) {
               </div>
             ))}
           </div>
-          <form className="flex-1 flex flex-row gap-3" onSubmit={gameAsk}>
+          <form className="flex-[1_0_0] flex flex-row gap-3" onSubmit={gameAsk}>
             <input
               onInput={(event) => setQuestion(event.currentTarget.value)}
               type="text"
               placeholder="Ask a yes/no question..."
-              className="flex-[6_1_0] focus:outline-none text-base w-full bg-[#343434] placeholder:text-[#787878] rounded-lg border border-[#787878] px-3"
+              className="flex-[6_0_0] focus:outline-none text-base w-full bg-[#343434] placeholder:text-[#787878] rounded-lg border border-[#787878] px-3"
               required
             >
             </input>
             <button
               type="submit"
-              className="flex-1 mx-auto transition-[font-size] w-full rounded-lg sm:text-base text-black text-sm font-light bg-[#00a0cc] flex items-center justify-center gap-2 disabled:brightness-50"
+              className="flex-[1_0_0] mx-auto transition-[font-size] w-full rounded-lg sm:text-base text-black text-sm font-light bg-[#00a0cc] flex items-center justify-center gap-2 disabled:brightness-50"
             >
               Ask
               <i className="bi bi-send-fill"></i>
             </button>
           </form>
-          <form className="flex-1 flex flex-row gap-3" onSubmit={gameGuess}>
+          <form
+            className="flex-[1_0_0] flex flex-row gap-3"
+            onSubmit={gameGuess}
+          >
             <input
               onInput={(event) => setGuess(event.currentTarget.value)}
               type="text"
               placeholder="Make a guess..."
-              className="flex-[6_1_0] focus:outline-none text-base w-full bg-[#343434] placeholder:text-[#787878] rounded-lg border border-[#787878] px-3"
+              className="flex-[6_0_0] focus:outline-none text-base w-full bg-[#343434] placeholder:text-[#787878] rounded-lg border border-[#787878] px-3"
               required
             >
             </input>
             <button
               type="submit"
-              className="flex-1 mx-auto transition-[font-size] w-full rounded-lg sm:text-base text-sm font-light bg-gradient-to-r from-[#AC1C1C] to-[#2AAAD9] flex items-center justify-center gap-2 disabled:brightness-50"
+              className="flex-[1_0_0] mx-auto transition-[font-size] w-full rounded-lg sm:text-base text-sm font-light bg-gradient-to-r from-[#AC1C1C] to-[#2AAAD9] flex items-center justify-center gap-2 disabled:brightness-50"
             >
               Guess
               <i className="w-5 aspect-square bg-white [mask-size:contain] [mask-image:url(brain.svg)]" />
@@ -239,7 +242,7 @@ export default function Game(props: GameProps) {
           </form>
         </div>
       </div>
-      <div className="flex-1 w-full flex flex-row py-3 text-3xl justify-between items-center">
+      <div className="flex-[1_0_0] shrink-0 w-full flex flex-row py-3 text-3xl justify-between items-center">
         <i className="flex bi bi-snow text-blue-500"></i>
         <div className="w-11/12 h-8 bg-[#343434] rounded-2xl overflow-clip">
           <div

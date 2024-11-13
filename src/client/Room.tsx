@@ -146,7 +146,7 @@ export default function Room(props: RoomProps) {
               Game Settings
             </h1>
             <div className="flex flex-row gap-3 mt-1">
-              <div className="flex-1 relative flex items-center">
+              <div className="flex-[1_0_0] relative flex items-center">
                 <input
                   onInput={(event) =>
                     setGameSettings({
@@ -163,7 +163,7 @@ export default function Room(props: RoomProps) {
                   Category
                 </span>
               </div>
-              <div className="flex-1 relative flex items-center">
+              <div className="flex-[1_0_0] relative flex items-center">
                 <input
                   type="number"
                   defaultValue={4}

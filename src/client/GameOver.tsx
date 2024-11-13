@@ -93,16 +93,16 @@ export default function GameOver(props: GameOverProps) {
         <i className="text-3xl text-yellow-400 bi bi-trophy-fill"></i>
         {winner ? winner.username : ""} Wins!
       </h1>
-      <div className="flex-[3_1_0] flex flex-col justify-center items-center gap-2 mt-3 p-2 bg-[#333333] bg-opacity-80 rounded-lg">
+      <div className="flex-[3_0_0] flex flex-col justify-center items-center gap-2 mt-3 p-2 bg-[#333333] bg-opacity-80 rounded-lg">
         <h1 className="text-xl">The secret phrase was:</h1>
         <h1 className="text-3xl font-semibold text-cyan-400">{secretPhrase}</h1>
         <h1>Category: {category}</h1>
       </div>
-      <div className="flex-[7_1_0] flex flex-col items-center mt-3 px-5 bg-[#333333] bg-opacity-60 rounded-lg">
-        <h1 className="flex-1 self-start text-lg flex items-center">
+      <div className="flex-[7_0_0] flex flex-col items-center mt-3 px-5 bg-[#333333] bg-opacity-60 rounded-lg">
+        <h1 className="flex-[1_0_0] self-start text-lg flex items-center">
           Game Stats
         </h1>
-        <ul className="flex-[3_1_0] w-full flex flex-col gap-2 overflow-y-scroll">
+        <ul className="flex-[3_0_0] w-full flex flex-col gap-2 overflow-y-scroll">
           {players.map((_player) => (
             <li
               key={_player.id}
@@ -131,7 +131,7 @@ export default function GameOver(props: GameOverProps) {
             </li>
           ))}
         </ul>
-        <h1 className="flex-1 text-lg flex items-center">
+        <h1 className="flex-[1_0_0] text-lg flex items-center">
           Total Questions: {Object.values(playerStats).map(({ interactions }) =>
             interactions.length
           ).reduce((a, b) =>
@@ -143,7 +143,7 @@ export default function GameOver(props: GameOverProps) {
           if (socket.id) roomLeave(socket.id, roomCode); // Leave room before returning to main menu
           setPage(<MainMenu />);
         }}
-        className="flex-1 mt-3 min-h-10 bg-[#333333] bg-opacity-80 rounded-lg flex justify-center items-center gap-2"
+        className="flex-[1_0_0] mt-3 min-h-10 bg-[#333333] bg-opacity-80 rounded-lg flex justify-center items-center gap-2"
       >
         Main Menu<i className="bi bi-house-door"></i>
       </button>
