@@ -129,7 +129,7 @@ export default function GameOver(props: GameOverProps) {
               className="flex flex-row gap-6 justify-between w-full bg-[#595959] bg-opacity-60 rounded-lg px-3 py-2"
             >
               <span className="flex-[1_0_0] text-nowrap break-all truncate">
-                {player && player.id === _player.id ? "You" : _player.username}
+                {_player.username}
               </span>
               <div className="max-w-max flex flex-row gap-2 text-[#C0C0C0]">
                 {player && (
