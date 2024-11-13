@@ -80,7 +80,7 @@ io.sockets.adapter.on("create-room", (roomCode) => {
       category: "",
       secretPhrase: "",
       playerStats: {},
-      timeLimit: 1000 * 6, // 15 minutes for now, subject to change (i.e. through game settings)
+      timeLimit: 1000 * 60 * 15, // 15 minutes for now, subject to change (i.e. through game settings)
       startTime: 0,
       winner: null,
     },
