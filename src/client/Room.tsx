@@ -63,9 +63,13 @@ export default function Room(props: RoomProps) {
       });
     }
 
-    // Switch to the game page when the game starts
-    socket.once("room-game-start", () => setPage(<Game roomCode={roomCode} />));
+    function onceGameStarts() {
+      // Switch to the game page when the game starts again
+      setPage(<Game roomCode={roomCode} />);
+    }
 
+    // Switch to the game page when the game starts
+    socket.once("room-game-start", onceGameStarts);
     socket.on("room-player-joined", updatePlayerList);
     socket.on("room-player-left", updatePlayerList);
 
@@ -74,6 +78,7 @@ export default function Room(props: RoomProps) {
     return () => {
       // Unregister all event listeners when component is unmounted
       // Otherwise they may trigger in the future unexpectedly
+      socket.off("room-game-start", onceGameStarts);
       socket.off("room-player-joined", updatePlayerList);
       socket.off("room-player-left", updatePlayerList);
     };

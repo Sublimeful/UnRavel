@@ -48,30 +48,29 @@ router.post("/:roomCode/start-game", async (req, res) => {
     return res.status(400).send("room not found");
   }
 
-  // Check if player is the host
+  // Check that the game is in a state where it can be started
   const roomState = state[`room:${roomCode}`] as Room;
+  if (roomState.game.state === "in progress") {
+    return res.status(400).send(
+      "you cannot start a new game while the current one is still in progress",
+    );
+  }
+
+  // Check if player is the host
   if (roomState.host !== socket.id) {
     return res.status(400).send("you are not the room host");
   }
 
-  // Initialize the game state
-  roomState.game = {
-    state: "room", // Means we are still in the room, perhaps tinkering with settings? Who knows.
-    category: "",
-    secretPhrase: "",
-    playerStats: {},
-    timeLimit: 1000 * 6, // 15 minutes for now, subject to change (i.e. through game settings)
-    startTime: 0,
-    winner: null,
-  };
+  // Set the game winner to null (nobody has won this new game yet)
+  roomState.game.winner = null;
+
+  // Set the game state category
+  roomState.game.category = category;
 
   // Initialize player stats
   roomState.players.forEach((sid) => {
     roomState.game.playerStats[sid] = { interactions: [], guesses: [] };
   });
-
-  // Set the game state category
-  roomState.game.category = category;
 
   // Generate the secret phrase
   const secretPhrase = await generateSecretPhraseFromCategory(category);
@@ -96,8 +95,8 @@ router.post("/:roomCode/start-game", async (req, res) => {
 
   // The game will end when the timer runs out
   setTimeout(() => {
-    // Set the game state to ended
-    roomState.game.state = "ended";
+    // Set the game state to idle
+    roomState.game.state = "idle";
     // Tell every player the game has ended
     io.to(roomCode).emit("room-game-end");
   }, roomState.game.timeLimit);
@@ -154,13 +153,7 @@ router.get("/:roomCode/game/category", (req, res) => {
     return res.status(400).send("room not found");
   }
 
-  // Check that the game is in progress
   const roomState = state[`room:${roomCode}`] as Room;
-  if (
-    roomState.game.state !== "in progress" && roomState.game.state !== "ended"
-  ) {
-    return res.status(400).send("game is not in progress");
-  }
 
   return res.status(200).send(
     JSON.stringify({ category: roomState.game.category }),
@@ -281,8 +274,11 @@ router.post("/:roomCode/game/guess", async (req, res) => {
 
   // Player won the game
   if (proximity === 1) {
-    roomState.game.state = "ended";
+    // Set the game state to idle
+    roomState.game.state = "idle";
+    // Set the winner
     roomState.game.winner = socket.id;
+    // Tell every player the game has ended
     io.to(roomCode).emit("room-game-end");
   }
 
@@ -309,7 +305,7 @@ router.get("/:roomCode/game/winner", (req, res) => {
 
   // Check that the game has ended
   const roomState = state[`room:${roomCode}`] as Room;
-  if (roomState.game.state !== "ended") {
+  if (roomState.game.state !== "idle") {
     return res.status(400).send("game has not ended");
   }
 
@@ -351,7 +347,7 @@ router.get("/:roomCode/game/secret-phrase", (req, res) => {
 
   // Check that the game has ended
   const roomState = state[`room:${roomCode}`] as Room;
-  if (roomState.game.state !== "ended") {
+  if (roomState.game.state !== "idle") {
     return res.status(400).send("game has not ended");
   }
 
@@ -380,7 +376,7 @@ router.get("/:roomCode/game/player-stats", (req, res) => {
 
   // Check that the game has ended
   const roomState = state[`room:${roomCode}`] as Room;
-  if (roomState.game.state !== "ended") {
+  if (roomState.game.state !== "idle") {
     return res.status(400).send("game has not ended");
   }
 

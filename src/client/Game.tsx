@@ -111,11 +111,12 @@ export default function Game(props: GameProps) {
       });
     }
 
-    socket.once(
-      "room-game-end",
-      () => setPage(<GameOver roomCode={roomCode} />),
-    );
+    function onceGameEnds() {
+      // Once the game ends, set the page to game over screen
+      setPage(<GameOver roomCode={roomCode} />);
+    }
 
+    socket.once("room-game-end", onceGameEnds);
     socket.on("room-player-left", updatePlayerList);
 
     updatePlayerList(); // Initially update the player list
@@ -123,6 +124,7 @@ export default function Game(props: GameProps) {
     return () => {
       // Unregister all event listeners when component is unmounted
       // Otherwise they may trigger in the future unexpectedly
+      socket.off("room-game-end", onceGameEnds);
       socket.off("room-player-left", updatePlayerList);
     };
   }, []);

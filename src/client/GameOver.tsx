@@ -19,6 +19,7 @@ import {
   roomGetPlayers,
   roomLeave,
 } from "./api";
+import Game from "./Game";
 
 interface GameOverProps {
   roomCode: RoomCode;
@@ -63,6 +64,12 @@ export default function GameOver(props: GameOverProps) {
       });
     }
 
+    function onceGameStarts() {
+      // Switch to the game page when the game starts again
+      setPage(<Game roomCode={roomCode} />);
+    }
+
+    socket.once("room-game-start", onceGameStarts);
     socket.on("room-player-left", updatePlayerList);
 
     updatePlayerList(); // Initially update the player list
@@ -70,6 +77,7 @@ export default function GameOver(props: GameOverProps) {
     return () => {
       // Unregister all event listeners when component is unmounted
       // Otherwise they may trigger in the future unexpectedly
+      socket.off("room-game-start", onceGameStarts);
       socket.off("room-player-left", updatePlayerList);
     };
   }, []);

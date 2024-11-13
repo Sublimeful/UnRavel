@@ -12,7 +12,7 @@ export const io = new Server({
 
 io.on("connection", (socket) => {
   console.log(socket.id, "connection");
-  socket.on("disconnect", (_) => {
+  socket.on("disconnect", () => {
     console.log(socket.id, "disconnect");
     // Delete the player data if there is player data
     if (`player:${socket.id}` in state) {
@@ -74,6 +74,16 @@ io.sockets.adapter.on("create-room", (roomCode) => {
   state[`room:${roomCode}`] = {
     players: new Set<SID>(),
     host: null,
+    // Initialize the game state
+    game: {
+      state: "idle", // Either in the room or in the game over screen when the game ends
+      category: "",
+      secretPhrase: "",
+      playerStats: {},
+      timeLimit: 1000 * 6, // 15 minutes for now, subject to change (i.e. through game settings)
+      startTime: 0,
+      winner: null,
+    },
   } as Room;
 });
 

@@ -11,7 +11,9 @@ export interface PlayerStats {
 }
 
 export interface Game {
-  state: "room" | "in progress" | "ended";
+  // idle: In the room or game over screen
+  // in progress: Game is in progress
+  state: "idle" | "in progress";
   category: string;
   secretPhrase: string;
   playerStats: Record<SID, PlayerStats>;
