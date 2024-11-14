@@ -23,7 +23,7 @@ export default function HowToPlay() {
       <div className="shrink-0 flex flex-row w-full min-h-max gap-4 mt-8 overflow-x-scroll overflow-y-clip">
         <div className="bg-[#1A1C38] flex-[1_0_0] flex flex-col items-center min-w-40 gap-1 p-5 rounded-xl">
           <i className="bi bi-people-fill text-6xl text-teal-400"></i>
-          <h1 className="text-xl">Join a Game</h1>
+          <h1 className="text-center text-xl">Join a Game</h1>
           <p className="text-center text-gray-400">
             Create your own room or engage in ELO based random matchmaking with
             other players.
@@ -31,21 +31,21 @@ export default function HowToPlay() {
         </div>
         <div className="bg-[#1A1C38] flex-[1_0_0] flex flex-col items-center min-w-40 gap-1 p-5 rounded-xl">
           <i className="w-[3.75rem] aspect-square bg-red-400 [mask-size:contain] [mask-image:url(brain.svg)]" />
-          <h1 className="text-xl">Get Your Secret Term</h1>
+          <h1 className="text-center text-xl">Get Your Secret Term</h1>
           <p className="text-center text-gray-400">
             An AI will choose a random term from a selected category.
           </p>
         </div>
         <div className="bg-[#1A1C38] flex-[1_0_0] flex flex-col items-center min-w-40 gap-1 p-5 rounded-xl">
           <i className="bi bi-chat text-6xl text-yellow-400"></i>
-          <h1 className="text-xl">Ask Questions</h1>
+          <h1 className="text-center text-xl">Ask Questions</h1>
           <p className="text-center text-gray-400">
             Ask questions to gather information about the secret term.
           </p>
         </div>
         <div className="bg-[#1A1C38] flex-[1_0_0] flex flex-col items-center min-w-40 gap-1 p-5 rounded-xl">
           <i className="bi bi-stars text-6xl text-purple-500"></i>
-          <h1 className="text-xl">Make Your Guess</h1>
+          <h1 className="text-center text-xl">Make Your Guess</h1>
           <p className="text-center text-gray-400">
             Use the information you've gathered to try and guess the secret
             term.
@@ -53,7 +53,7 @@ export default function HowToPlay() {
         </div>
         <div className="bg-[#1A1C38] flex-[1_0_0] flex flex-col items-center min-w-40 gap-1 p-5 rounded-xl">
           <i className="bi bi-trophy text-6xl text-lime-500"></i>
-          <h1 className="text-xl">Win the Game</h1>
+          <h1 className="text-center text-xl">Win the Game</h1>
           <p className="text-center text-gray-400">
             The first player to correctly guess the secret term wins!
           </p>
