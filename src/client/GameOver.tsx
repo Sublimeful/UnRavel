@@ -13,7 +13,7 @@ import type {
 import {
   gameGetCategory,
   gameGetPlayerStats,
-  gameGetSecretPhrase,
+  gameGetSecretTerm,
   gameGetWinner,
   getPlayer,
   roomGetPlayers,
@@ -35,7 +35,7 @@ export default function GameOver(props: GameOverProps) {
   >({});
   const [category, setCategory] = useState("");
   const [winner, setWinner] = useState<PlayerSanitized | null>(null);
-  const [secretPhrase, setSecretPhrase] = useState("");
+  const [secretTerm, setSecretTerm] = useState("");
 
   useEffect(() => {
     if (!socket.id) return;
@@ -48,8 +48,8 @@ export default function GameOver(props: GameOverProps) {
     gameGetWinner(socket.id, roomCode).then((_winner) => {
       if (_winner) setWinner(_winner);
     });
-    gameGetSecretPhrase(socket.id, roomCode).then((_secretPhrase) => {
-      if (_secretPhrase) setSecretPhrase(_secretPhrase);
+    gameGetSecretTerm(socket.id, roomCode).then((_secretTerm) => {
+      if (_secretTerm) setSecretTerm(_secretTerm);
     });
   }, []);
 
@@ -110,9 +110,9 @@ export default function GameOver(props: GameOverProps) {
         Wins!
       </h1>
       <div className="flex-[3_0_0] flex flex-col min-h-40 gap-2 mt-3 p-2 bg-[#333333] bg-opacity-80 rounded-lg overflow-y-scroll">
-        <h1 className="m-auto text-xl text-center">The secret phrase was:</h1>
+        <h1 className="m-auto text-xl text-center">The secret term was:</h1>
         <h1 className="m-auto text-3xl font-semibold text-cyan-400 text-center text-wrap break-all">
-          {secretPhrase}
+          {secretTerm}
         </h1>
         <h1 className="m-auto text-center text-wrap break-all">
           Category: {category}

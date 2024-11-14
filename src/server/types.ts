@@ -15,7 +15,7 @@ export interface Game {
   // in progress: Game is in progress
   state: "idle" | "in progress";
   category: string;
-  secretPhrase: string;
+  secretTerm: string;
   playerStats: Record<SID, PlayerStats>;
   timeLimit: number;
   startTime: number;

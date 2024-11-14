@@ -42,33 +42,33 @@ async function promptAI(requestBody: Record<string, any>) {
   }
 }
 
-export async function generateSecretPhraseFromCategory(category: string) {
+export async function generateSecretTermFromCategory(category: string) {
   const res = await promptAI({
     model: "gpt-4o-mini",
     messages: [
       {
         role: "system",
         content:
-          `Only provide a JSON formatted list of strings, with each string being a random phrase from the category. If the category is related to the real world, make sure the phrase actually exist.`,
+          `Only provide a JSON formatted list of strings, with each string being a random term from the category. If the category is related to the real world, make sure the term actually exist.`,
       },
       {
         role: "user",
         content:
-          `Generate a list of random phrases from this category: ${category}`,
+          `Generate a list of random terms from this category: ${category}`,
       },
     ],
   });
 
   if (!res) return null;
 
-  // Try to parse this "JSON" and return a random phrase from it. The keyword here is "TRY".
+  // Try to parse this "JSON" and return a random term from it. The keyword here is "TRY".
   try {
     // It always seems to format it starting with ```json on the first line and ending with ``` on the last line
-    const phrases = JSON.parse(
+    const terms = JSON.parse(
       res.split("\n").slice(1, res.split("\n").length - 1).join("\n"),
     ) as string[];
 
-    return phrases[Math.floor(Math.random() * phrases.length)];
+    return terms[Math.floor(Math.random() * terms.length)];
   } catch (error) {
     console.error(error);
 
@@ -77,7 +77,7 @@ export async function generateSecretPhraseFromCategory(category: string) {
 }
 
 export async function askClosedEndedQuestion(
-  secretPhrase: string,
+  secretTerm: string,
   category: string,
   question: string,
 ) {
@@ -88,10 +88,10 @@ export async function askClosedEndedQuestion(
       messages: [{
         role: "system",
         content:
-          `Your secret phrase is "${secretPhrase}" from the category "${category}". The user is playing a game where they ask you closed ended questions to find out what the secret phrase is. Do not give away the secret phrase unless the user guesses it.`,
+          `Your secret term is "${secretTerm}" from the category "${category}". The user is playing a game where they ask you closed ended questions to find out what the secret term is. Do not give away the secret term unless the user guesses it.`,
       }, {
         role: "user",
-        content: `In regards to the secret phrase: ${question}`,
+        content: `In regards to the secret term: ${question}`,
       }],
     },
   );

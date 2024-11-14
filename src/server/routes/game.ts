@@ -16,7 +16,7 @@ import type {
 } from "../../types.ts";
 import {
   askClosedEndedQuestion,
-  generateSecretPhraseFromCategory,
+  generateSecretTermFromCategory,
 } from "../utils/ai.ts";
 
 const router = Router();
@@ -70,17 +70,17 @@ router.post("/api/:roomCode/start-game", async (req, res) => {
     roomState.game.playerStats[sid] = { interactions: [], guesses: [] };
   });
 
-  // Generate the secret phrase
-  const secretPhrase = await generateSecretPhraseFromCategory(category);
+  // Generate the secret term
+  const secretTerm = await generateSecretTermFromCategory(category);
 
-  // Something went wrong while generating the secret phrase
-  if (!secretPhrase) {
+  // Something went wrong while generating the secret term
+  if (!secretTerm) {
     return res.status(500).send("something went wrong");
   }
 
-  // Set the game state secretPhrase
-  roomState.game.secretPhrase = secretPhrase;
-  console.log(roomCode, "category", category, "secret phrase", secretPhrase);
+  // Set the game state secretTerm
+  roomState.game.secretTerm = secretTerm;
+  console.log(roomCode, "category", category, "secret term", secretTerm);
 
   // Set the game state to "in progress"
   roomState.game.state = "in progress";
@@ -191,7 +191,7 @@ router.post("/api/:roomCode/game/ask", async (req, res) => {
 
   // Ask the ai
   const answer = await askClosedEndedQuestion(
-    roomState.game.secretPhrase,
+    roomState.game.secretTerm,
     roomState.game.category,
     question,
   );
@@ -268,8 +268,8 @@ router.post("/api/:roomCode/game/guess", async (req, res) => {
   // Get the proximity
   const proximity = 1 - (levenshteinDistance(
     guess.toLowerCase(),
-    roomState.game.secretPhrase.toLowerCase(),
-  ) / Math.max(guess.length, roomState.game.secretPhrase.length));
+    roomState.game.secretTerm.toLowerCase(),
+  ) / Math.max(guess.length, roomState.game.secretTerm.length));
 
   // Player won the game
   if (proximity === 1) {
@@ -326,7 +326,7 @@ router.get("/api/:roomCode/game/winner", (req, res) => {
   );
 });
 
-router.get("/api/:roomCode/game/secret-phrase", (req, res) => {
+router.get("/api/:roomCode/game/secret-term", (req, res) => {
   // Validate and get socket
   const socket = getSocketFromAuthHeader(req.headers.authorization);
 
@@ -351,7 +351,7 @@ router.get("/api/:roomCode/game/secret-phrase", (req, res) => {
   }
 
   return res.status(200).send(
-    JSON.stringify({ secretPhrase: roomState.game.secretPhrase }),
+    JSON.stringify({ secretTerm: roomState.game.secretTerm }),
   );
 });
 

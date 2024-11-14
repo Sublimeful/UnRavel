@@ -78,7 +78,7 @@ io.sockets.adapter.on("create-room", (roomCode) => {
     game: {
       state: "idle", // Either in the room or in the game over screen when the game ends
       category: "",
-      secretPhrase: "",
+      secretTerm: "",
       playerStats: {},
       timeLimit: 1000 * 60 * 15, // 15 minutes for now, subject to change (i.e. through game settings)
       startTime: 0,

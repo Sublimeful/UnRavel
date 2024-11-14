@@ -330,12 +330,12 @@ export async function gameGetWinner(
   }
 }
 
-export async function gameGetSecretPhrase(
+export async function gameGetSecretTerm(
   sid: SID,
   roomCode: RoomCode,
 ): Promise<string | null> {
   const res = await fetch(
-    `/api/${roomCode}/game/secret-phrase`,
+    `/api/${roomCode}/game/secret-term`,
     {
       method: "GET",
       headers: {
@@ -345,9 +345,9 @@ export async function gameGetSecretPhrase(
   );
 
   if (res.status === 200) {
-    const { secretPhrase } = await res.json() as { secretPhrase: string };
+    const { secretTerm } = await res.json() as { secretTerm: string };
 
-    return secretPhrase;
+    return secretTerm;
   } else {
     console.error(await res.text());
 
