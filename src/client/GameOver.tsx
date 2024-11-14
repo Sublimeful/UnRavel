@@ -167,7 +167,7 @@ export default function GameOver(props: GameOverProps) {
             )
           )}
         </ul>
-        <h1 className="flex-[1_0_0] min-h-14 max-h-14 text-lg w-full text-center text-nowrap break-all truncate">
+        <h1 className="flex-[1_0_0] min-h-14 max-h-14 p-4 text-lg w-full text-center text-nowrap break-all truncate">
           Total Questions: {Object.values(playerStats).map(({ interactions }) =>
             interactions.length
           ).reduce((a, b) =>
