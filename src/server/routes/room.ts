@@ -9,7 +9,7 @@ import type { SID } from "../../types.ts";
 
 const router = Router();
 
-router.get("/room-request", (req, res) => {
+router.get("/api/room-request", (req, res) => {
   function roomCodeGenerator() {
     return Math.random().toString(36).slice(2).toUpperCase();
   }
@@ -35,7 +35,7 @@ router.get("/room-request", (req, res) => {
   }));
 });
 
-router.get("/:roomCode/join", (req, res) => {
+router.get("/api/:roomCode/join", (req, res) => {
   // Validate and get socket
   const socket = getSocketFromAuthHeader(req.headers.authorization);
 
@@ -60,7 +60,7 @@ router.get("/:roomCode/join", (req, res) => {
   return res.status(200).send();
 });
 
-router.get("/:roomCode/leave", (req, res) => {
+router.get("/api/:roomCode/leave", (req, res) => {
   // Validate and get socket
   const socket = getSocketFromAuthHeader(req.headers.authorization);
 
@@ -79,7 +79,7 @@ router.get("/:roomCode/leave", (req, res) => {
   return res.status(200).send();
 });
 
-router.get("/:roomCode/players", (req, res) => {
+router.get("/api/:roomCode/players", (req, res) => {
   // Validate and get socket
   const socket = getSocketFromAuthHeader(req.headers.authorization);
 
@@ -108,7 +108,7 @@ router.get("/:roomCode/players", (req, res) => {
   ));
 });
 
-router.get("/:roomCode/host", (req, res) => {
+router.get("/api/:roomCode/host", (req, res) => {
   // Validate and get socket
   const socket = getSocketFromAuthHeader(req.headers.authorization);
 

@@ -21,7 +21,7 @@ import {
 
 const router = Router();
 
-router.post("/:roomCode/start-game", async (req, res) => {
+router.post("/api/:roomCode/start-game", async (req, res) => {
   const { category } = req.body as GameSettings;
 
   // Bad request if settings are not sent properly
@@ -102,7 +102,7 @@ router.post("/:roomCode/start-game", async (req, res) => {
   return res.status(200).send();
 });
 
-router.get("/:roomCode/game/time-left", (req, res) => {
+router.get("/api/:roomCode/game/time-left", (req, res) => {
   // Validate and get socket
   const socket = getSocketFromAuthHeader(req.headers.authorization);
 
@@ -133,7 +133,7 @@ router.get("/:roomCode/game/time-left", (req, res) => {
   return res.status(200).send(JSON.stringify({ timeLeft }));
 });
 
-router.get("/:roomCode/game/category", (req, res) => {
+router.get("/api/:roomCode/game/category", (req, res) => {
   // Validate and get socket
   const socket = getSocketFromAuthHeader(req.headers.authorization);
 
@@ -158,7 +158,7 @@ router.get("/:roomCode/game/category", (req, res) => {
   );
 });
 
-router.post("/:roomCode/game/ask", async (req, res) => {
+router.post("/api/:roomCode/game/ask", async (req, res) => {
   const { question } = req.body;
 
   // Bad request if question is not in the JSON
@@ -212,7 +212,7 @@ router.post("/:roomCode/game/ask", async (req, res) => {
   return res.status(200).send(JSON.stringify({ answer }));
 });
 
-router.post("/:roomCode/game/guess", async (req, res) => {
+router.post("/api/:roomCode/game/guess", async (req, res) => {
   const { guess } = req.body as { guess: string };
 
   // Bad request if guess is not in the JSON
@@ -284,7 +284,7 @@ router.post("/:roomCode/game/guess", async (req, res) => {
   return res.status(200).send(JSON.stringify({ proximity }));
 });
 
-router.get("/:roomCode/game/winner", (req, res) => {
+router.get("/api/:roomCode/game/winner", (req, res) => {
   // Validate and get socket
   const socket = getSocketFromAuthHeader(req.headers.authorization);
 
@@ -326,7 +326,7 @@ router.get("/:roomCode/game/winner", (req, res) => {
   );
 });
 
-router.get("/:roomCode/game/secret-phrase", (req, res) => {
+router.get("/api/:roomCode/game/secret-phrase", (req, res) => {
   // Validate and get socket
   const socket = getSocketFromAuthHeader(req.headers.authorization);
 
@@ -355,7 +355,7 @@ router.get("/:roomCode/game/secret-phrase", (req, res) => {
   );
 });
 
-router.get("/:roomCode/game/player-stats", (req, res) => {
+router.get("/api/:roomCode/game/player-stats", (req, res) => {
   // Validate and get socket
   const socket = getSocketFromAuthHeader(req.headers.authorization);
 

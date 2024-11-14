@@ -8,7 +8,7 @@ import type { Player } from "../types.ts";
 
 const router = Router();
 
-router.post("/player-sign-in", (req, res) => {
+router.post("/api/player-sign-in", (req, res) => {
   function playerIdGenerator() {
     return Math.random().toString(36).slice(2).toUpperCase();
   }
@@ -45,7 +45,7 @@ router.post("/player-sign-in", (req, res) => {
   return res.status(200).send();
 });
 
-router.get("/player", (req, res) => {
+router.get("/api/player", (req, res) => {
   // Validate and get socket
   const socket = getSocketFromAuthHeader(req.headers.authorization);
 

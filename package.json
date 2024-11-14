@@ -2,7 +2,8 @@
   "name": "unravel",
   "type": "module",
   "scripts": {
-    "dev": "deno run -A server.ts"
+    "dev": "deno run -A server.ts",
+    "build": "vite build"
   },
   "devDependencies": {
     "@types/cors": "^2.8.17",

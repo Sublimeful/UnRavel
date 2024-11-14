@@ -2,12 +2,15 @@ import type { GameSettings, PlayerStatsSanitized } from "../types";
 import type { PlayerID, PlayerSanitized, RoomCode, SID } from "../types";
 
 export async function roomRequest(sid: SID): Promise<RoomCode | null> {
-  const res = await fetch("/room-request", {
-    method: "GET",
-    headers: {
-      "Authorization": `SID ${sid}`,
+  const res = await fetch(
+    `/api/room-request`,
+    {
+      method: "GET",
+      headers: {
+        "Authorization": `SID ${sid}`,
+      },
     },
-  });
+  );
 
   if (res.status === 200) {
     const { roomCode } = await res.json();
@@ -25,7 +28,7 @@ export async function roomJoin(
   roomCode: RoomCode,
 ): Promise<boolean> {
   const res = await fetch(
-    `/${roomCode}/join`,
+    `/api/${roomCode}/join`,
     {
       method: "GET",
       headers: {
@@ -48,7 +51,7 @@ export async function roomLeave(
   roomCode: RoomCode,
 ): Promise<boolean> {
   const res = await fetch(
-    `/${roomCode}/leave`,
+    `/api/${roomCode}/leave`,
     {
       method: "GET",
       headers: {
@@ -70,16 +73,19 @@ export async function playerSignIn(
   sid: SID,
   username: string,
 ): Promise<boolean> {
-  const res = await fetch("/player-sign-in", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "Authorization": `SID ${sid}`,
+  const res = await fetch(
+    `/api/player-sign-in`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `SID ${sid}`,
+      },
+      body: JSON.stringify({
+        username,
+      }),
     },
-    body: JSON.stringify({
-      username,
-    }),
-  });
+  );
 
   if (res.status === 200) {
     return true;
@@ -95,7 +101,7 @@ export async function roomGetPlayers(
   roomCode: RoomCode,
 ): Promise<PlayerSanitized[] | null> {
   const res = await fetch(
-    `/${roomCode}/players`,
+    `/api/${roomCode}/players`,
     {
       method: "GET",
       headers: {
@@ -119,7 +125,7 @@ export async function getPlayer(
   sid: SID,
 ): Promise<PlayerSanitized | null> {
   const res = await fetch(
-    `/player`,
+    `/api/player`,
     {
       method: "GET",
       headers: {
@@ -144,7 +150,7 @@ export async function roomGetHost(
   roomCode: RoomCode,
 ): Promise<PlayerID | null> {
   const res = await fetch(
-    `/${roomCode}/host`,
+    `/api/${roomCode}/host`,
     {
       method: "GET",
       headers: {
@@ -170,7 +176,7 @@ export async function roomStartGame(
   settings: GameSettings,
 ): Promise<boolean> {
   const res = await fetch(
-    `/${roomCode}/start-game`,
+    `/api/${roomCode}/start-game`,
     {
       method: "POST",
       headers: {
@@ -198,7 +204,7 @@ export async function gameGetTimeLeft(
   roomCode: RoomCode,
 ): Promise<number | null> {
   const res = await fetch(
-    `/${roomCode}/game/time-left`,
+    `/api/${roomCode}/game/time-left`,
     {
       method: "GET",
       headers: {
@@ -223,7 +229,7 @@ export async function gameGetCategory(
   roomCode: RoomCode,
 ): Promise<string | null> {
   const res = await fetch(
-    `/${roomCode}/game/category`,
+    `/api/${roomCode}/game/category`,
     {
       method: "GET",
       headers: {
@@ -249,7 +255,7 @@ export async function gameAsk(
   question: string,
 ): Promise<string | null> {
   const res = await fetch(
-    `/${roomCode}/game/ask`,
+    `/api/${roomCode}/game/ask`,
     {
       method: "POST",
       headers: {
@@ -277,7 +283,7 @@ export async function gameGuess(
   guess: string,
 ): Promise<number | null> {
   const res = await fetch(
-    `/${roomCode}/game/guess`,
+    `/api/${roomCode}/game/guess`,
     {
       method: "POST",
       headers: {
@@ -304,7 +310,7 @@ export async function gameGetWinner(
   roomCode: RoomCode,
 ): Promise<PlayerSanitized | null> {
   const res = await fetch(
-    `/${roomCode}/game/winner`,
+    `/api/${roomCode}/game/winner`,
     {
       method: "GET",
       headers: {
@@ -329,7 +335,7 @@ export async function gameGetSecretPhrase(
   roomCode: RoomCode,
 ): Promise<string | null> {
   const res = await fetch(
-    `/${roomCode}/game/secret-phrase`,
+    `/api/${roomCode}/game/secret-phrase`,
     {
       method: "GET",
       headers: {
@@ -354,7 +360,7 @@ export async function gameGetPlayerStats(
   roomCode: RoomCode,
 ): Promise<Record<PlayerID, PlayerStatsSanitized> | null> {
   const res = await fetch(
-    `/${roomCode}/game/player-stats`,
+    `/api/${roomCode}/game/player-stats`,
     {
       method: "GET",
       headers: {
