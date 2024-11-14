@@ -5,6 +5,7 @@ import type { Room } from "./types.ts";
 import type { SID } from "../types.ts";
 
 export const io = new Server({
+  connectionStateRecovery: {},
   cors: {
     origin: "http://localhost:5173",
   },
