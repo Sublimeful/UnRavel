@@ -3,8 +3,7 @@
   "type": "module",
   "scripts": {
     "dev": "NODE_ENV=development deno run -A server.ts",
-    "prod": "NODE_ENV=production deno run -A server.ts",
-    "build": "vite build"
+    "prod": "NODE_ENV=production deno run -A server.ts"
   },
   "devDependencies": {
     "@types/cors": "^2.8.17",
@@ -27,7 +26,6 @@
     "express": "^4.21.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "redis": "^4.7.0",
     "socket.io": "^4.8.1",
     "socket.io-client": "^4.8.1",
     "three": "^0.168.0",

@@ -4,6 +4,6 @@ WORKDIR /app
 
 COPY . .
 
-RUN deno run build
+RUN deno install
 
-CMD ["deno", "run", "dev"]
+CMD ["deno", "run", "prod"]

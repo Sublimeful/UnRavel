@@ -15,5 +15,5 @@ app.use(gameRoutes);
 app.use(ssr);
 
 app.listen(5173, () => {
-  console.log("Server running at: http://localhost:5173/");
+  console.log("Server running at: http://localhost:5173");
 });
