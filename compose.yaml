@@ -1,0 +1,15 @@
+services:
+  nginx:
+    image: nginx
+    container_name: unravel_nginx
+    volumes:
+      - ./nginx/sublimeful.org.conf:/etc/nginx/conf.d/sublimeful.org.conf
+    ports:
+      - 80:80
+      - 443:443
+    restart: unless-stopped
+  unravel:
+    image: unravel
+    container_name: unravel
+    build: .
+    restart: unless-stopped

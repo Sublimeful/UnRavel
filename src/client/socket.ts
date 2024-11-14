@@ -1,4 +1,4 @@
 import { io } from "socket.io-client";
-export const socket = io("http://localhost:5174", {
+export const socket = io("https://unravel.sublimeful.org", {
   autoConnect: false,
 });
