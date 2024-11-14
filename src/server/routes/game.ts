@@ -92,7 +92,7 @@ router.post("/api/:roomCode/start-game", async (req, res) => {
   io.to(roomCode).emit("room-game-start");
 
   // The game will end when the timer runs out
-  setTimeout(() => {
+  roomState.game.endTimeout = setTimeout(() => {
     // Set the game state to idle
     roomState.game.state = "idle";
     // Tell every player the game has ended
@@ -273,10 +273,12 @@ router.post("/api/:roomCode/game/guess", async (req, res) => {
 
   // Player won the game
   if (proximity === 1) {
-    // Set the game state to idle
-    roomState.game.state = "idle";
+    // Clear the endTimeout to prevent it from ending the next game prematurely
+    clearTimeout(roomState.game.endTimeout);
     // Set the winner
     roomState.game.winner = socket.id;
+    // Set the game state to idle
+    roomState.game.state = "idle";
     // Tell every player the game has ended
     io.to(roomCode).emit("room-game-end");
   }

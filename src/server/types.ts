@@ -18,6 +18,7 @@ export interface Game {
   secretTerm: string;
   playerStats: Record<SID, PlayerStats>;
   timeLimit: number;
+  endTimeout: NodeJS.Timeout;
   startTime: number;
   winner: SID | null;
 }
