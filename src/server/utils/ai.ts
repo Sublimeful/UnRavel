@@ -5,6 +5,7 @@ const OPENAI_API_KEY = process.env["OPENAI_API_KEY"];
 async function promptAI(
   prompt: string,
   instructions: string,
+  temperature: number = 1,
 ) {
   const res = await fetch(
     `https://api.openai.com/v1/chat/completions`,
@@ -15,10 +16,11 @@ async function promptAI(
         "Authorization": `Bearer ${OPENAI_API_KEY}`,
       },
       body: JSON.stringify({
-        "model": "gpt-4o-mini",
-        "messages": [{ "role": "system", "content": instructions }, {
-          "role": "user",
-          "content": prompt,
+        model: "gpt-4o-mini",
+        temperature,
+        messages: [{ role: "system", content: instructions }, {
+          role: "user",
+          content: prompt,
         }],
       }),
     },
@@ -51,6 +53,7 @@ export async function generateSecretPhraseFromCategory(category: string) {
   return await promptAI(
     `Give me a random word/phrase from the category: ${category}`,
     "Just say the word/phrase, no extra fluff",
+    2,
   );
 }
 
@@ -60,12 +63,10 @@ export async function askClosedEndedQuestion(
   question: string,
 ) {
   return await promptAI(
-    question,
+    `In regards to the secret phrase: ${question}`,
     `
-      Your secret phrase is "${secretPhrase}" from the category "${category}". The user is playing a game where they ask you closed ended questions to find out what the secret phrase is, follow these sets of rules when responding to the user:
-        1. Do not give away the secret phrase unless the user guesses it
-        2. If the user asks an open ended question, warn the user and tell them to ask a closed ended question instead
-        3. If the user asks an unrelated question, warn the user
+      Your secret phrase is "${secretPhrase}" from the category "${category}". The user is playing a game where they ask you closed ended questions to find out what the secret phrase is. Do not give away the secret phrase unless the user guesses it.
     `,
+    0.2,
   );
 }
