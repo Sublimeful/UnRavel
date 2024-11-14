@@ -109,7 +109,7 @@ export default function GameOver(props: GameOverProps) {
         </span>
         Wins!
       </h1>
-      <div className="flex-[3_0_0] flex flex-col gap-2 mt-3 p-2 bg-[#333333] bg-opacity-80 rounded-lg overflow-y-scroll">
+      <div className="flex-[3_0_0] flex flex-col min-h-40 gap-2 mt-3 p-2 bg-[#333333] bg-opacity-80 rounded-lg overflow-y-scroll">
         <h1 className="m-auto text-xl text-center">The secret phrase was:</h1>
         <h1 className="m-auto text-3xl font-semibold text-cyan-400 text-center text-wrap break-all">
           {secretPhrase}
