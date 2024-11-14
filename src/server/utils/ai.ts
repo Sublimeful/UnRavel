@@ -7,6 +7,8 @@ async function promptAI(
   instructions: string,
   temperature: number = 1,
 ) {
+  console.log("Prompting AI...");
+
   const res = await fetch(
     `https://api.openai.com/v1/chat/completions`,
     {
@@ -26,6 +28,8 @@ async function promptAI(
       }),
     },
   );
+
+  console.log(res);
 
   if (res.status === 200) {
     const json = await res.json() as {
