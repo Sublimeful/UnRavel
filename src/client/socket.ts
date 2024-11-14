@@ -1,9 +1,7 @@
 import { io } from "socket.io-client";
 
-console.log("NODE_ENV", process.env["NODE_ENV"]);
-
 export const socket = io(
-  process.env["NODE_ENV"] === "production"
+  import.meta.env.PROD
     ? "https://unravel.sublimeful.org"
     : "http://localhost:5174",
   {

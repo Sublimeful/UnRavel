@@ -3,16 +3,20 @@ services:
     image: nginx
     container_name: unravel_nginx
     volumes:
-      - ./dist/:/usr/share/nginx/html/
+      - static-build:/usr/share/nginx/html/
       - ./nginx/unravel.sublimeful.org.conf:/etc/nginx/conf.d/unravel.sublimeful.org.conf
     ports:
       - 80:80
       - 443:443
     restart: unless-stopped
+    depends_on:
+      - unravel
   unravel:
     image: unravel
     container_name: unravel
+    volumes:
+      - static-build:/app/dist/
     build: .
     restart: unless-stopped
-    ports:
-      - 24678:24678
+volumes:
+  static-build:

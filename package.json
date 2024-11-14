@@ -2,7 +2,8 @@
   "name": "unravel",
   "type": "module",
   "scripts": {
-    "dev": "deno run -A server.ts",
+    "dev": "NODE_ENV=development deno run -A server.ts",
+    "prod": "NODE_ENV=production deno run -A server.ts",
     "build": "vite build"
   },
   "devDependencies": {
