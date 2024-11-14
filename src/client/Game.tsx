@@ -1,4 +1,4 @@
-import { type FormEvent, useContext, useEffect, useState } from "react";
+import { type FormEvent, useContext, useEffect, useRef, useState } from "react";
 
 import PageContext from "./PageContext";
 import MainMenu from "./MainMenu";
@@ -31,6 +31,7 @@ export default function Game(props: GameProps) {
   const [players, setPlayers] = useState<PlayerSanitized[]>([]);
   const [category, setCategory] = useState("");
   const [proximity, setProximity] = useState(0);
+  const chatBoxRef = useRef<HTMLDivElement>(null);
 
   async function gameAsk(event: FormEvent) {
     event.preventDefault();
@@ -129,6 +130,15 @@ export default function Game(props: GameProps) {
     };
   }, []);
 
+  // AutoScroll the chat box on new interaction
+  useEffect(() => {
+    if (chatBoxRef.current && chatBoxRef.current.lastElementChild) {
+      chatBoxRef.current.lastElementChild.scrollIntoView({
+        behavior: "smooth",
+      });
+    }
+  }, [interactions]);
+
   function timerFormat(timeLeft: number) {
     const secondInMS = 1000;
     const minuteInMS = secondInMS * 60;
@@ -204,7 +214,10 @@ export default function Game(props: GameProps) {
           <div className="flex-[2_0_0] bg-[#424242] bg-opacity-70 rounded-lg grid place-items-center text-2xl font-semibold p-5 min-h-0 overflow-y-scroll text-wrap break-all">
             Category: {category}
           </div>
-          <div className="flex-[8_0_0] flex flex-col gap-3 overflow-y-scroll bg-[#424242] bg-opacity-70 rounded-lg p-5">
+          <div
+            ref={chatBoxRef}
+            className="flex-[8_0_0] flex flex-col gap-3 overflow-y-scroll bg-[#424242] bg-opacity-70 rounded-lg p-5"
+          >
             {interactions.map((interaction, index) => (
               <div key={index}>
                 <h1 className="flex gap-2 text-wrap break-all">
