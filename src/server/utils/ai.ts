@@ -18,6 +18,7 @@ async function promptAI(
       body: JSON.stringify({
         model: "gpt-4o-mini",
         temperature,
+        seed: null,
         messages: [{ role: "system", content: instructions }, {
           role: "user",
           content: prompt,
@@ -51,8 +52,8 @@ async function promptAI(
 
 export async function generateSecretPhraseFromCategory(category: string) {
   return await promptAI(
-    `Give me a random word/phrase from the category: ${category}`,
-    "Just say the word/phrase, no extra fluff",
+    `Give me a random word or phrase from the category: "${category}"`,
+    "Provide the random word or phrase from the category without adding any extra fluff.",
     2,
   );
 }
