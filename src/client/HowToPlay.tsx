@@ -25,8 +25,8 @@ export default function HowToPlay() {
           <i className="bi bi-people-fill text-6xl text-teal-400"></i>
           <h1 className="text-xl">Join a Game</h1>
           <p className="text-gray-400">
-            Create a public/private room or join a random match with other
-            players.
+            Create your own room or engage in ELO based random matchmaking with
+            other players.
           </p>
         </div>
         <div className="bg-[#1A1C38] flex-[1_0_0] flex flex-col items-center min-w-40 gap-1 p-5 rounded-xl">
