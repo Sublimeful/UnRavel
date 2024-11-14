@@ -31,6 +31,8 @@ export default function JoinARoom() {
       // If the room does not exist, then you can't join it
       if (roomExists) {
         setPage(<Room roomCode={roomCode} />);
+      } else {
+        setDisableBtn(false);
       }
     } catch (_) {
       setDisableBtn(false);
