@@ -1,44 +1,45 @@
 import "dotenv/config";
 
-const GEMINI_API_KEY = process.env["GEMINI_API_KEY"];
+const OPENAI_API_KEY = process.env["OPENAI_API_KEY"];
 
-async function promptGemini(prompt: string, systemPrompt: string = "") {
+async function promptAI(
+  prompt: string,
+  instructions: string,
+) {
   const res = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent?key=${GEMINI_API_KEY}`,
+    `https://api.openai.com/v1/chat/completions`,
     {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        "Authorization": `Bearer ${OPENAI_API_KEY}`,
       },
       body: JSON.stringify({
-        "system_instruction": systemPrompt
-          ? { "parts": { "text": systemPrompt } }
-          : undefined,
-        "contents": {
-          "parts": {
-            "text": prompt,
-          },
-        },
+        "model": "gpt-4o-mini",
+        "messages": [{ "role": "system", "content": instructions }, {
+          "role": "user",
+          "content": prompt,
+        }],
       }),
     },
   );
 
   if (res.status === 200) {
-    const json = await res.json();
-    console.log("Prompt:", prompt, systemPrompt, JSON.stringify(json));
-    const { candidates } = json;
-    const firstCandidate = candidates[0];
-    const { content } = firstCandidate;
+    const json = await res.json() as {
+      choices: { message: { role: string; content: string } }[];
+    };
+
+    const { choices } = json;
 
     // This means that the ai did not respond because of safety reasons or something else
     // TODO: Maybe handle this case in the future?
-    if (!content) return null;
+    if (choices.length === 0) return null;
 
-    const { parts } = content;
-    const firstPart = parts[0];
-    const { text } = firstPart;
+    const firstChoice = choices[0];
 
-    return (text as string).trim();
+    const { message } = firstChoice;
+
+    return (message.content as string).trim();
   } else {
     console.error(await res.text());
 
@@ -47,7 +48,7 @@ async function promptGemini(prompt: string, systemPrompt: string = "") {
 }
 
 export async function generateSecretPhraseFromCategory(category: string) {
-  return await promptGemini(
+  return await promptAI(
     `Give me a random word/phrase from the category: ${category}`,
     "Just say the word/phrase, no extra fluff",
   );
@@ -58,20 +59,13 @@ export async function askClosedEndedQuestion(
   category: string,
   question: string,
 ) {
-  return await promptGemini(
+  return await promptAI(
     question,
     `
-      When asked a question by the user, please follow the logic below:
-
-      const secret_phrase = ${secretPhrase};
-
-      if (isOpenEnded(user_question) {
-        return {"Not a valid question", reason};
-      } else if (user_question.contains(secret_phrase)) {
-        return "Yes.";
-      } else {
-        return shortResponse();
-      }
+      Your secret phrase is "${secretPhrase}" from the category "${category}". The user is playing a game where they ask you closed ended questions to find out what the secret phrase is, follow these sets of rules when responding to the user:
+        1. Do not give away the secret phrase unless the user guesses it
+        2. If the user asks an open ended question, warn the user and tell them to ask a closed ended question instead
+        3. If the user asks an unrelated question, warn the user
     `,
   );
 }
