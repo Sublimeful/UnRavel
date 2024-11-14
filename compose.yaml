@@ -13,3 +13,5 @@ services:
     container_name: unravel
     build: .
     restart: unless-stopped
+    ports:
+      - 24678:24678

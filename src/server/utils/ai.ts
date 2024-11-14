@@ -49,7 +49,7 @@ export async function generateSecretPhraseFromCategory(category: string) {
       {
         role: "system",
         content:
-          `Only provide a JSON formatted list of strings, with each string being a random word or phrase from the category.`,
+          `Only provide a JSON formatted list of strings, with each string being a random word or phrase from the category. If the category is related to the real world, make sure the words/phrases actually exist.`,
       },
       {
         role: "user",
