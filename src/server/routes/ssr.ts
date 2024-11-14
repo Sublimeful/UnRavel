@@ -9,7 +9,13 @@ const router = Router();
 // 'custom', disabling Vite's own HTML serving logic so parent server
 // can take control
 const vite = await createViteServer({
-  server: { middlewareMode: true },
+  server: {
+    middlewareMode: true,
+    hmr: {
+      path: "vite-hmr",
+      clientPort: 443,
+    },
+  },
   appType: "custom",
 });
 
