@@ -84,9 +84,6 @@ export default function Room(props: RoomProps) {
     };
   }, []);
 
-  console.log(JSON.stringify(players));
-  console.log(host);
-
   return (
     <div className="absolute transition-[width] h-[98%] lg:w-[50%] w-[98%] bg-[#000625] bg-opacity-50 rounded-xl border border-neutral-500 flex flex-col items-center p-10 text-white overflow-y-scroll overflow-x-clip">
       <div className="flex flex-row w-full justify-between">

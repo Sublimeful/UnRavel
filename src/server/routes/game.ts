@@ -22,9 +22,7 @@ import {
 const router = Router();
 
 router.post("/:roomCode/start-game", async (req, res) => {
-  console.log(req.body);
   const { category } = req.body as GameSettings;
-  console.log(category);
 
   // Bad request if settings are not sent properly
   if (!category) {
