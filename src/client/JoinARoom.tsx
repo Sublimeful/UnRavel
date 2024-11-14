@@ -26,9 +26,12 @@ export default function JoinARoom() {
     try {
       await playerSignIn(socket.id, username);
 
-      await apiRoomJoin(socket.id, roomCode);
+      const roomExists = await apiRoomJoin(socket.id, roomCode);
 
-      setPage(<Room roomCode={roomCode} />);
+      // If the room does not exist, then you can't join it
+      if (roomExists) {
+        setPage(<Room roomCode={roomCode} />);
+      }
     } catch (_) {
       setDisableBtn(false);
     }
