@@ -40,8 +40,7 @@ export default function HowToPlay() {
           <i className="bi bi-chat text-6xl text-yellow-400"></i>
           <h1 className="text-xl">Ask Questions</h1>
           <p className="text-gray-400">
-            Take turns asking questions to gather information about the secret
-            term.
+            Ask questions to gather information about the secret term.
           </p>
         </div>
         <div className="bg-[#1A1C38] flex-[1_0_0] flex flex-col items-center min-w-40 gap-1 p-5 rounded-xl">
@@ -65,13 +64,14 @@ export default function HowToPlay() {
         <div className="list-disc text-gray-400">
           <li>Ask strategic questions to narrow down possibilities quickly.</li>
           <li>
-            Pay attention to other players' questions and the AI's answers.
+            Pay close attention to the AI's answers and ensure that your
+            questions are close-ended.
           </li>
           <li>
             Don't be afraid to make a guess if you think you know the answer!
           </li>
           <li>
-            Use process of elimination to rule out categories or terms.
+            Use process of elimination to rule out terms.
           </li>
           <li>
             Start with broad questions and get more specific as you gather
