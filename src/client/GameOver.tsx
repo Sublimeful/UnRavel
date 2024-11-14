@@ -129,39 +129,43 @@ export default function GameOver(props: GameOverProps) {
             } else {
               return a.username.localeCompare(b.username);
             }
-          }).map((_player) => (
-            <li
-              key={_player.id}
-              className="flex flex-row gap-6 justify-between w-full bg-[#595959] bg-opacity-60 rounded-lg px-3 py-2"
-            >
-              <span className="flex-[1_0_0] text-nowrap break-all truncate">
-                {_player.username}
-              </span>
-              <div className="max-w-max flex flex-row gap-2 text-[#C0C0C0]">
-                {player && (
-                  <h1 className="flex flex-row gap-1">
-                    <span className="max-w-16 text-nowrap break-all truncate">
-                      {playerStats[_player.id].interactions.length}
-                    </span>{" "}
-                    {playerStats[_player.id].interactions.length === 1
-                      ? "question"
-                      : "questions"}
-                  </h1>
-                )}
-                <h1>•</h1>
-                {player && (
-                  <h1 className="flex flex-row gap-1">
-                    <span className="max-w-16 text-nowrap break-all truncate">
-                      {playerStats[_player.id].guesses.length}
-                    </span>{" "}
-                    {playerStats[_player.id].guesses.length === 1
-                      ? "guess"
-                      : "guesses"}
-                  </h1>
-                )}
-              </div>
-            </li>
-          ))}
+          }).map((_player) =>
+            // Make sure playerStats[_player.id] exists before we start indexing and getting their stats
+            // playerStats[_player.id] can be undefined if we got the player list before the player stats
+            (_player.id in playerStats) && (
+              <li
+                key={_player.id}
+                className="flex flex-row gap-6 justify-between w-full bg-[#595959] bg-opacity-60 rounded-lg px-3 py-2"
+              >
+                <span className="flex-[1_0_0] text-nowrap break-all truncate">
+                  {_player.username}
+                </span>
+                <div className="max-w-max flex flex-row gap-2 text-[#C0C0C0]">
+                  {player && (
+                    <h1 className="flex flex-row gap-1">
+                      <span className="max-w-16 text-nowrap break-all truncate">
+                        {playerStats[_player.id].interactions.length}
+                      </span>{" "}
+                      {playerStats[_player.id].interactions.length === 1
+                        ? "question"
+                        : "questions"}
+                    </h1>
+                  )}
+                  <h1>•</h1>
+                  {player && (
+                    <h1 className="flex flex-row gap-1">
+                      <span className="max-w-16 text-nowrap break-all truncate">
+                        {playerStats[_player.id].guesses.length}
+                      </span>{" "}
+                      {playerStats[_player.id].guesses.length === 1
+                        ? "guess"
+                        : "guesses"}
+                    </h1>
+                  )}
+                </div>
+              </li>
+            )
+          )}
         </ul>
         <h1 className="flex-[1_0_0] min-h-14 max-h-14 text-lg w-full text-center text-nowrap break-all truncate">
           Total Questions: {Object.values(playerStats).map(({ interactions }) =>
