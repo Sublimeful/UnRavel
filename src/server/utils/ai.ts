@@ -49,19 +49,19 @@ export async function generateSecretPhraseFromCategory(category: string) {
       {
         role: "system",
         content:
-          `Only provide a JSON formatted list of strings, with each string being a random word or phrase from the category. If the category is related to the real world, make sure the words/phrases actually exist.`,
+          `Only provide a JSON formatted list of strings, with each string being a random phrase from the category. If the category is related to the real world, make sure the phrase actually exist.`,
       },
       {
         role: "user",
         content:
-          `Generate a list of random words or phrases from this category: ${category}`,
+          `Generate a list of random phrases from this category: ${category}`,
       },
     ],
   });
 
   if (!res) return null;
 
-  // Try to parse this "JSON" and return a random word or phrase from it. The keyword here is "TRY".
+  // Try to parse this "JSON" and return a random phrase from it. The keyword here is "TRY".
   try {
     // It always seems to format it starting with ```json on the first line and ending with ``` on the last line
     const phrases = JSON.parse(

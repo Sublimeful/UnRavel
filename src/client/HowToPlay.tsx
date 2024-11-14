@@ -31,9 +31,9 @@ export default function HowToPlay() {
         </div>
         <div className="bg-[#1A1C38] flex-[1_0_0] flex flex-col items-center min-w-40 gap-1 p-5 rounded-xl">
           <i className="w-[3.75rem] aspect-square bg-red-400 [mask-size:contain] [mask-image:url(brain.svg)]" />
-          <h1 className="text-xl">Get Your Secret Word</h1>
+          <h1 className="text-xl">Get Your Secret Phrase</h1>
           <p className="text-gray-400">
-            An AI will choose a random word from a selected category.
+            An AI will choose a random phrase from a selected category.
           </p>
         </div>
         <div className="bg-[#1A1C38] flex-[1_0_0] flex flex-col items-center min-w-40 gap-1 p-5 rounded-xl">
@@ -41,7 +41,7 @@ export default function HowToPlay() {
           <h1 className="text-xl">Ask Questions</h1>
           <p className="text-gray-400">
             Take turns asking questions to gather information about the secret
-            word.
+            phrase.
           </p>
         </div>
         <div className="bg-[#1A1C38] flex-[1_0_0] flex flex-col items-center min-w-40 gap-1 p-5 rounded-xl">
@@ -49,14 +49,14 @@ export default function HowToPlay() {
           <h1 className="text-xl">Make Your Guess</h1>
           <p className="text-gray-400">
             Use the information you've gathered to try and guess the secret
-            word.
+            phrase.
           </p>
         </div>
         <div className="bg-[#1A1C38] flex-[1_0_0] flex flex-col items-center min-w-40 gap-1 p-5 rounded-xl">
           <i className="bi bi-trophy text-6xl text-lime-500"></i>
           <h1 className="text-xl">Win the Game</h1>
           <p className="text-gray-400">
-            The first player to correctly guess the secret word wins!
+            The first player to correctly guess the secret phrase wins!
           </p>
         </div>
       </div>
@@ -71,7 +71,7 @@ export default function HowToPlay() {
             Don't be afraid to make a guess if you think you know the answer!
           </li>
           <li>
-            Use process of elimination to rule out categories or types of words.
+            Use process of elimination to rule out categories or phrases.
           </li>
           <li>
             Start with broad questions and get more specific as you gather
