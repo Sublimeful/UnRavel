@@ -20,7 +20,7 @@ async function promptAI(
       body: JSON.stringify({
         model: "gpt-4o-mini",
         temperature,
-        seed: null,
+        seed: Math.floor(Math.random() * Number.MAX_SAFE_INTEGER),
         messages: [{ role: "system", content: instructions }, {
           role: "user",
           content: prompt,
