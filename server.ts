@@ -4,6 +4,7 @@ import miscRoutes from "./src/server/routes/misc.ts";
 import roomRoutes from "./src/server/routes/room.ts";
 import gameRoutes from "./src/server/routes/game.ts";
 import ssr from "./src/server/routes/ssr.ts";
+import { initializeApp } from "firebase/app";
 
 const app = express();
 

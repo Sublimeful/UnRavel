@@ -9,98 +9,10 @@ import {
   getSocketFromAuthHeader,
 } from "../utils/misc.ts";
 import type { Player, Room } from "../types.ts";
-import type {
-  GameSettings,
-  PlayerID,
-  PlayerStatsSanitized,
-} from "../../types.ts";
-import {
-  askClosedEndedQuestion,
-  generateSecretTermFromCategory,
-} from "../utils/ai.ts";
+import type { PlayerID, PlayerStatsSanitized } from "../../types.ts";
+import { askClosedEndedQuestion } from "../utils/ai.ts";
 
 const router = Router();
-
-router.post("/api/:roomCode/start-game", async (req, res) => {
-  const { category } = req.body as GameSettings;
-
-  // Bad request if settings are not sent properly
-  if (!category) {
-    return res.status(400).send("invalid data");
-  }
-
-  // Validate and get socket
-  const socket = getSocketFromAuthHeader(req.headers.authorization);
-
-  // Bad request
-  if (!socket) return res.status(400).send("could not authenticate client");
-
-  // Check if socket is in the requested room
-  const roomCode = req.params.roomCode;
-  if (!socket.rooms.has(roomCode)) {
-    return res.status(400).send("you are not in this room");
-  }
-
-  // Check if the room state exists
-  if (!(`room:${roomCode}` in state)) {
-    return res.status(400).send("room not found");
-  }
-
-  // Check that the game is in a state where it can be started
-  const roomState = state[`room:${roomCode}`] as Room;
-  if (roomState.game.state === "in progress") {
-    return res.status(400).send(
-      "you cannot start a new game while the current one is still in progress",
-    );
-  }
-
-  // Check if player is the host
-  if (roomState.host !== socket.id) {
-    return res.status(400).send("you are not the room host");
-  }
-
-  // Set the game winner to null (nobody has won this new game yet)
-  roomState.game.winner = null;
-
-  // Set the game state category
-  roomState.game.category = category;
-
-  // Initialize player stats
-  roomState.players.forEach((sid) => {
-    roomState.game.playerStats[sid] = { interactions: [], guesses: [] };
-  });
-
-  // Generate the secret term
-  const secretTerm = await generateSecretTermFromCategory(category);
-
-  // Something went wrong while generating the secret term
-  if (!secretTerm) {
-    return res.status(500).send("something went wrong");
-  }
-
-  // Set the game state secretTerm
-  roomState.game.secretTerm = secretTerm;
-  console.log(roomCode, "category", category, "secret term", secretTerm);
-
-  // Set the game state to "in progress"
-  roomState.game.state = "in progress";
-
-  // Set the game start time
-  roomState.game.startTime = Date.now();
-
-  // Tell every player the game has started
-  io.to(roomCode).emit("room-game-start");
-
-  // The game will end when the timer runs out
-  roomState.game.endTimeout = setTimeout(() => {
-    // Set the game state to idle
-    roomState.game.state = "idle";
-    // Tell every player the game has ended
-    io.to(roomCode).emit("room-game-end");
-  }, roomState.game.timeLimit);
-
-  return res.status(200).send();
-});
 
 router.get("/api/:roomCode/game/time-left", (req, res) => {
   // Validate and get socket

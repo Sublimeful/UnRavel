@@ -3,12 +3,12 @@ import { type FormEvent, useContext, useEffect, useState } from "react";
 import PageContext from "./PageContext";
 import MainMenu from "./MainMenu";
 import {
-  getPlayer,
   roomGetHost,
   roomGetPlayers,
   roomLeave,
   roomStartGame,
-} from "./api";
+} from "./api/room";
+import { getPlayer } from "./api/misc";
 import { socket } from "./socket";
 import type { PlayerID, PlayerSanitized, RoomCode } from "../types";
 import Game from "./Game";

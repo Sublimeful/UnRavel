@@ -4,7 +4,8 @@ import PageContext from "./PageContext";
 import MainMenu from "./MainMenu";
 import CreateARoom from "./CreateARoom";
 import type { RoomCode } from "../types";
-import { playerSignIn, roomJoin as apiRoomJoin } from "./api";
+import { roomJoin as apiRoomJoin } from "./api/room";
+import { playerSignIn } from "./api/misc";
 import { socket } from "./socket";
 import Room from "./Room";
 

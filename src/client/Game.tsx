@@ -2,15 +2,14 @@ import { type FormEvent, useContext, useEffect, useRef, useState } from "react";
 
 import PageContext from "./PageContext";
 import MainMenu from "./MainMenu";
+import { roomGetPlayers, roomLeave } from "./api/room";
 import {
   gameAsk as apiGameAsk,
   gameGetCategory,
   gameGetTimeLeft,
   gameGuess as apiGameGuess,
-  getPlayer,
-  roomGetPlayers,
-  roomLeave,
-} from "./api";
+} from "./api/game";
+import { getPlayer } from "./api/misc";
 import { socket } from "./socket";
 import type { Interaction, PlayerSanitized, RoomCode } from "../types";
 import GameOver from "./GameOver";

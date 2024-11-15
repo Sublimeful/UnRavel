@@ -9,6 +9,7 @@ import MainMenu from "./MainMenu";
 import PageContext from "./PageContext";
 
 import { socket } from "./socket";
+import SignIn from "./SignIn";
 
 declare global {
   interface Window {
@@ -17,7 +18,7 @@ declare global {
 }
 
 export default function App() {
-  const [currPage, setPage] = useState<JSX.Element | null>(<MainMenu />);
+  const [currPage, setPage] = useState<JSX.Element | null>(<SignIn />);
 
   const [_, setIsConnected] = useState(socket.connected);
 
@@ -30,20 +31,8 @@ export default function App() {
       setIsConnected(false);
     }
 
-    function onConnectError(err: any) {
-      // the reason of the error, for example "xhr poll error"
-      console.log(err.message);
-
-      // some additional description, for example the status code of the initial HTTP response
-      console.log(err.description);
-
-      // some additional context, for example the XMLHttpRequest object
-      console.log(err.context);
-    }
-
     socket.on("connect", onConnect);
     socket.on("disconnect", onDisconnect);
-    socket.on("connect_error", onConnectError);
 
     socket.connect(); // Connect to the websocket server
 
@@ -54,7 +43,6 @@ export default function App() {
       // Otherwise they may trigger in the future unexpectedly
       socket.off("connect", onConnect);
       socket.off("disconnect", onDisconnect);
-      socket.off("connect_error", onConnectError);
     };
   }, []);
 

@@ -9,7 +9,7 @@ export default function Register() {
   const [password, setPassword] = useState("");
   const passwordInputRef = useRef<HTMLInputElement>(null);
 
-  function createAccount() {
+  function register() {
   }
 
   return (
@@ -20,7 +20,7 @@ export default function Register() {
       <h1 className="text-center text-white text-3xl font-bold">
         Register to UnRavel
       </h1>
-      <form className="mt-8 flex flex-col gap-8" onSubmit={createAccount}>
+      <form className="mt-8 flex flex-col gap-8" onSubmit={register}>
         <label className="text-left font-light">
           Email
           <input

@@ -27,13 +27,6 @@ io.on("connection", (socket) => {
   });
 });
 
-io.on("connection_error", (err) => {
-  console.log(err.req); // the request object
-  console.log(err.code); // the error code, for example 1
-  console.log(err.message); // the error message, for example "Session ID unknown"
-  console.log(err.context); // some additional error context
-});
-
 io.of("/").adapter.on("join-room", (roomCode, sid) => {
   // Don't do anything if room is a socket.io room
   if (io.sockets.sockets.has(roomCode)) return;
