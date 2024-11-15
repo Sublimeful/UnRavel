@@ -34,7 +34,7 @@ io.on("connection_error", (err) => {
   console.log(err.context); // some additional error context
 });
 
-io.of("/").on("join-room", (roomCode, sid) => {
+io.of("/").adapter.on("join-room", (roomCode, sid) => {
   // Don't do anything if room is a socket.io room
   if (io.sockets.sockets.has(roomCode)) return;
 
@@ -55,7 +55,7 @@ io.of("/").on("join-room", (roomCode, sid) => {
   io.to(roomCode).emit("room-player-joined");
 });
 
-io.of("/").on("leave-room", (roomCode, sid) => {
+io.of("/").adapter.on("leave-room", (roomCode, sid) => {
   // Don't do anything if room is a socket.io room
   if (io.sockets.sockets.has(roomCode)) return;
 
@@ -77,7 +77,7 @@ io.of("/").on("leave-room", (roomCode, sid) => {
   io.to(roomCode).emit("room-player-left");
 });
 
-io.of("/").on("create-room", (roomCode) => {
+io.of("/").adapter.on("create-room", (roomCode) => {
   // Don't do anything if room is a socket.io room
   if (io.sockets.sockets.has(roomCode)) return;
 
@@ -100,7 +100,7 @@ io.of("/").on("create-room", (roomCode) => {
   } as Room;
 });
 
-io.of("/").on("delete-room", (roomCode) => {
+io.of("/").adapter.on("delete-room", (roomCode) => {
   // Don't do anything if room is a socket.io room
   if (io.sockets.sockets.has(roomCode)) return;
 
