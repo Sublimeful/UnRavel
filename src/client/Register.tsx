@@ -83,8 +83,7 @@ export default function Register() {
         Already have an account?{" "}
         <a
           onClick={() => setPage(<SignIn />)}
-          href="#"
-          className="text-blue-500"
+          className="cursor-pointer text-blue-500"
         >
           Sign in
         </a>

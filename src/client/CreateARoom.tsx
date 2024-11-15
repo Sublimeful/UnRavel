@@ -4,7 +4,8 @@ import PageContext from "./PageContext";
 import MainMenu from "./MainMenu";
 
 import { socket } from "./socket";
-import { playerSignIn, roomRequest as apiRoomRequest } from "./api";
+import { roomRequest as apiRoomRequest } from "./api/room";
+import { playerSignIn } from "./api/misc";
 import Room from "./Room";
 
 export default function CreateARoom() {

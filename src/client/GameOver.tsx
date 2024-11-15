@@ -15,10 +15,9 @@ import {
   gameGetPlayerStats,
   gameGetSecretTerm,
   gameGetWinner,
-  getPlayer,
-  roomGetPlayers,
-  roomLeave,
-} from "./api";
+} from "./api/game";
+import { roomGetPlayers, roomLeave } from "./api/room";
+import { getPlayer } from "./api/misc";
 import Game from "./Game";
 
 interface GameOverProps {

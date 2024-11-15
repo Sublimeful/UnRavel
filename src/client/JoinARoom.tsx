@@ -91,8 +91,7 @@ export default function JoinARoom() {
         Don’t have a room code?{" "}
         <a
           onClick={() => setPage(<CreateARoom />)}
-          href="#"
-          className="text-blue-500"
+          className="cursor-pointer text-blue-500"
         >
           Create a new room
         </a>

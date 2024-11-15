@@ -9,7 +9,7 @@ export default function SignIn() {
   const [password, setPassword] = useState("");
   const passwordInputRef = useRef<HTMLInputElement>(null);
 
-  function authenticate() {
+  function signin() {
   }
 
   return (
@@ -20,7 +20,7 @@ export default function SignIn() {
       <h1 className="text-center text-white text-3xl font-bold">
         Sign in to UnRavel
       </h1>
-      <form className="mt-8 flex flex-col gap-8" onSubmit={authenticate}>
+      <form className="mt-8 flex flex-col gap-8" onSubmit={signin}>
         <label className="text-left font-light">
           Email
           <input
@@ -72,8 +72,7 @@ export default function SignIn() {
         Don't have an account?{" "}
         <a
           onClick={() => setPage(<Register />)}
-          href="#"
-          className="text-blue-500"
+          className="cursor-pointer text-blue-500"
         >
           Register
         </a>
