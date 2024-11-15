@@ -10,6 +10,12 @@ import PageContext from "./PageContext";
 
 import { socket } from "./socket";
 
+declare global {
+  interface Window {
+    socket: any;
+  }
+}
+
 export default function App() {
   const [currPage, setPage] = useState<JSX.Element | null>(<MainMenu />);
 
@@ -40,6 +46,8 @@ export default function App() {
     socket.on("connect_error", onConnectError);
 
     socket.connect(); // Connect to the websocket server
+
+    window.socket = socket;
 
     return () => {
       // Unregister all event listeners when component is unmounted

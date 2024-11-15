@@ -1,4 +1,5 @@
 import { Server } from "socket.io";
+import { instrument } from "@socket.io/admin-ui";
 
 import state from "./state.ts";
 import type { Room } from "./types.ts";
@@ -8,6 +9,11 @@ export const io = new Server({
   cors: {
     origin: "http://localhost:5173",
   },
+});
+
+instrument(io, {
+  auth: false,
+  mode: "development",
 });
 
 io.on("connection", (socket) => {
@@ -21,14 +27,14 @@ io.on("connection", (socket) => {
   });
 });
 
-io.engine.on("connection_error", (err) => {
+io.on("connection_error", (err) => {
   console.log(err.req); // the request object
   console.log(err.code); // the error code, for example 1
   console.log(err.message); // the error message, for example "Session ID unknown"
   console.log(err.context); // some additional error context
 });
 
-io.sockets.adapter.on("join-room", (roomCode, sid) => {
+io.of("/").on("join-room", (roomCode, sid) => {
   // Don't do anything if room is a socket.io room
   if (io.sockets.sockets.has(roomCode)) return;
 
@@ -49,7 +55,7 @@ io.sockets.adapter.on("join-room", (roomCode, sid) => {
   io.to(roomCode).emit("room-player-joined");
 });
 
-io.sockets.adapter.on("leave-room", (roomCode, sid) => {
+io.of("/").on("leave-room", (roomCode, sid) => {
   // Don't do anything if room is a socket.io room
   if (io.sockets.sockets.has(roomCode)) return;
 
@@ -71,7 +77,7 @@ io.sockets.adapter.on("leave-room", (roomCode, sid) => {
   io.to(roomCode).emit("room-player-left");
 });
 
-io.sockets.adapter.on("create-room", (roomCode) => {
+io.of("/").on("create-room", (roomCode) => {
   // Don't do anything if room is a socket.io room
   if (io.sockets.sockets.has(roomCode)) return;
 
@@ -94,7 +100,7 @@ io.sockets.adapter.on("create-room", (roomCode) => {
   } as Room;
 });
 
-io.sockets.adapter.on("delete-room", (roomCode) => {
+io.of("/").on("delete-room", (roomCode) => {
   // Don't do anything if room is a socket.io room
   if (io.sockets.sockets.has(roomCode)) return;
 
