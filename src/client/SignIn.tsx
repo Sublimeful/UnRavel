@@ -1,7 +1,10 @@
-import { useContext, useRef, useState } from "react";
+import { type FormEvent, useContext, useRef, useState } from "react";
 
 import PageContext from "./PageContext";
 import Register from "./Register";
+import MainMenu from "./MainMenu";
+
+import { signin as apiSignin } from "./api/auth";
 
 export default function SignIn() {
   const { setPage } = useContext(PageContext);
@@ -9,7 +12,13 @@ export default function SignIn() {
   const [password, setPassword] = useState("");
   const passwordInputRef = useRef<HTMLInputElement>(null);
 
-  function signin() {
+  async function signin(event: FormEvent) {
+    event.preventDefault();
+
+    // Go to main menu page after successful sign in
+    if (await apiSignin(email, password)) {
+      setPage(<MainMenu />);
+    }
   }
 
   return (
@@ -20,7 +29,10 @@ export default function SignIn() {
       <h1 className="text-center text-white text-3xl font-bold">
         Sign in to UnRavel
       </h1>
-      <form className="mt-8 flex flex-col gap-8" onSubmit={signin}>
+      <form
+        className="mt-8 flex flex-col gap-8"
+        onSubmit={signin}
+      >
         <label className="text-left font-light">
           Email
           <input
@@ -40,6 +52,8 @@ export default function SignIn() {
             type="password"
             placeholder="Enter your password"
             className="focus:outline-none text-xl w-full h-14 p-5 bg-[#343434] placeholder:text-[#787878] rounded-lg border border-[#787878] mt-1 "
+            pattern=".{8,100}"
+            title="8 to 100 characters"
             required
           >
           </input>

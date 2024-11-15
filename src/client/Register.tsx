@@ -1,15 +1,27 @@
-import { useContext, useRef, useState } from "react";
+import { type FormEvent, useContext, useRef, useState } from "react";
 
 import PageContext from "./PageContext";
 import SignIn from "./SignIn";
+
+import { register as apiRegister } from "./api/auth";
 
 export default function Register() {
   const { setPage } = useContext(PageContext);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const passwordInputRef = useRef<HTMLInputElement>(null);
+  const confirmPasswordInputRef = useRef<HTMLInputElement>(null);
 
-  function register() {
+  async function register(event: FormEvent) {
+    event.preventDefault();
+
+    if (password !== confirmPassword) return;
+
+    // Go to sign in page after successful registration
+    if (await apiRegister(email, password)) {
+      setPage(<SignIn />);
+    }
   }
 
   return (
@@ -20,7 +32,10 @@ export default function Register() {
       <h1 className="text-center text-white text-3xl font-bold">
         Register to UnRavel
       </h1>
-      <form className="mt-8 flex flex-col gap-8" onSubmit={register}>
+      <form
+        className="mt-8 flex flex-col gap-8"
+        onSubmit={register}
+      >
         <label className="text-left font-light">
           Email
           <input
@@ -36,10 +51,25 @@ export default function Register() {
           Password
           <input
             ref={passwordInputRef}
-            onInput={(event) => setPassword(event.currentTarget.value)}
+            onInput={(event) => {
+              setPassword(event.currentTarget.value);
+              if (
+                !passwordInputRef.current || !confirmPasswordInputRef.current
+              ) return;
+              if (event.currentTarget.value !== confirmPassword) {
+                passwordInputRef.current.setCustomValidity(
+                  "Passwords do not match",
+                );
+              } else {
+                passwordInputRef.current.setCustomValidity("");
+              }
+              confirmPasswordInputRef.current.setCustomValidity("");
+            }}
             type="password"
             placeholder="Enter your password"
             className="focus:outline-none text-xl w-full h-14 p-5 bg-[#343434] placeholder:text-[#787878] rounded-lg border border-[#787878] mt-1"
+            pattern=".{8,100}"
+            title="8 to 100 characters"
             required
           >
           </input>
@@ -63,7 +93,21 @@ export default function Register() {
         <label className="text-left font-light">
           Confirm Password
           <input
-            onInput={(event) => setPassword(event.currentTarget.value)}
+            ref={confirmPasswordInputRef}
+            onInput={(event) => {
+              setConfirmPassword(event.currentTarget.value);
+              if (
+                !confirmPasswordInputRef.current || !passwordInputRef.current
+              ) return;
+              if (event.currentTarget.value !== password) {
+                confirmPasswordInputRef.current.setCustomValidity(
+                  "Passwords do not match",
+                );
+              } else {
+                confirmPasswordInputRef.current.setCustomValidity("");
+              }
+              passwordInputRef.current.setCustomValidity("");
+            }}
             type="password"
             placeholder="Re-enter your password"
             className="focus:outline-none text-xl w-full h-14 p-5 bg-[#343434] placeholder:text-[#787878] rounded-lg border border-[#787878] mt-1"
