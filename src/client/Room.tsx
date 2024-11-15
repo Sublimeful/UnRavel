@@ -38,13 +38,17 @@ export default function Room(props: RoomProps) {
 
     setStartButtonDisabled(true);
 
-    const success = await roomStartGame(
-      socket.id,
-      roomCode,
-      gameSettings,
-    );
+    try {
+      const success = await roomStartGame(
+        socket.id,
+        roomCode,
+        gameSettings,
+      );
 
-    if (!success) {
+      if (!success) {
+        setStartButtonDisabled(false);
+      }
+    } catch (_) {
       setStartButtonDisabled(false);
     }
   }
