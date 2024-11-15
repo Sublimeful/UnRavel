@@ -64,7 +64,7 @@ export default function SignIn() {
           type="submit"
           className="mx-auto transition-[width,font-size] w-full min-h-16 rounded sm:text-2xl text-xl font-light bg-gradient-to-r from-[#AC1C1C] to-[#003089] flex items-center justify-center gap-2"
         >
-          Sign In
+          Sign in
           <i className="bi bi-box-arrow-in-right"></i>
         </button>
       </form>
