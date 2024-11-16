@@ -1,5 +1,6 @@
 import express from "express";
 import cors from "cors";
+import cookieParser from "cookie-parser";
 import authRoutes from "./src/server/routes/auth.ts";
 import miscRoutes from "./src/server/routes/misc.ts";
 import roomRoutes from "./src/server/routes/room.ts";
@@ -9,6 +10,7 @@ import ssr from "./src/server/routes/ssr.ts";
 const app = express();
 
 app.use(cors());
+app.use(cookieParser());
 app.use(express.json());
 app.use(authRoutes);
 app.use(miscRoutes);

@@ -15,26 +15,29 @@ router.post("/api/auth/signin-session", async (req, res) => {
   }
 
   // Guard against CSRF attacks.
-  if (csrfToken !== req.cookies.csrfToken) {
-    res.status(401).send("unauthorized request");
-    return;
+  if (!req.cookies || csrfToken !== req.cookies.csrfToken) {
+    return res.status(401).send("unauthorized request");
   }
 
   try {
     // Set session expiration to 1 day
-    const expiresIn = 60 * 60 * 24;
+    const expiresIn = 1000 * 60 * 60 * 24;
 
     const sessionCookie = await auth.createSessionCookie(idToken, {
       expiresIn,
     });
 
-    const options = { maxAge: expiresIn, httpOnly: true, secure: true };
-
-    res.cookie("session", sessionCookie, options);
+    res.cookie("session", sessionCookie, {
+      maxAge: expiresIn,
+      httpOnly: true,
+      secure: true,
+    });
 
     res.status(200).send();
   } catch (error) {
-    return res.status(400).send(error);
+    console.error(error);
+
+    return res.status(401).send("unauthorized request");
   }
 });
 

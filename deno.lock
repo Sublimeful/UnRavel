@@ -4,6 +4,7 @@
     "npm:@react-three/fiber@^8.17.8": "8.17.10_react@18.3.1_react-dom@18.3.1__react@18.3.1_three@0.168.0",
     "npm:@socket.io/admin-ui@~0.5.1": "0.5.1_socket.io@4.8.1",
     "npm:@types/body-parser@^1.19.5": "1.19.5",
+    "npm:@types/cookie-parser@^1.4.7": "1.4.7",
     "npm:@types/cors@^2.8.17": "2.8.17",
     "npm:@types/express@^4.17.21": "4.17.21",
     "npm:@types/node@^22.9.0": "22.9.0",
@@ -13,6 +14,7 @@
     "npm:autoprefixer@^10.4.20": "10.4.20_postcss@8.4.47",
     "npm:body-parser@^1.20.3": "1.20.3",
     "npm:bootstrap-icons@^1.11.3": "1.11.3",
+    "npm:cookie-parser@^1.4.7": "1.4.7",
     "npm:cors@^2.8.5": "2.8.5",
     "npm:dotenv@^16.4.5": "16.4.5",
     "npm:express@^4.21.0": "4.21.1",
@@ -751,6 +753,12 @@
         "@types/node@22.5.4"
       ]
     },
+    "@types/cookie-parser@1.4.7": {
+      "integrity": "sha512-Fvuyi354Z+uayxzIGCwYTayFKocfV7TuDYZClCdIP9ckhvAu/ixDtCB6qx2TT0FKjPLf1f3P/J1rgf6lPs64mw==",
+      "dependencies": [
+        "@types/express"
+      ]
+    },
     "@types/cookie@0.4.1": {
       "integrity": "sha512-XW/Aa8APYr6jSVVA1y/DEIZX0/GMKLEVekNG727R8cs56ahETkRAy/3DR7+fJyh7oUgGwNQaRfXCun0+KbWY7Q=="
     },
@@ -1110,6 +1118,13 @@
     },
     "content-type@1.0.5": {
       "integrity": "sha512-nTjqfcBFEipKdXCv4YDQWCfmcLZKm81ldF0pAopTvyrFGVbcR6P/VAAd5G7N+0tTr8QqiU0tFadD6FK4NtJwOA=="
+    },
+    "cookie-parser@1.4.7": {
+      "integrity": "sha512-nGUvgXnotP3BsjiLX2ypbQnWoGUPIIfHQNZkkC668ntrzGWEZVW70HDEB1qnNGMicPje6EttlIgzo51YSwNQGw==",
+      "dependencies": [
+        "cookie@0.7.2",
+        "cookie-signature"
+      ]
     },
     "cookie-signature@1.0.6": {
       "integrity": "sha512-QADzlaHc8icV8I7vbaJXJwod9HWYp8uCqf1xa4OfNu1T7JVxQIrUgOWtHdNDtPiywmFbiS12VjotIXLrKM3orQ=="
@@ -2585,6 +2600,7 @@
       "dependencies": [
         "npm:@react-three/fiber@^8.17.8",
         "npm:@socket.io/admin-ui@~0.5.1",
+        "npm:@types/cookie-parser@^1.4.7",
         "npm:@types/cors@^2.8.17",
         "npm:@types/express@^4.17.21",
         "npm:@types/node@^22.9.0",
@@ -2593,6 +2609,7 @@
         "npm:@types/three@0.168",
         "npm:autoprefixer@^10.4.20",
         "npm:bootstrap-icons@^1.11.3",
+        "npm:cookie-parser@^1.4.7",
         "npm:cors@^2.8.5",
         "npm:dotenv@^16.4.5",
         "npm:express@^4.21.0",

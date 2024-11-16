@@ -21,8 +21,15 @@ export async function signin(email: string, password: string) {
   try {
     const user = (await signInWithEmailAndPassword(auth, email, password)).user;
     const idToken = await user.getIdToken();
+    const csrfToken = crypto.randomUUID();
+
+    // Set csrfToken expiration to 1 day
+    const expiresIn = 60 * 60 * 24;
     const cookie = new Cookies(null, { path: "/" });
-    const csrfToken = cookie.get("csrfToken");
+    cookie.set("csrfToken", csrfToken, {
+      maxAge: expiresIn,
+      secure: true,
+    });
 
     const res = await fetch(
       `/api/auth/signin-session`,
