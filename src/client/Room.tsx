@@ -92,8 +92,11 @@ export default function Room(props: RoomProps) {
     <div className="absolute transition-[width] h-[98%] lg:w-[50%] w-[98%] bg-[#000625] bg-opacity-50 rounded-xl border border-neutral-500 flex flex-col items-center p-10 text-white overflow-y-scroll overflow-x-clip">
       <div className="flex flex-row w-full justify-between">
         <button
-          onClick={() => {
-            if (socket.id) roomLeave(socket.id, roomCode); // Back button pressed leaves room
+          onClick={async () => {
+            // Back button pressed leaves room
+            if (!socket.id) return;
+            const success = await roomLeave(socket.id, roomCode);
+            if (!success) return;
             setPage(<MainMenu />);
           }}
           className="self-start text-lg font-light flex items-center justify-center gap-2"

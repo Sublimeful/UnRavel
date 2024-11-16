@@ -1,7 +1,6 @@
-import type { PlayerSanitized, SID } from "../../types";
+import type { PlayerSanitized } from "../../types";
 
 export async function playerSignIn(
-  sid: SID,
   username: string,
 ): Promise<boolean> {
   const res = await fetch(
@@ -10,7 +9,6 @@ export async function playerSignIn(
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": `SID ${sid}`,
       },
       body: JSON.stringify({
         username,
@@ -27,16 +25,11 @@ export async function playerSignIn(
   }
 }
 
-export async function getPlayer(
-  sid: SID,
-): Promise<PlayerSanitized | null> {
+export async function getPlayer(): Promise<PlayerSanitized | null> {
   const res = await fetch(
     `/api/player`,
     {
       method: "GET",
-      headers: {
-        "Authorization": `SID ${sid}`,
-      },
     },
   );
 

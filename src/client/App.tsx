@@ -10,6 +10,7 @@ import PageContext from "./PageContext";
 
 import { socket } from "./socket";
 import SignIn from "./SignIn";
+import { roomGet, roomJoin } from "./api/room";
 
 declare global {
   interface Window {
@@ -23,8 +24,24 @@ export default function App() {
   const [_, setIsConnected] = useState(socket.connected);
 
   useEffect(() => {
-    function onConnect() {
+    async function onConnect() {
       setIsConnected(true);
+
+      // TODO: Attempt reconnection
+      try {
+        const roomCode = await roomGet();
+        await roomJoin(roomCode);
+        // const gameState = await getGameState();
+
+        // if (gameState === "ended") {
+        //   setPage(<Room roomCode={roomCode} />
+        // } else {
+        //   setPage(<Game roomCode={roomCode} />
+        // }
+      } catch (error) {
+        console.error(error);
+        console.error("could not reconnect");
+      }
     }
 
     function onDisconnect() {

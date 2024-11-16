@@ -1,8 +1,10 @@
-import type { Interaction, PlayerID, SID } from "../types";
+import type { Interaction } from "../types";
 
 export interface Player {
-  id: PlayerID;
+  uid: string;
+  sid: string | null;
   username: string;
+  room: string | null;
 }
 
 export interface PlayerStats {
@@ -16,15 +18,15 @@ export interface Game {
   state: "idle" | "in progress";
   category: string;
   secretTerm: string;
-  playerStats: Record<SID, PlayerStats>;
+  playerStats: Record<string, PlayerStats>;
   timeLimit: number;
-  endTimeout: NodeJS.Timeout;
+  endTimeout?: NodeJS.Timeout;
   startTime: number;
-  winner: SID | null;
+  winner: string | null;
 }
 
 export interface Room {
-  players: Set<SID>;
-  host: SID | null;
+  players: Set<string>;
+  host: string | null;
   game: Game;
 }
