@@ -9,13 +9,13 @@ import {
   gameGetTimeLeft,
   gameGuess as apiGameGuess,
 } from "./api/game";
-import { getPlayer } from "./api/misc";
+import { getPlayer } from "./api/player";
 import { socket } from "./socket";
-import type { Interaction, PlayerSanitized, RoomCode } from "../types";
+import type { Interaction, PlayerSanitized } from "../types";
 import GameOver from "./GameOver";
 
 interface GameProps {
-  roomCode: RoomCode;
+  roomCode: string;
 }
 
 export default function Game(props: GameProps) {
@@ -40,7 +40,7 @@ export default function Game(props: GameProps) {
     // Reset form to prevent spamming questions
     (event.currentTarget as HTMLFormElement).reset();
 
-    const answer = await apiGameAsk(socket.id, roomCode, question);
+    const answer = await apiGameAsk(roomCode, question);
 
     if (!answer) return;
 
@@ -55,7 +55,7 @@ export default function Game(props: GameProps) {
     // Reset form to prevent spamming questions
     (event.currentTarget as HTMLFormElement).reset();
 
-    const proximity = await apiGameGuess(socket.id, roomCode, guess);
+    const proximity = await apiGameGuess(roomCode, guess);
 
     if (!proximity) return;
 
@@ -65,7 +65,7 @@ export default function Game(props: GameProps) {
   useEffect(() => {
     function syncTimeLeft() {
       if (!socket.id) return;
-      gameGetTimeLeft(socket.id, roomCode).then((_timeLeft) => {
+      gameGetTimeLeft(roomCode).then((_timeLeft) => {
         if (!_timeLeft) return;
         setTimeLeft(_timeLeft);
       });
@@ -95,7 +95,7 @@ export default function Game(props: GameProps) {
 
   useEffect(() => {
     if (!socket.id) return;
-    gameGetCategory(socket.id, roomCode).then((_category) => {
+    gameGetCategory(roomCode).then((_category) => {
       if (_category) setCategory(_category);
     });
   }, []);
@@ -103,10 +103,10 @@ export default function Game(props: GameProps) {
   useEffect(() => {
     function updatePlayerList() {
       if (!socket.id) return;
-      getPlayer(socket.id).then((_player) => {
+      getPlayer().then((_player) => {
         if (_player) setPlayer(_player);
       });
-      roomGetPlayers(socket.id, roomCode).then((_players) => {
+      roomGetPlayers(roomCode).then((_players) => {
         if (_players) setPlayers(_players);
       });
     }
@@ -180,16 +180,16 @@ export default function Game(props: GameProps) {
             <i className="bi bi-people-fill"></i>Players
           </h1>
           {players.sort((a, b) => {
-            if (player && (player.id === a.id || player.id === b.id)) {
-              return (b.id === player.id) ? 1 : -1;
+            if (player && (player.uid === a.uid || player.uid === b.uid)) {
+              return (b.uid === player.uid) ? 1 : -1;
             } else {
               return a.username.localeCompare(b.username);
             }
           }).map((_player) =>
-            (player && _player.id === player.id)
+            (player && _player.uid === player.uid)
               ? (
                 <div
-                  key={_player.id}
+                  key={_player.uid}
                   className="min-h-12 max-h-12 w-full rounded-lg bg-gradient-to-r from-[#AC1C1C] to-[#2AAAD9] flex flex-row items-center px-3"
                 >
                   <h1 className="w-full text-xl text-nowrap break-all truncate">
@@ -199,7 +199,7 @@ export default function Game(props: GameProps) {
               )
               : (
                 <div
-                  key={_player.id}
+                  key={_player.uid}
                   className="min-h-12 max-h-12 w-full rounded-lg bg-[#5e5e5e] flex flex-row items-center px-3"
                 >
                   <h1 className="w-full text-xl text-nowrap break-all truncate">

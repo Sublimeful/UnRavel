@@ -8,21 +8,21 @@ import {
   roomLeave,
   roomStartGame,
 } from "./api/room";
-import { getPlayer } from "./api/misc";
+import { getPlayer } from "./api/player";
 import { socket } from "./socket";
-import type { PlayerID, PlayerSanitized, RoomCode } from "../types";
+import type { PlayerSanitized } from "../types";
 import Game from "./Game";
 import type { GameSettings } from "../types";
 
 interface RoomProps {
-  roomCode: RoomCode;
+  roomCode: string;
 }
 
 export default function Room(props: RoomProps) {
   const { setPage } = useContext(PageContext);
   const { roomCode } = props;
 
-  const [host, setHost] = useState<PlayerID | null>(null);
+  const [host, setHost] = useState<string | null>(null);
   const [player, setPlayer] = useState<PlayerSanitized | null>(null);
   const [players, setPlayers] = useState<PlayerSanitized[]>([]);
   const [gameSettings, setGameSettings] = useState<GameSettings>({
@@ -40,7 +40,6 @@ export default function Room(props: RoomProps) {
 
     try {
       const success = await roomStartGame(
-        socket.id,
         roomCode,
         gameSettings,
       );
@@ -56,13 +55,13 @@ export default function Room(props: RoomProps) {
   useEffect(() => {
     function updatePlayerList() {
       if (!socket.id) return;
-      roomGetHost(socket.id, roomCode).then((_host) => {
+      roomGetHost(roomCode).then((_host) => {
         if (_host) setHost(_host);
       });
-      getPlayer(socket.id).then((_player) => {
+      getPlayer().then((_player) => {
         if (_player) setPlayer(_player);
       });
-      roomGetPlayers(socket.id, roomCode).then((_players) => {
+      roomGetPlayers(roomCode).then((_players) => {
         if (_players) setPlayers(_players);
       });
     }
@@ -130,20 +129,20 @@ export default function Room(props: RoomProps) {
         </h1>
         <ul className="mt-2 flex flex-col gap-2">
           {players.sort((a, b) => {
-            if (player && (player.id === a.id || player.id === b.id)) {
-              return (b.id === player.id) ? 1 : -1;
+            if (player && (player.uid === a.uid || player.uid === b.uid)) {
+              return (b.uid === player.uid) ? 1 : -1;
             } else {
               return a.username.localeCompare(b.username);
             }
           }).map((_player) => (
             <li
-              key={_player.id}
+              key={_player.uid}
               className="flex flex-row justify-between w-full bg-[#595959] rounded-lg px-3 py-2"
             >
               <h1 className="w-full text-xl text-nowrap break-all truncate">
                 {_player.username}
               </h1>
-              {host && host === _player.id && (
+              {host && host === _player.uid && (
                 <div className="bg-red-500 rounded-lg self-end w-14 grid place-items-center">
                   Host
                 </div>
@@ -152,7 +151,7 @@ export default function Room(props: RoomProps) {
           ))}
         </ul>
       </div>
-      {host && player && host === player.id && (
+      {host && player && host === player.uid && (
         <form
           className="w-full"
           onSubmit={startGame}

@@ -1,6 +1,27 @@
 import type { PlayerStatsSanitized } from "../../types";
 import type { PlayerSanitized } from "../../types";
 
+export async function gameGetState(
+  roomCode: string,
+): Promise<"idle" | "in progress" | null> {
+  const res = await fetch(
+    `/api/${roomCode}/game/state`,
+    {
+      method: "GET",
+    },
+  );
+
+  if (res.status === 200) {
+    const { state } = await res.json();
+
+    return state;
+  } else {
+    console.error(await res.text());
+
+    return null;
+  }
+}
+
 /**
   Gets the current countdown time
 */

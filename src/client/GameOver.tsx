@@ -4,12 +4,7 @@ import PageContext from "./PageContext";
 import MainMenu from "./MainMenu";
 import Room from "./Room";
 import { socket } from "./socket";
-import type {
-  PlayerID,
-  PlayerSanitized,
-  PlayerStatsSanitized,
-  RoomCode,
-} from "../types";
+import type { PlayerSanitized, PlayerStatsSanitized } from "../types";
 import {
   gameGetCategory,
   gameGetPlayerStats,
@@ -17,11 +12,11 @@ import {
   gameGetWinner,
 } from "./api/game";
 import { roomGetPlayers, roomLeave } from "./api/room";
-import { getPlayer } from "./api/misc";
+import { getPlayer } from "./api/player";
 import Game from "./Game";
 
 interface GameOverProps {
-  roomCode: RoomCode;
+  roomCode: string;
 }
 
 export default function GameOver(props: GameOverProps) {
@@ -30,7 +25,7 @@ export default function GameOver(props: GameOverProps) {
   const [player, setPlayer] = useState<PlayerSanitized | null>(null);
   const [players, setPlayers] = useState<PlayerSanitized[]>([]);
   const [playerStats, setPlayerStats] = useState<
-    Record<PlayerID, PlayerStatsSanitized>
+    Record<string, PlayerStatsSanitized>
   >({});
   const [category, setCategory] = useState("");
   const [winner, setWinner] = useState<PlayerSanitized | null>(null);
@@ -38,16 +33,16 @@ export default function GameOver(props: GameOverProps) {
 
   useEffect(() => {
     if (!socket.id) return;
-    gameGetPlayerStats(socket.id, roomCode).then((_playerStats) => {
+    gameGetPlayerStats(roomCode).then((_playerStats) => {
       if (_playerStats) setPlayerStats(_playerStats);
     });
-    gameGetCategory(socket.id, roomCode).then((_category) => {
+    gameGetCategory(roomCode).then((_category) => {
       if (_category) setCategory(_category);
     });
-    gameGetWinner(socket.id, roomCode).then((_winner) => {
+    gameGetWinner(roomCode).then((_winner) => {
       if (_winner) setWinner(_winner);
     });
-    gameGetSecretTerm(socket.id, roomCode).then((_secretTerm) => {
+    gameGetSecretTerm(roomCode).then((_secretTerm) => {
       if (_secretTerm) setSecretTerm(_secretTerm);
     });
   }, []);
@@ -55,10 +50,10 @@ export default function GameOver(props: GameOverProps) {
   useEffect(() => {
     function updatePlayerList() {
       if (!socket.id) return;
-      getPlayer(socket.id).then((_player) => {
+      getPlayer().then((_player) => {
         if (_player) setPlayer(_player);
       });
-      roomGetPlayers(socket.id, roomCode).then((_players) => {
+      roomGetPlayers(roomCode).then((_players) => {
         if (_players) setPlayers(_players);
       });
     }
@@ -123,17 +118,17 @@ export default function GameOver(props: GameOverProps) {
         </h1>
         <ul className="flex-[3_0_0] min-h-40 w-full flex flex-col gap-2 overflow-y-scroll">
           {players.sort((a, b) => {
-            if (player && (player.id === a.id || player.id === b.id)) {
-              return (b.id === player.id) ? 1 : -1;
+            if (player && (player.uid === a.uid || player.uid === b.uid)) {
+              return (b.uid === player.uid) ? 1 : -1;
             } else {
               return a.username.localeCompare(b.username);
             }
           }).map((_player) =>
             // Make sure playerStats[_player.id] exists before we start indexing and getting their stats
             // playerStats[_player.id] can be undefined if we got the player list before the player stats
-            (_player.id in playerStats) && (
+            (_player.uid in playerStats) && (
               <li
-                key={_player.id}
+                key={_player.uid}
                 className="flex flex-row gap-6 justify-between w-full bg-[#595959] bg-opacity-60 rounded-lg px-3 py-2"
               >
                 <span className="flex-[1_0_0] text-nowrap break-all truncate">
@@ -143,9 +138,9 @@ export default function GameOver(props: GameOverProps) {
                   {player && (
                     <h1 className="flex flex-row gap-1">
                       <span className="max-w-16 text-nowrap break-all truncate">
-                        {playerStats[_player.id].interactions.length}
+                        {playerStats[_player.uid].interactions.length}
                       </span>{" "}
-                      {playerStats[_player.id].interactions.length === 1
+                      {playerStats[_player.uid].interactions.length === 1
                         ? "question"
                         : "questions"}
                     </h1>
@@ -154,9 +149,9 @@ export default function GameOver(props: GameOverProps) {
                   {player && (
                     <h1 className="flex flex-row gap-1">
                       <span className="max-w-16 text-nowrap break-all truncate">
-                        {playerStats[_player.id].guesses.length}
+                        {playerStats[_player.uid].guesses.length}
                       </span>{" "}
-                      {playerStats[_player.id].guesses.length === 1
+                      {playerStats[_player.uid].guesses.length === 1
                         ? "guess"
                         : "guesses"}
                     </h1>

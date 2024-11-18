@@ -28,7 +28,7 @@ export async function roomRequest(sid: string): Promise<string | null> {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(sid),
+      body: JSON.stringify({ sid }),
     },
   );
 
@@ -54,7 +54,7 @@ export async function roomJoin(
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(sid),
+      body: JSON.stringify({ sid }),
     },
   );
 
@@ -78,7 +78,7 @@ export async function roomLeave(
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(sid),
+      body: JSON.stringify({ sid }),
     },
   );
 

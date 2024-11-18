@@ -5,12 +5,15 @@ import { Vector2 } from "three";
 import { useEffect, useState } from "react";
 
 import Background from "./Background";
-import MainMenu from "./MainMenu";
 import PageContext from "./PageContext";
 
-import { socket } from "./socket";
 import SignIn from "./SignIn";
+import Room from "./Room";
+import Game from "./Game";
+
+import { socket } from "./socket";
 import { roomGet, roomJoin } from "./api/room";
+import { gameGetState } from "./api/game";
 
 declare global {
   interface Window {
@@ -30,14 +33,19 @@ export default function App() {
       // TODO: Attempt reconnection
       try {
         const roomCode = await roomGet();
-        await roomJoin(roomCode);
-        // const gameState = await getGameState();
 
-        // if (gameState === "ended") {
-        //   setPage(<Room roomCode={roomCode} />
-        // } else {
-        //   setPage(<Game roomCode={roomCode} />
-        // }
+        if (!socket.id || !roomCode) return;
+
+        await roomJoin(socket.id, roomCode);
+        const gameState = await gameGetState(roomCode);
+
+        if (!gameState) return;
+
+        if (gameState === "idle") {
+          setPage(<Room roomCode={roomCode} />);
+        } else {
+          setPage(<Game roomCode={roomCode} />);
+        }
       } catch (error) {
         console.error(error);
         console.error("could not reconnect");

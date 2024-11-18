@@ -3,16 +3,15 @@ import { type FormEvent, useContext, useState } from "react";
 import PageContext from "./PageContext";
 import MainMenu from "./MainMenu";
 import CreateARoom from "./CreateARoom";
-import type { RoomCode } from "../types";
 import { roomJoin as apiRoomJoin } from "./api/room";
-import { playerSignIn } from "./api/misc";
+import { playerSignIn } from "./api/player";
 import { socket } from "./socket";
 import Room from "./Room";
 
 export default function JoinARoom() {
   const { setPage } = useContext(PageContext);
 
-  const [roomCode, setRoomCode] = useState<RoomCode>("");
+  const [roomCode, setRoomCode] = useState<string>("");
   const [username, setUsername] = useState<string>("");
 
   const [disableBtn, setDisableBtn] = useState(false);
@@ -25,7 +24,7 @@ export default function JoinARoom() {
     setDisableBtn(true); // Disable button spamming
 
     try {
-      await playerSignIn(socket.id, username);
+      await playerSignIn(username);
 
       const roomExists = await apiRoomJoin(socket.id, roomCode);
 

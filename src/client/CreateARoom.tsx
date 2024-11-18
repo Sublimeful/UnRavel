@@ -5,7 +5,7 @@ import MainMenu from "./MainMenu";
 
 import { socket } from "./socket";
 import { roomRequest as apiRoomRequest } from "./api/room";
-import { playerSignIn } from "./api/misc";
+import { playerSignIn } from "./api/player";
 import Room from "./Room";
 
 export default function CreateARoom() {
@@ -22,7 +22,7 @@ export default function CreateARoom() {
     setDisableBtn(true); // Disable button spamming
 
     try {
-      await playerSignIn(socket.id, username);
+      await playerSignIn(username);
 
       const roomCode = await apiRoomRequest(socket.id);
 

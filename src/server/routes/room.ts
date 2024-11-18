@@ -150,6 +150,11 @@ router.post("/api/:roomCode/join", async (req, res) => {
 });
 
 router.post("/api/:roomCode/leave", async (req, res) => {
+  const { sid } = req.body;
+
+  // Bad request
+  if (!sid) return res.status(400).send("invalid data");
+
   if (!req.cookies || !req.cookies.session) {
     return res.status(401).send("unauthorized request");
   }
