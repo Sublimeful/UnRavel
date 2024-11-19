@@ -1,5 +1,5 @@
 import type { DecodedIdToken } from "firebase-admin/auth";
-import { auth } from "../firebase";
+import { auth } from "../firebase.ts";
 
 export async function verifySessionCookie(
   sessionCookie: string,

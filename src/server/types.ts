@@ -2,7 +2,6 @@ import type { Interaction } from "../types";
 
 export interface Player {
   uid: string;
-  sid: string | null;
   username: string;
   room: string | null;
 }

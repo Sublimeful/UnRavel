@@ -34,8 +34,6 @@ export default function Room(props: RoomProps) {
   async function startGame(event: FormEvent) {
     event.preventDefault();
 
-    if (!socket.id) return;
-
     setStartButtonDisabled(true);
 
     try {
@@ -54,7 +52,6 @@ export default function Room(props: RoomProps) {
 
   useEffect(() => {
     function updatePlayerList() {
-      if (!socket.id) return;
       roomGetHost(roomCode).then((_host) => {
         if (_host) setHost(_host);
       });

@@ -6,6 +6,7 @@ import { roomGetPlayers, roomLeave } from "./api/room";
 import {
   gameAsk as apiGameAsk,
   gameGetCategory,
+  gameGetInteractions,
   gameGetTimeLeft,
   gameGuess as apiGameGuess,
 } from "./api/game";
@@ -35,7 +36,7 @@ export default function Game(props: GameProps) {
   async function gameAsk(event: FormEvent) {
     event.preventDefault();
 
-    if (!socket.id || !question) return;
+    if (!question) return;
 
     // Reset form to prevent spamming questions
     (event.currentTarget as HTMLFormElement).reset();
@@ -50,7 +51,7 @@ export default function Game(props: GameProps) {
   async function gameGuess(event: FormEvent) {
     event.preventDefault();
 
-    if (!socket.id || !guess) return;
+    if (!guess) return;
 
     // Reset form to prevent spamming questions
     (event.currentTarget as HTMLFormElement).reset();
@@ -64,7 +65,6 @@ export default function Game(props: GameProps) {
 
   useEffect(() => {
     function syncTimeLeft() {
-      if (!socket.id) return;
       gameGetTimeLeft(roomCode).then((_timeLeft) => {
         if (!_timeLeft) return;
         setTimeLeft(_timeLeft);
@@ -94,15 +94,7 @@ export default function Game(props: GameProps) {
   }, [timeLeft]);
 
   useEffect(() => {
-    if (!socket.id) return;
-    gameGetCategory(roomCode).then((_category) => {
-      if (_category) setCategory(_category);
-    });
-  }, []);
-
-  useEffect(() => {
     function updatePlayerList() {
-      if (!socket.id) return;
       getPlayer().then((_player) => {
         if (_player) setPlayer(_player);
       });
@@ -120,6 +112,16 @@ export default function Game(props: GameProps) {
     socket.on("room-player-left", updatePlayerList);
 
     updatePlayerList(); // Initially update the player list
+
+    // Initially get category
+    gameGetCategory(roomCode).then((_category) => {
+      if (_category) setCategory(_category);
+    });
+
+    // Initially get interactions, for when the player reconnects
+    gameGetInteractions(roomCode).then((_interactions) => {
+      if (_interactions) setInteractions(_interactions);
+    });
 
     return () => {
       // Unregister all event listeners when component is unmounted

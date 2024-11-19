@@ -15,53 +15,56 @@ import { socket } from "./socket";
 import { roomGet, roomJoin } from "./api/room";
 import { gameGetState } from "./api/game";
 
-declare global {
-  interface Window {
-    socket: any;
-  }
-}
-
 export default function App() {
-  const [currPage, setPage] = useState<JSX.Element | null>(<SignIn />);
+  const [currPage, setPage] = useState<JSX.Element | null>(<></>);
 
-  const [_, setIsConnected] = useState(socket.connected);
+  async function reconnect() {
+    try {
+      console.log("Attempting Reconnection");
+
+      const roomCode = await roomGet();
+
+      if (!socket.id || !roomCode) return false;
+
+      await roomJoin(socket.id, roomCode);
+      const gameState = await gameGetState(roomCode);
+
+      if (!gameState) return false;
+
+      if (gameState === "idle") {
+        setPage(<Room roomCode={roomCode} />);
+      } else {
+        setPage(<Game roomCode={roomCode} />);
+      }
+
+      return true;
+    } catch (error) {
+      console.error(error);
+      console.error("could not reconnect");
+
+      return false;
+    }
+  }
 
   useEffect(() => {
-    async function onConnect() {
-      setIsConnected(true);
-
-      // TODO: Attempt reconnection
-      try {
-        const roomCode = await roomGet();
-
-        if (!socket.id || !roomCode) return;
-
-        await roomJoin(socket.id, roomCode);
-        const gameState = await gameGetState(roomCode);
-
-        if (!gameState) return;
-
-        if (gameState === "idle") {
-          setPage(<Room roomCode={roomCode} />);
-        } else {
-          setPage(<Game roomCode={roomCode} />);
+    function onConnect() {
+      console.log("Connected");
+      // Attempt reconnection
+      reconnect().then((success) => {
+        if (!success) {
+          setPage(<SignIn />);
         }
-      } catch (error) {
-        console.error(error);
-        console.error("could not reconnect");
-      }
+      });
     }
 
     function onDisconnect() {
-      setIsConnected(false);
+      console.log("Disconnected");
     }
 
     socket.on("connect", onConnect);
     socket.on("disconnect", onDisconnect);
 
     socket.connect(); // Connect to the websocket server
-
-    window.socket = socket;
 
     return () => {
       // Unregister all event listeners when component is unmounted

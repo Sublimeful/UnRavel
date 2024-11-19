@@ -206,13 +206,6 @@ router.post("/api/:roomCode/game/guess", async (req, res) => {
     return res.status(400).send("invalid data");
   }
 
-  const { question } = req.body;
-
-  // Bad request if question is not in the JSON
-  if (!question) {
-    return res.status(400).send("invalid data");
-  }
-
   if (!req.cookies || !req.cookies.session) {
     return res.status(401).send("unauthorized request");
   }
@@ -389,6 +382,51 @@ router.get("/api/:roomCode/game/secret-term", async (req, res) => {
 
   return res.status(200).send(
     JSON.stringify({ secretTerm: roomState.game.secretTerm }),
+  );
+});
+
+router.get("/api/:roomCode/game/interactions", async (req, res) => {
+  if (!req.cookies || !req.cookies.session) {
+    return res.status(401).send("unauthorized request");
+  }
+
+  const decodedClaims = await verifySessionCookie(req.cookies.session);
+
+  if (!decodedClaims) {
+    return res.status(401).send("unauthorized request");
+  }
+
+  const uid = decodedClaims.uid;
+
+  const roomCode = req.params.roomCode;
+
+  // Check if the room state exists
+  if (!(`room:${roomCode}` in state)) {
+    return res.status(400).send("room not found");
+  }
+
+  const roomState = state[`room:${roomCode}`] as Room;
+
+  if (!(`player:${uid}` in state)) {
+    return res.status(400).send("could not find player");
+  }
+
+  const player = state[`player:${uid}`] as Player;
+
+  // Check if player is in the room
+  if (player.room !== roomCode) {
+    return res.status(400).send("you are not in this room");
+  }
+
+  // Check that the game is in progress
+  if (roomState.game.state !== "in progress") {
+    return res.status(400).send("game is not in progress");
+  }
+
+  return res.status(200).send(
+    JSON.stringify({
+      interactions: roomState.game.playerStats[uid].interactions,
+    }),
   );
 });
 

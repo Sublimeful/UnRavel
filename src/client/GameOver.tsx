@@ -32,7 +32,6 @@ export default function GameOver(props: GameOverProps) {
   const [secretTerm, setSecretTerm] = useState("");
 
   useEffect(() => {
-    if (!socket.id) return;
     gameGetPlayerStats(roomCode).then((_playerStats) => {
       if (_playerStats) setPlayerStats(_playerStats);
     });
@@ -49,7 +48,6 @@ export default function GameOver(props: GameOverProps) {
 
   useEffect(() => {
     function updatePlayerList() {
-      if (!socket.id) return;
       getPlayer().then((_player) => {
         if (_player) setPlayer(_player);
       });

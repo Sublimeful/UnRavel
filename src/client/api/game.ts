@@ -1,4 +1,4 @@
-import type { PlayerStatsSanitized } from "../../types";
+import type { Interaction, PlayerStatsSanitized } from "../../types";
 import type { PlayerSanitized } from "../../types";
 
 export async function gameGetState(
@@ -154,6 +154,29 @@ export async function gameGetSecretTerm(
     const { secretTerm } = await res.json() as { secretTerm: string };
 
     return secretTerm;
+  } else {
+    console.error(await res.text());
+
+    return null;
+  }
+}
+
+export async function gameGetInteractions(
+  roomCode: string,
+): Promise<Interaction[] | null> {
+  const res = await fetch(
+    `/api/${roomCode}/game/interactions`,
+    {
+      method: "GET",
+    },
+  );
+
+  if (res.status === 200) {
+    const { interactions } = await res.json() as {
+      interactions: Interaction[];
+    };
+
+    return interactions;
   } else {
     console.error(await res.text());
 

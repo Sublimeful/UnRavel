@@ -35,7 +35,12 @@ router.get("/api/room-get", async (req, res) => {
   }
 });
 
-router.get("/api/room-request", async (req, res) => {
+router.post("/api/room-request", async (req, res) => {
+  const { sid } = req.body;
+
+  // Bad request
+  if (!sid) return res.status(400).send("invalid data");
+
   function roomCodeGenerator() {
     return Math.random().toString(36).slice(2).toUpperCase();
   }
@@ -83,8 +88,19 @@ router.get("/api/room-request", async (req, res) => {
   state[`room:${roomCode}`] = roomState;
 
   // Join the room
+  console.log(
+    `player ${player.uid} ${player.username} has joined room ${roomCode}`,
+  );
+  const socket = io.sockets.sockets.get(sid);
+  if (!socket) {
+    return res.status(400).send("invalid data");
+  }
+  socket.join(roomCode);
   roomState.players.add(player.uid);
   player.room = roomCode;
+
+  // Set the player who created the room as the host
+  roomState.host = player.uid;
 
   return res.status(200).send(JSON.stringify({ roomCode }));
 });
@@ -139,6 +155,9 @@ router.post("/api/:roomCode/join", async (req, res) => {
   }
 
   // Join room
+  console.log(
+    `player ${player.uid} ${player.username} has joined room ${roomCode}`,
+  );
   socket.join(roomCode);
   roomState.players.add(player.uid);
   player.room = roomCode;
@@ -188,10 +207,14 @@ router.post("/api/:roomCode/leave", async (req, res) => {
   }
 
   // Leave the room
+  console.log(
+    `player ${player.uid} ${player.username} has left room ${roomCode}`,
+  );
   const socket = io.sockets.sockets.get(sid);
   if (!socket) {
     return res.status(400).send("invalid data");
   }
+  socket.leave(roomCode);
   roomState.players.delete(player.uid);
   player.room = null;
 
@@ -206,6 +229,7 @@ router.post("/api/:roomCode/leave", async (req, res) => {
 
   // If the room is empty, then cull it
   if (roomState.players.size === 0) {
+    console.log(`room ${roomCode} deleted`);
     delete state[`room:${roomCode}`];
   }
 

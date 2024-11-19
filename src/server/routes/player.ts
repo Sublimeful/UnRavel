@@ -27,8 +27,17 @@ router.post("/api/player-sign-in", async (req, res) => {
   const uid = decodedClaims.uid;
   console.log(uid, "player-sign-in", "username", username);
 
+  // Player has already signed in before
+  if (`player:${uid}` in state) {
+    // Just change the username only
+    const player = state[`player:${uid}`] as Player;
+    player.username = username;
+
+    return res.status(200).send();
+  }
+
   // Initialize player state
-  state[`player:${uid}`] = { uid, sid: null, username, room: null };
+  state[`player:${uid}`] = { uid, username, room: null };
 
   return res.status(200).send();
 });
