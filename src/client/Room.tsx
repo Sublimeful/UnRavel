@@ -187,7 +187,7 @@ export default function Room(props: RoomProps) {
 
                     setGameSettings({
                       ...gameSettings,
-                      category: getRandomCategory(),
+                      category: randomCategory,
                     });
 
                     if (event.currentTarget.parentElement) {
