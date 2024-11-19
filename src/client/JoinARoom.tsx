@@ -7,6 +7,8 @@ import { roomJoin as apiRoomJoin } from "./api/room";
 import { playerSignIn } from "./api/player";
 import { socket } from "./socket";
 import Room from "./Room";
+import { gameGetState } from "./api/game";
+import Game from "./Game";
 
 export default function JoinARoom() {
   const { setPage } = useContext(PageContext);
@@ -30,7 +32,15 @@ export default function JoinARoom() {
 
       // If the room does not exist, then you can't join it
       if (roomExists) {
-        setPage(<Room roomCode={roomCode} />);
+        const gameState = await gameGetState(roomCode);
+
+        if (!gameState) return;
+
+        if (gameState === "idle") {
+          setPage(<Room roomCode={roomCode} />);
+        } else {
+          setPage(<Game roomCode={roomCode} />);
+        }
       } else {
         setDisableBtn(false);
       }

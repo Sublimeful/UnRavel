@@ -423,11 +423,12 @@ router.get("/api/:roomCode/game/interactions", async (req, res) => {
     return res.status(400).send("game is not in progress");
   }
 
-  return res.status(200).send(
-    JSON.stringify({
-      interactions: roomState.game.playerStats[uid].interactions,
-    }),
-  );
+  // Get the interactions if they exist, otherwise empty list
+  const interactions = uid in roomState.game.playerStats
+    ? roomState.game.playerStats[uid].interactions
+    : [];
+
+  return res.status(200).send(JSON.stringify({ interactions }));
 });
 
 router.get("/api/:roomCode/game/player-stats", async (req, res) => {
