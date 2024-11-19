@@ -3,26 +3,20 @@ import { Router } from "express";
 import { io } from "../socket.ts";
 
 import state from "../state.ts";
-import { getSanitizedPlayer, getSanitizedPlayerStats } from "../utils/misc.ts";
+import {
+  getSanitizedPlayer,
+  getSanitizedPlayerStats,
+} from "../utils/player.ts";
 import type { Player, Room } from "../types.ts";
 import type { PlayerStatsSanitized } from "../../types.ts";
 import { askClosedEndedQuestion } from "../utils/ai.ts";
-import { verifySessionCookie } from "../utils/auth.ts";
+import { verifyRequestAndGetUID } from "../utils/api.ts";
 
 const router = Router();
 
 router.get("/api/:roomCode/game/state", async (req, res) => {
-  if (!req.cookies || !req.cookies.session) {
-    return res.status(401).send("unauthorized request");
-  }
-
-  const decodedClaims = await verifySessionCookie(req.cookies.session);
-
-  if (!decodedClaims) {
-    return res.status(401).send("unauthorized request");
-  }
-
-  const uid = decodedClaims.uid;
+  const uid = await verifyRequestAndGetUID(req, res);
+  if (!uid) return;
 
   const roomCode = req.params.roomCode;
 
@@ -48,17 +42,8 @@ router.get("/api/:roomCode/game/state", async (req, res) => {
 });
 
 router.get("/api/:roomCode/game/time-left", async (req, res) => {
-  if (!req.cookies || !req.cookies.session) {
-    return res.status(401).send("unauthorized request");
-  }
-
-  const decodedClaims = await verifySessionCookie(req.cookies.session);
-
-  if (!decodedClaims) {
-    return res.status(401).send("unauthorized request");
-  }
-
-  const uid = decodedClaims.uid;
+  const uid = await verifyRequestAndGetUID(req, res);
+  if (!uid) return;
 
   const roomCode = req.params.roomCode;
 
@@ -93,17 +78,8 @@ router.get("/api/:roomCode/game/time-left", async (req, res) => {
 });
 
 router.get("/api/:roomCode/game/category", async (req, res) => {
-  if (!req.cookies || !req.cookies.session) {
-    return res.status(401).send("unauthorized request");
-  }
-
-  const decodedClaims = await verifySessionCookie(req.cookies.session);
-
-  if (!decodedClaims) {
-    return res.status(401).send("unauthorized request");
-  }
-
-  const uid = decodedClaims.uid;
+  const uid = await verifyRequestAndGetUID(req, res);
+  if (!uid) return;
 
   const roomCode = req.params.roomCode;
 
@@ -138,17 +114,8 @@ router.post("/api/:roomCode/game/ask", async (req, res) => {
     return res.status(400).send("invalid data");
   }
 
-  if (!req.cookies || !req.cookies.session) {
-    return res.status(401).send("unauthorized request");
-  }
-
-  const decodedClaims = await verifySessionCookie(req.cookies.session);
-
-  if (!decodedClaims) {
-    return res.status(401).send("unauthorized request");
-  }
-
-  const uid = decodedClaims.uid;
+  const uid = await verifyRequestAndGetUID(req, res);
+  if (!uid) return;
 
   const roomCode = req.params.roomCode;
 
@@ -206,17 +173,8 @@ router.post("/api/:roomCode/game/guess", async (req, res) => {
     return res.status(400).send("invalid data");
   }
 
-  if (!req.cookies || !req.cookies.session) {
-    return res.status(401).send("unauthorized request");
-  }
-
-  const decodedClaims = await verifySessionCookie(req.cookies.session);
-
-  if (!decodedClaims) {
-    return res.status(401).send("unauthorized request");
-  }
-
-  const uid = decodedClaims.uid;
+  const uid = await verifyRequestAndGetUID(req, res);
+  if (!uid) return;
 
   const roomCode = req.params.roomCode;
 
@@ -287,17 +245,8 @@ router.post("/api/:roomCode/game/guess", async (req, res) => {
 });
 
 router.get("/api/:roomCode/game/winner", async (req, res) => {
-  if (!req.cookies || !req.cookies.session) {
-    return res.status(401).send("unauthorized request");
-  }
-
-  const decodedClaims = await verifySessionCookie(req.cookies.session);
-
-  if (!decodedClaims) {
-    return res.status(401).send("unauthorized request");
-  }
-
-  const uid = decodedClaims.uid;
+  const uid = await verifyRequestAndGetUID(req, res);
+  if (!uid) return;
 
   const roomCode = req.params.roomCode;
 
@@ -343,17 +292,8 @@ router.get("/api/:roomCode/game/winner", async (req, res) => {
 });
 
 router.get("/api/:roomCode/game/secret-term", async (req, res) => {
-  if (!req.cookies || !req.cookies.session) {
-    return res.status(401).send("unauthorized request");
-  }
-
-  const decodedClaims = await verifySessionCookie(req.cookies.session);
-
-  if (!decodedClaims) {
-    return res.status(401).send("unauthorized request");
-  }
-
-  const uid = decodedClaims.uid;
+  const uid = await verifyRequestAndGetUID(req, res);
+  if (!uid) return;
 
   const roomCode = req.params.roomCode;
 
@@ -386,17 +326,8 @@ router.get("/api/:roomCode/game/secret-term", async (req, res) => {
 });
 
 router.get("/api/:roomCode/game/interactions", async (req, res) => {
-  if (!req.cookies || !req.cookies.session) {
-    return res.status(401).send("unauthorized request");
-  }
-
-  const decodedClaims = await verifySessionCookie(req.cookies.session);
-
-  if (!decodedClaims) {
-    return res.status(401).send("unauthorized request");
-  }
-
-  const uid = decodedClaims.uid;
+  const uid = await verifyRequestAndGetUID(req, res);
+  if (!uid) return;
 
   const roomCode = req.params.roomCode;
 
@@ -432,17 +363,8 @@ router.get("/api/:roomCode/game/interactions", async (req, res) => {
 });
 
 router.get("/api/:roomCode/game/player-stats", async (req, res) => {
-  if (!req.cookies || !req.cookies.session) {
-    return res.status(401).send("unauthorized request");
-  }
-
-  const decodedClaims = await verifySessionCookie(req.cookies.session);
-
-  if (!decodedClaims) {
-    return res.status(401).send("unauthorized request");
-  }
-
-  const uid = decodedClaims.uid;
+  const uid = await verifyRequestAndGetUID(req, res);
+  if (!uid) return;
 
   const roomCode = req.params.roomCode;
 

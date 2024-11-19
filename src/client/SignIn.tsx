@@ -3,8 +3,13 @@ import { type FormEvent, useContext, useRef, useState } from "react";
 import PageContext from "./PageContext";
 import Register from "./Register";
 import MainMenu from "./MainMenu";
+import Room from "./Room";
+import Game from "./Game";
 
+import { socket } from "./socket";
 import { signin as apiSignin } from "./api/auth";
+import { roomGet, roomJoin } from "./api/room";
+import { gameGetState } from "./api/game";
 
 export default function SignIn() {
   const { setPage } = useContext(PageContext);
@@ -12,11 +17,39 @@ export default function SignIn() {
   const [password, setPassword] = useState("");
   const passwordInputRef = useRef<HTMLInputElement>(null);
 
+  async function reconnect() {
+    try {
+      console.log("Attempting Reconnection");
+
+      const roomCode = await roomGet();
+
+      if (!socket.id || !roomCode) return false;
+
+      await roomJoin(socket.id, roomCode);
+      const gameState = await gameGetState(roomCode);
+
+      if (!gameState) return false;
+
+      if (gameState === "idle") {
+        setPage(<Room roomCode={roomCode} />);
+      } else {
+        setPage(<Game roomCode={roomCode} />);
+      }
+
+      return true;
+    } catch (error) {
+      console.error(error);
+      console.error("could not reconnect");
+
+      return false;
+    }
+  }
+
   async function signin(event: FormEvent) {
     event.preventDefault();
 
-    // Go to main menu page after successful sign in
-    if (await apiSignin(email, password)) {
+    // Go to main menu page after successful sign in and reconnect fails
+    if (await apiSignin(email, password) && !(await reconnect())) {
       setPage(<MainMenu />);
     }
   }

@@ -3,26 +3,17 @@ import { Router } from "express";
 import { io } from "../socket.ts";
 
 import state from "../state.ts";
-import { getSanitizedPlayer } from "../utils/misc.ts";
+import { getSanitizedPlayer } from "../utils/player.ts";
 import { generateSecretTermFromCategory } from "../utils/ai.ts";
 import type { Player, Room } from "../types.ts";
 import type { GameSettings } from "../../types.ts";
-import { verifySessionCookie } from "../utils/auth.ts";
+import { verifyRequestAndGetUID } from "../utils/api.ts";
 
 const router = Router();
 
 router.get("/api/room-get", async (req, res) => {
-  if (!req.cookies || !req.cookies.session) {
-    return res.status(401).send("unauthorized request");
-  }
-
-  const decodedClaims = await verifySessionCookie(req.cookies.session);
-
-  if (!decodedClaims) {
-    return res.status(401).send("unauthorized request");
-  }
-
-  const uid = decodedClaims.uid;
+  const uid = await verifyRequestAndGetUID(req, res);
+  if (!uid) return;
 
   if (!(`player:${uid}` in state)) {
     return res.status(400).send("could not find player");
@@ -43,17 +34,8 @@ router.post("/api/room-request", async (req, res) => {
     return Math.random().toString(36).slice(2).toUpperCase();
   }
 
-  if (!req.cookies || !req.cookies.session) {
-    return res.status(401).send("unauthorized request");
-  }
-
-  const decodedClaims = await verifySessionCookie(req.cookies.session);
-
-  if (!decodedClaims) {
-    return res.status(401).send("unauthorized request");
-  }
-
-  const uid = decodedClaims.uid;
+  const uid = await verifyRequestAndGetUID(req, res);
+  if (!uid) return;
 
   if (!(`player:${uid}` in state)) {
     return res.status(400).send("could not find player");
@@ -109,17 +91,8 @@ router.post("/api/:roomCode/join", async (req, res) => {
   // Bad request
   if (!sid) return res.status(400).send("invalid data");
 
-  if (!req.cookies || !req.cookies.session) {
-    return res.status(401).send("unauthorized request");
-  }
-
-  const decodedClaims = await verifySessionCookie(req.cookies.session);
-
-  if (!decodedClaims) {
-    return res.status(401).send("unauthorized request");
-  }
-
-  const uid = decodedClaims.uid;
+  const uid = await verifyRequestAndGetUID(req, res);
+  if (!uid) return;
 
   const roomCode = req.params.roomCode;
 
@@ -172,17 +145,8 @@ router.post("/api/:roomCode/leave", async (req, res) => {
   // Bad request
   if (!sid) return res.status(400).send("invalid data");
 
-  if (!req.cookies || !req.cookies.session) {
-    return res.status(401).send("unauthorized request");
-  }
-
-  const decodedClaims = await verifySessionCookie(req.cookies.session);
-
-  if (!decodedClaims) {
-    return res.status(401).send("unauthorized request");
-  }
-
-  const uid = decodedClaims.uid;
+  const uid = await verifyRequestAndGetUID(req, res);
+  if (!uid) return;
 
   const roomCode = req.params.roomCode;
 
@@ -235,17 +199,8 @@ router.post("/api/:roomCode/leave", async (req, res) => {
 });
 
 router.get("/api/:roomCode/players", async (req, res) => {
-  if (!req.cookies || !req.cookies.session) {
-    return res.status(401).send("unauthorized request");
-  }
-
-  const decodedClaims = await verifySessionCookie(req.cookies.session);
-
-  if (!decodedClaims) {
-    return res.status(401).send("unauthorized request");
-  }
-
-  const uid = decodedClaims.uid;
+  const uid = await verifyRequestAndGetUID(req, res);
+  if (!uid) return;
 
   const roomCode = req.params.roomCode;
 
@@ -279,17 +234,8 @@ router.get("/api/:roomCode/players", async (req, res) => {
 });
 
 router.get("/api/:roomCode/host", async (req, res) => {
-  if (!req.cookies || !req.cookies.session) {
-    return res.status(401).send("unauthorized request");
-  }
-
-  const decodedClaims = await verifySessionCookie(req.cookies.session);
-
-  if (!decodedClaims) {
-    return res.status(401).send("unauthorized request");
-  }
-
-  const uid = decodedClaims.uid;
+  const uid = await verifyRequestAndGetUID(req, res);
+  if (!uid) return;
 
   const roomCode = req.params.roomCode;
 
@@ -327,17 +273,8 @@ router.post("/api/:roomCode/start-game", async (req, res) => {
     return res.status(400).send("invalid data");
   }
 
-  if (!req.cookies || !req.cookies.session) {
-    return res.status(401).send("unauthorized request");
-  }
-
-  const decodedClaims = await verifySessionCookie(req.cookies.session);
-
-  if (!decodedClaims) {
-    return res.status(401).send("unauthorized request");
-  }
-
-  const uid = decodedClaims.uid;
+  const uid = await verifyRequestAndGetUID(req, res);
+  if (!uid) return;
 
   const roomCode = req.params.roomCode;
 
