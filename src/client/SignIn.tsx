@@ -51,7 +51,7 @@ export default function SignIn() {
             onInput={(event) => setPassword(event.currentTarget.value)}
             type="password"
             placeholder="Enter your password"
-            className="focus:outline-none text-xl w-full h-14 p-5 bg-[#343434] placeholder:text-[#787878] rounded-lg border border-[#787878] mt-1 "
+            className="focus:outline-none text-xl w-full h-14 p-5 pr-16 bg-[#343434] placeholder:text-[#787878] rounded-lg border border-[#787878] mt-1 "
             pattern=".{8,100}"
             title="8 to 100 characters"
             required

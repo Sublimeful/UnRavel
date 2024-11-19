@@ -13,6 +13,7 @@ import { socket } from "./socket";
 import type { PlayerSanitized } from "../types";
 import Game from "./Game";
 import type { GameSettings } from "../types";
+import randomCategories from "./RandomCategories.json" with { type: "json" };
 
 interface RoomProps {
   roomCode: string;
@@ -25,11 +26,16 @@ export default function Room(props: RoomProps) {
   const [host, setHost] = useState<string | null>(null);
   const [player, setPlayer] = useState<PlayerSanitized | null>(null);
   const [players, setPlayers] = useState<PlayerSanitized[]>([]);
+  const [startButtonDisabled, setStartButtonDisabled] = useState(false);
   const [gameSettings, setGameSettings] = useState<GameSettings>({
-    category: "Marvel or DC Superhero",
+    category: getRandomCategory(),
   });
 
-  const [startButtonDisabled, setStartButtonDisabled] = useState(false);
+  function getRandomCategory() {
+    return randomCategories[
+      Math.floor(Math.random() * randomCategories.length)
+    ];
+  }
 
   async function startGame(event: FormEvent) {
     event.preventDefault();
@@ -168,13 +174,30 @@ export default function Room(props: RoomProps) {
                     })}
                   type="text"
                   defaultValue={gameSettings.category}
-                  className="[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none focus:outline-none text-xl w-full h-14 p-5 bg-[#595959] rounded-lg peer"
+                  className="[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none focus:outline-none text-xl w-full h-14 p-5 pr-16 bg-[#595959] rounded-lg peer"
                   required
                 >
                 </input>
                 <span className="absolute left-5 text-[#989898] pointer-events-none peer-focus:text-xs peer-focus:-translate-y-[1.1rem] peer-[&:not(:focus):valid]:text-xs peer-[&:not(:focus):valid]:-translate-y-[1.1rem] transition-all">
                   Category
                 </span>
+                <i
+                  onClick={(event) => {
+                    const randomCategory = getRandomCategory();
+
+                    setGameSettings({
+                      ...gameSettings,
+                      category: getRandomCategory(),
+                    });
+
+                    if (event.currentTarget.parentElement) {
+                      const parent = event.currentTarget.parentElement;
+                      const categoryInput = parent.querySelector("input");
+                      if (categoryInput) categoryInput.value = randomCategory;
+                    }
+                  }}
+                  className="bi bi-dice-6-fill text-white text-2xl absolute right-5 cursor-pointer"
+                />
               </div>
               <div className="flex-[1_0_0] relative flex items-center">
                 <input
