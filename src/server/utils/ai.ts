@@ -49,7 +49,7 @@ export async function generateSecretTermFromCategory(category: string) {
       {
         role: "system",
         content:
-          `Only provide a JSON formatted list of strings, with each string being a random term from the category. If the category is related to the real world, make sure the term actually exist.`,
+          `Only provide a JSON formatted list of strings, with each string being a random term from the category. If the category is related to the real world, make sure the term actually exists.`,
       },
       {
         role: "user",
@@ -83,15 +83,17 @@ export async function askClosedEndedQuestion(
 ) {
   return await promptAI(
     {
-      model: "gpt-4o-mini",
+      model: "gpt-4o",
       temperature: 0.2,
       messages: [{
         role: "system",
-        content:
-          `Your secret term is "${secretTerm}" from the category "${category}". The user is playing a game where they ask you closed ended questions to find out what the secret term is. Do not give away the secret term unless the user guesses it.`,
+        content: `Secret Term: ${secretTerm}
+Category: ${category}
+Context: The user is playing a game where they ask you closed ended questions to find out what the secret term is. Any question that is asked will be in an attempt to gather more information about the secret term.
+Instructions: Do not give away too much information or too many hints in your answer. Do not under any circumstances say or give away the secret term unless the user guesses it.`,
       }, {
         role: "user",
-        content: `In regards to the secret term: ${question}`,
+        content: `Question: ${question}`,
       }],
     },
   );
