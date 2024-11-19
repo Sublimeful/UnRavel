@@ -33,7 +33,7 @@ router.post("/api/auth/signin-session", async (req, res) => {
       secure: true,
     });
 
-    res.status(200).send();
+    return res.status(200).send();
   } catch (error) {
     console.error(error);
 

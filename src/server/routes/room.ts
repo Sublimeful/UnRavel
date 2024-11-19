@@ -30,9 +30,7 @@ router.get("/api/room-get", async (req, res) => {
 
   const player = state[`player:${uid}`] as Player;
 
-  if (player.room) {
-    return res.status(200).send(JSON.stringify({ roomCode: player.room }));
-  }
+  return res.status(200).send(JSON.stringify({ roomCode: player.room }));
 });
 
 router.post("/api/room-request", async (req, res) => {
