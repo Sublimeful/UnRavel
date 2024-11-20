@@ -1,4 +1,4 @@
-import { useContext } from "react";
+import { useContext, useState } from "react";
 
 import HowToPlay from "./HowToPlay";
 import PageContext from "./PageContext";
@@ -10,16 +10,20 @@ import { signout } from "./api/auth";
 
 export default function MainMenu() {
   const { setPage } = useContext(PageContext);
+  const [disableBtn, setDisableBtn] = useState(false);
 
   return (
     <div className="absolute transition-[height,width] lg:h-[90%] h-[98%] md:w-3/4 w-[98%] max-w-xl bg-[#000625] bg-opacity-50 rounded-xl border border-neutral-500 flex flex-col text-white overflow-y-scroll p-10 gap-1">
       <button
         onClick={() => {
+          setDisableBtn(true); // Disable button spamming
           signout().then((success) => {
             if (success) setPage(<SignIn />);
+            else setDisableBtn(false);
           });
         }}
         className="self-start text-lg font-light flex items-center justify-center gap-2 mb-2"
+        disabled={disableBtn}
       >
         <i className="bi bi-box-arrow-left"></i>Sign Out
       </button>

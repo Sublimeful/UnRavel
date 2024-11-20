@@ -60,7 +60,7 @@ export async function getSession() {
   );
 
   if (res.status === 200) {
-    const { uid } = await res.json();
+    const { uid } = await res.json() as { uid: string };
 
     return uid;
   } else {

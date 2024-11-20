@@ -15,6 +15,7 @@ export default function SignIn() {
   const { setPage } = useContext(PageContext);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [disableBtn, setDisableBtn] = useState(false);
   const passwordInputRef = useRef<HTMLInputElement>(null);
 
   async function reconnect() {
@@ -48,9 +49,15 @@ export default function SignIn() {
   async function signin(event: FormEvent) {
     event.preventDefault();
 
+    setDisableBtn(true); // Disable button spamming
+
     // Go to main menu page after successful sign in and reconnect fails
-    if (await apiSignin(email, password) && !(await reconnect())) {
-      setPage(<MainMenu />);
+    if (await apiSignin(email, password)) {
+      if (!(await reconnect())) {
+        setPage(<MainMenu />);
+      }
+    } else {
+      setDisableBtn(false);
     }
   }
 
@@ -109,7 +116,8 @@ export default function SignIn() {
         </label>
         <button
           type="submit"
-          className="mx-auto transition-[width,font-size] w-full min-h-16 rounded sm:text-2xl text-xl font-light bg-gradient-to-r from-[#AC1C1C] to-[#003089] flex items-center justify-center gap-2"
+          className="mx-auto transition-[width,font-size] w-full min-h-16 rounded sm:text-2xl text-xl font-light bg-gradient-to-r from-[#AC1C1C] to-[#003089] flex items-center justify-center gap-2 disabled:brightness-50"
+          disabled={disableBtn}
         >
           Sign in
           <i className="bi bi-box-arrow-in-right"></i>

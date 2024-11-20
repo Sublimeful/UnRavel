@@ -58,16 +58,13 @@ export default function Game(props: GameProps) {
 
     const proximity = await apiGameGuess(roomCode, guess);
 
-    if (!proximity) return;
-
-    setProximity(proximity);
+    if (proximity !== null) setProximity(proximity);
   }
 
   useEffect(() => {
     function syncTimeLeft() {
       gameGetTimeLeft(roomCode).then((_timeLeft) => {
-        if (!_timeLeft) return;
-        setTimeLeft(_timeLeft);
+        if (_timeLeft !== null) setTimeLeft(_timeLeft);
       });
     }
 

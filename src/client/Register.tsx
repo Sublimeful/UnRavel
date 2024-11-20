@@ -10,6 +10,7 @@ export default function Register() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [disableBtn, setDisableBtn] = useState(false);
   const passwordInputRef = useRef<HTMLInputElement>(null);
   const confirmPasswordInputRef = useRef<HTMLInputElement>(null);
 
@@ -18,9 +19,13 @@ export default function Register() {
 
     if (password !== confirmPassword) return;
 
+    setDisableBtn(true); // Disable button spamming
+
     // Go to sign in page after successful registration
     if (await apiRegister(email, password)) {
       setPage(<SignIn />);
+    } else {
+      setDisableBtn(false);
     }
   }
 
@@ -117,7 +122,8 @@ export default function Register() {
         </label>
         <button
           type="submit"
-          className="mx-auto transition-[width,font-size] w-full min-h-16 rounded sm:text-2xl text-xl font-light bg-gradient-to-r from-[#AC1C1C] to-[#003089] flex items-center justify-center gap-2"
+          className="mx-auto transition-[width,font-size] w-full min-h-16 rounded sm:text-2xl text-xl font-light bg-gradient-to-r from-[#AC1C1C] to-[#003089] flex items-center justify-center gap-2 disabled:brightness-50"
+          disabled={disableBtn}
         >
           Register
           <i className="bi bi-person-fill-add"></i>

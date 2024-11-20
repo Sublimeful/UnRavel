@@ -3,12 +3,13 @@ import { type FormEvent, useContext, useState } from "react";
 import PageContext from "./PageContext";
 import MainMenu from "./MainMenu";
 import CreateARoom from "./CreateARoom";
+import Room from "./Room";
+import Game from "./Game";
+
+import { socket } from "./socket";
 import { roomJoin as apiRoomJoin } from "./api/room";
 import { playerSignIn } from "./api/player";
-import { socket } from "./socket";
-import Room from "./Room";
 import { gameGetState } from "./api/game";
-import Game from "./Game";
 
 export default function JoinARoom() {
   const { setPage } = useContext(PageContext);
