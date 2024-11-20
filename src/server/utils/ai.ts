@@ -76,7 +76,7 @@ export async function generateSecretTermFromCategory(category: string) {
   }
 }
 
-export async function askClosedEndedQuestion(
+export async function askQuestion(
   secretTerm: string,
   category: string,
   question: string,
@@ -89,8 +89,8 @@ export async function askClosedEndedQuestion(
         role: "system",
         content: `Secret Term: ${secretTerm}
 Category: ${category}
-Context: The user is playing a game where they ask you closed ended questions to find out what the secret term is. Any question that is asked will be in an attempt to gather more information about the secret term.
-Instructions: Do not give away too much information or too many hints in your answer. Do not under any circumstances say or give away the secret term unless the user guesses it.`,
+Context: The user is playing a game where they ask you questions to find out what the secret term is. Any question that is asked will be in an attempt to gather more information about the secret term.
+Instructions: Do not give away too much information or too many hints in your answer. Do not give away parts of the secret term, such as letters or words. Do not under any circumstances say or give away the secret term unless the user guesses it.`,
       }, {
         role: "user",
         content: `Question: ${question}`,

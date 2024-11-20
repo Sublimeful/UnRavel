@@ -64,8 +64,7 @@ export default function HowToPlay() {
         <div className="list-disc text-gray-400">
           <li>Ask strategic questions to narrow down possibilities quickly.</li>
           <li>
-            Pay close attention to the AI's answers and ensure that your
-            questions are close-ended.
+            Pay close attention to the AI's answers
           </li>
           <li>
             Don't be afraid to make a guess if you think you know the answer!

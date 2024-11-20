@@ -34,6 +34,10 @@ router.get("/api/player", async (req, res) => {
   const uid = await verifyRequestAndGetUID(req, res);
   if (!uid) return;
 
+  if (!(`player:${uid}` in state)) {
+    return res.status(400).send("could not find player");
+  }
+
   // Sanitize the data before sending it to the user
   return res.status(200).send(
     JSON.stringify(getSanitizedPlayer(state[`player:${uid}`] as Player)),

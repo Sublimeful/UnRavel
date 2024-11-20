@@ -227,6 +227,8 @@ router.get("/api/:roomCode/players", async (req, res) => {
 
   return res.status(200).send(JSON.stringify(
     Array.from(players).map((uid) => {
+      // Check if player state exists
+      if (!(`player:${uid}` in state)) return;
       // Return a sanitized list of player information
       return getSanitizedPlayer(state[`player:${uid}`] as Player);
     }),

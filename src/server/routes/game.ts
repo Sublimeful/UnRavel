@@ -1,16 +1,17 @@
 import { Router } from "express";
 
 import { io } from "../socket.ts";
-
 import state from "../state.ts";
+
+import type { Player, Room } from "../types.ts";
+import type { PlayerStatsSanitized } from "../../types.ts";
+
+import { verifyRequestAndGetUID } from "../utils/api.ts";
 import {
   getSanitizedPlayer,
   getSanitizedPlayerStats,
 } from "../utils/player.ts";
-import type { Player, Room } from "../types.ts";
-import type { PlayerStatsSanitized } from "../../types.ts";
-import { askClosedEndedQuestion } from "../utils/ai.ts";
-import { verifyRequestAndGetUID } from "../utils/api.ts";
+import { askQuestion } from "../utils/ai.ts";
 
 const router = Router();
 
@@ -143,7 +144,7 @@ router.post("/api/:roomCode/game/ask", async (req, res) => {
   }
 
   // Ask the ai
-  const answer = await askClosedEndedQuestion(
+  const answer = await askQuestion(
     roomState.game.secretTerm,
     roomState.game.category,
     question,
