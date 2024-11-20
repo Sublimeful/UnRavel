@@ -50,3 +50,33 @@ export async function signin(email: string, password: string) {
     return false;
   }
 }
+
+export async function getSession() {
+  const res = await fetch(
+    `/api/auth/session`,
+    {
+      method: "GET",
+    },
+  );
+
+  if (res.status === 200) {
+    const { uid } = await res.json();
+
+    return uid;
+  } else {
+    console.error(await res.text());
+
+    return null;
+  }
+}
+
+export async function signout() {
+  const res = await fetch(
+    `/api/auth/signout`,
+    {
+      method: "POST",
+    },
+  );
+
+  return res.status === 200;
+}

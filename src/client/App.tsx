@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import Background from "./Background";
 import PageContext from "./PageContext";
 
+import MainMenu from "./MainMenu";
 import SignIn from "./SignIn";
 import Room from "./Room";
 import Game from "./Game";
@@ -12,6 +13,7 @@ import Game from "./Game";
 import { socket } from "./socket";
 import { roomGet, roomJoin } from "./api/room";
 import { gameGetState } from "./api/game";
+import { getSession } from "./api/auth";
 
 export default function App() {
   const [currPage, setPage] = useState<JSX.Element | null>(<></>);
@@ -22,7 +24,17 @@ export default function App() {
 
       const roomCode = await roomGet();
 
-      if (!socket.id || !roomCode) return false;
+      if (!roomCode) {
+        const uid = await getSession();
+
+        if (!uid) return false;
+
+        setPage(<MainMenu />);
+
+        return true;
+      }
+
+      if (!socket.id) return false;
 
       await roomJoin(socket.id, roomCode);
       const gameState = await gameGetState(roomCode);

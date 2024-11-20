@@ -1,5 +1,7 @@
 import { Router } from "express";
 import { auth } from "../firebase.ts";
+import { verifyRequestAndGetUID } from "../utils/api.ts";
+import state from "../state.ts";
 
 const router = Router();
 
@@ -31,6 +33,9 @@ router.post("/api/auth/signin-session", async (req, res) => {
       maxAge: expiresIn,
       httpOnly: true,
       secure: true,
+      // Maximum security sameSite restriction
+      // Cookie will only be sent in requests on the same domain
+      sameSite: "strict",
     });
 
     return res.status(200).send();
@@ -39,6 +44,29 @@ router.post("/api/auth/signin-session", async (req, res) => {
 
     return res.status(401).send("unauthorized request");
   }
+});
+
+router.post("/api/auth/signout", async (req, res) => {
+  const uid = await verifyRequestAndGetUID(req, res);
+  if (!uid) return;
+
+  // Clear the cookie
+  res.clearCookie("session");
+
+  // Player has already signed in before
+  if (`player:${uid}` in state) {
+    // Delete the player
+    delete state[`player:${uid}`];
+  }
+
+  return res.status(200).send();
+});
+
+router.get("/api/auth/session", async (req, res) => {
+  const uid = await verifyRequestAndGetUID(req, res);
+  if (!uid) return;
+
+  return res.status(200).send(JSON.stringify({ uid }));
 });
 
 export default router;
