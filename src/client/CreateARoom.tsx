@@ -10,16 +10,15 @@ import Room from "./Room";
 
 export default function CreateARoom() {
   const { setPage } = useContext(PageContext);
-
   const [username, setUsername] = useState("");
-  const [disableBtn, setDisableBtn] = useState(false);
+  const [disableCreateRoomBtn, setDisableCreateRoomBtn] = useState(false);
 
   async function roomRequest(event: FormEvent) {
     event.preventDefault();
 
     if (!socket.id || !username) return;
 
-    setDisableBtn(true); // Disable button spamming
+    setDisableCreateRoomBtn(true); // Prevent button spamming
 
     try {
       await playerSignIn(username);
@@ -30,7 +29,7 @@ export default function CreateARoom() {
 
       setPage(<Room roomCode={roomCode} />);
     } catch (_) {
-      setDisableBtn(false);
+      setDisableCreateRoomBtn(false);
     }
   }
 
@@ -63,7 +62,7 @@ export default function CreateARoom() {
         <button
           type="submit"
           className="mx-auto transition-[font-size] w-full min-h-16 mt-8 rounded-lg sm:text-2xl text-xl font-light bg-gradient-to-r from-[#AC1C1C] to-[#2AAAD9] flex items-center justify-center gap-2 disabled:brightness-50"
-          disabled={disableBtn || !username}
+          disabled={disableCreateRoomBtn || !username}
         >
           Create Room
           <i className="bi bi-arrow-right"></i>

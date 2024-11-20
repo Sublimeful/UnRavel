@@ -17,7 +17,7 @@ export async function register(email: string, password: string) {
   }
 }
 
-export async function signin(email: string, password: string) {
+export async function signIn(email: string, password: string) {
   try {
     const user = (await signInWithEmailAndPassword(auth, email, password)).user;
     const idToken = await user.getIdToken();
@@ -70,7 +70,7 @@ export async function getSession() {
   }
 }
 
-export async function signout() {
+export async function signOut() {
   const res = await fetch(
     `/api/auth/signout`,
     {

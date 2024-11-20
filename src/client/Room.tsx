@@ -26,7 +26,8 @@ export default function Room(props: RoomProps) {
   const [host, setHost] = useState<string | null>(null);
   const [player, setPlayer] = useState<PlayerSanitized | null>(null);
   const [players, setPlayers] = useState<PlayerSanitized[]>([]);
-  const [startButtonDisabled, setStartButtonDisabled] = useState(false);
+  const [disableStartGameBtn, setDisableStartGameBtn] = useState(false);
+  const [disableRoomLeaveBtn, setDisableRoomLeaveBtn] = useState(false);
   const [gameSettings, setGameSettings] = useState<GameSettings>({
     category: getRandomCategory(),
   });
@@ -40,7 +41,7 @@ export default function Room(props: RoomProps) {
   async function startGame(event: FormEvent) {
     event.preventDefault();
 
-    setStartButtonDisabled(true);
+    setDisableStartGameBtn(true); // Prevent button spamming
 
     try {
       const success = await roomStartGame(
@@ -49,10 +50,10 @@ export default function Room(props: RoomProps) {
       );
 
       if (!success) {
-        setStartButtonDisabled(false);
+        setDisableStartGameBtn(false);
       }
     } catch (_) {
-      setStartButtonDisabled(false);
+      setDisableStartGameBtn(false);
     }
   }
 
@@ -95,13 +96,17 @@ export default function Room(props: RoomProps) {
       <div className="flex flex-row w-full justify-between">
         <button
           onClick={async () => {
-            // Back button pressed leaves room
             if (!socket.id) return;
-            const success = await roomLeave(socket.id, roomCode);
-            if (!success) return;
-            setPage(<MainMenu />);
+            setDisableRoomLeaveBtn(true); // Prevent button spamming
+            // If player successfully leaves the room, set page to main menu
+            if (await roomLeave(socket.id, roomCode)) {
+              setPage(<MainMenu />);
+            } else {
+              setDisableRoomLeaveBtn(false);
+            }
           }}
           className="self-start text-lg font-light flex items-center justify-center gap-2"
+          disabled={disableRoomLeaveBtn}
         >
           <i className="bi bi-arrow-left"></i>Leave Room
         </button>
@@ -215,7 +220,7 @@ export default function Room(props: RoomProps) {
           </div>
           <button
             className="mx-auto transition-[font-size] w-full min-h-16 mt-3 rounded-lg sm:text-2xl text-xl font-light bg-gradient-to-r from-[#AC1C1C] to-[#2AAAD9] flex items-center justify-center gap-2 disabled:brightness-50"
-            disabled={startButtonDisabled}
+            disabled={disableStartGameBtn}
           >
             Start Game
             <i className="bi bi-arrow-right"></i>

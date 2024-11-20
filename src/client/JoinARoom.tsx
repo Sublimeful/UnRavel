@@ -17,14 +17,14 @@ export default function JoinARoom() {
   const [roomCode, setRoomCode] = useState<string>("");
   const [username, setUsername] = useState<string>("");
 
-  const [disableBtn, setDisableBtn] = useState(false);
+  const [disableJoinRoomBtn, setDisableJoinRoomBtn] = useState(false);
 
   async function roomJoin(event: FormEvent) {
     event.preventDefault();
 
     if (!socket.id || !roomCode || !username) return;
 
-    setDisableBtn(true); // Disable button spamming
+    setDisableJoinRoomBtn(true); // Prevent button spamming
 
     try {
       await playerSignIn(username);
@@ -43,10 +43,10 @@ export default function JoinARoom() {
           setPage(<Game roomCode={roomCode} />);
         }
       } else {
-        setDisableBtn(false);
+        setDisableJoinRoomBtn(false);
       }
     } catch (_) {
-      setDisableBtn(false);
+      setDisableJoinRoomBtn(false);
     }
   }
 
@@ -91,9 +91,9 @@ export default function JoinARoom() {
         </label>
         <button
           className="mx-auto transition-[font-size] w-full min-h-16 mt-8 rounded-lg sm:text-2xl text-xl font-light bg-gradient-to-r from-[#AC1C1C] to-[#2AAAD9] flex items-center justify-center gap-2 disabled:brightness-50"
-          disabled={disableBtn || !roomCode || !username}
+          disabled={disableJoinRoomBtn || !roomCode || !username}
         >
-          Join Game
+          Join Room
           <i className="bi bi-arrow-right"></i>
         </button>
       </form>

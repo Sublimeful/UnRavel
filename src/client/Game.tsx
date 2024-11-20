@@ -20,8 +20,8 @@ interface GameProps {
 }
 
 export default function Game(props: GameProps) {
-  const { roomCode } = props;
   const { setPage } = useContext(PageContext);
+  const { roomCode } = props;
 
   const [timeLeft, setTimeLeft] = useState(0);
   const [question, setQuestion] = useState("");
@@ -31,6 +31,7 @@ export default function Game(props: GameProps) {
   const [players, setPlayers] = useState<PlayerSanitized[]>([]);
   const [category, setCategory] = useState("");
   const [proximity, setProximity] = useState(0);
+  const [disableRoomLeaveBtn, setDisableRoomLeaveBtn] = useState(false);
   const chatBoxRef = useRef<HTMLDivElement>(null);
 
   async function gameAsk(event: FormEvent) {
@@ -159,11 +160,18 @@ export default function Game(props: GameProps) {
     <div className="absolute transition-[width] h-[98%] xl:w-[75%] w-[98%] bg-[#000625] bg-opacity-50 rounded-xl border border-neutral-500 flex flex-col items-center px-8 pt-8 text-white overflow-y-scroll overflow-x-clip">
       <div className="flex flex-row w-full justify-between">
         <button
-          onClick={() => {
-            if (socket.id) roomLeave(socket.id, roomCode); // Backbutton pressed leaves game/room
-            setPage(<MainMenu />);
+          onClick={async () => {
+            if (!socket.id) return;
+            setDisableRoomLeaveBtn(true); // Prevent button spamming
+            // If player successfully leaves the room, set page to main menu
+            if (await roomLeave(socket.id, roomCode)) {
+              setPage(<MainMenu />);
+            } else {
+              setDisableRoomLeaveBtn(false);
+            }
           }}
           className="self-start text-lg font-light flex items-center justify-center gap-2"
+          disabled={disableRoomLeaveBtn}
         >
           <i className="bi bi-arrow-left"></i>Leave Game
         </button>

@@ -20,8 +20,9 @@ interface GameOverProps {
 }
 
 export default function GameOver(props: GameOverProps) {
-  const { roomCode } = props;
   const { setPage } = useContext(PageContext);
+  const { roomCode } = props;
+
   const [player, setPlayer] = useState<PlayerSanitized | null>(null);
   const [players, setPlayers] = useState<PlayerSanitized[]>([]);
   const [playerStats, setPlayerStats] = useState<
@@ -30,6 +31,7 @@ export default function GameOver(props: GameOverProps) {
   const [category, setCategory] = useState("");
   const [winner, setWinner] = useState<PlayerSanitized | null>(null);
   const [secretTerm, setSecretTerm] = useState("");
+  const [disableMainMenuBtn, setDisableMainMenuBtn] = useState(false);
 
   useEffect(() => {
     gameGetPlayerStats(roomCode).then((_playerStats) => {
@@ -167,11 +169,18 @@ export default function GameOver(props: GameOverProps) {
         </h1>
       </div>
       <button
-        onClick={() => {
-          if (socket.id) roomLeave(socket.id, roomCode); // Leave room before returning to main menu
-          setPage(<MainMenu />);
+        onClick={async () => {
+          if (!socket.id) return;
+          setDisableMainMenuBtn(true); // Prevent button spamming
+          // If player successfully leaves the room, set page to main menu
+          if (await roomLeave(socket.id, roomCode)) {
+            setPage(<MainMenu />);
+          } else {
+            setDisableMainMenuBtn(false);
+          }
         }}
         className="flex-[1_0_0] mt-3 min-h-10 bg-[#333333] bg-opacity-80 rounded-lg flex justify-center items-center gap-2"
+        disabled={disableMainMenuBtn}
       >
         Main Menu<i className="bi bi-house-door"></i>
       </button>
