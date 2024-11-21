@@ -44,7 +44,7 @@ async function promptAI(requestBody: Record<string, any>) {
 
 export async function generateSecretTermFromCategory(category: string) {
   const res = await promptAI({
-    model: "gpt-4o-mini",
+    model: "gpt-4o",
     messages: [
       {
         role: "system",
@@ -57,6 +57,10 @@ export async function generateSecretTermFromCategory(category: string) {
           `Generate a list of random terms from this category: ${category}`,
       },
     ],
+    prediction: {
+      type: "content",
+      content: "```json\n[...]\n```",
+    },
   });
 
   if (!res) return null;
