@@ -77,8 +77,8 @@ export default function Room(props: RoomProps) {
 
     // Switch to the game page when the game starts
     socket.once("room-game-start", onceGameStarts);
-    socket.on("room-player-joined", updatePlayerList);
     socket.on("room-player-left", updatePlayerList);
+    socket.on("room-player-joined", updatePlayerList);
 
     updatePlayerList(); // Initially update the player list
 
@@ -86,8 +86,8 @@ export default function Room(props: RoomProps) {
       // Unregister all event listeners when component is unmounted
       // Otherwise they may trigger in the future unexpectedly
       socket.off("room-game-start", onceGameStarts);
-      socket.off("room-player-joined", updatePlayerList);
       socket.off("room-player-left", updatePlayerList);
+      socket.off("room-player-joined", updatePlayerList);
     };
   }, []);
 

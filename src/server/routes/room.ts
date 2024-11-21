@@ -133,6 +133,11 @@ router.post("/api/:roomCode/join", async (req, res) => {
   roomState.players.add(player.uid);
   player.room = roomCode;
 
+  // Initialize player stats if the game is in progress
+  if (roomState.game.state === "in progress") {
+    roomState.game.playerStats[uid] = { interactions: [], guesses: [] };
+  }
+
   // Inform other players in the room of the added player
   io.to(roomCode).emit("room-player-joined");
 
@@ -315,6 +320,9 @@ router.post("/api/:roomCode/start-game", async (req, res) => {
 
   // Set the game state category
   roomState.game.category = category;
+
+  // Clear playerStats, removing players from previous games that have already left
+  roomState.game.playerStats = {};
 
   // Initialize player stats
   roomState.players.forEach((uid) => {

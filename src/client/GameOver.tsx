@@ -64,7 +64,6 @@ export default function GameOver(props: GameOverProps) {
     }
 
     socket.once("room-game-start", onceGameStarts);
-    socket.on("room-player-left", updatePlayerList);
 
     updatePlayerList(); // Initially update the player list
 
@@ -72,7 +71,6 @@ export default function GameOver(props: GameOverProps) {
       // Unregister all event listeners when component is unmounted
       // Otherwise they may trigger in the future unexpectedly
       socket.off("room-game-start", onceGameStarts);
-      socket.off("room-player-left", updatePlayerList);
     };
   }, []);
 

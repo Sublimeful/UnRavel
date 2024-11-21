@@ -108,6 +108,7 @@ export default function Game(props: GameProps) {
 
     socket.once("room-game-end", onceGameEnds);
     socket.on("room-player-left", updatePlayerList);
+    socket.on("room-player-joined", updatePlayerList);
 
     updatePlayerList(); // Initially update the player list
 
@@ -126,6 +127,7 @@ export default function Game(props: GameProps) {
       // Otherwise they may trigger in the future unexpectedly
       socket.off("room-game-end", onceGameEnds);
       socket.off("room-player-left", updatePlayerList);
+      socket.off("room-player-joined", updatePlayerList);
     };
   }, []);
 
