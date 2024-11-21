@@ -7,6 +7,7 @@ export interface Player {
 }
 
 export interface PlayerStats {
+  username: string;
   interactions: Interaction[];
   guesses: string[];
 }

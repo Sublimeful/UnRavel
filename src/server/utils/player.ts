@@ -9,6 +9,7 @@ export function getSanitizedPlayerStats(
   playerStats: PlayerStats,
 ): PlayerStatsSanitized {
   return {
+    username: playerStats.username,
     interactions: playerStats.interactions,
     guesses: playerStats.guesses,
   };

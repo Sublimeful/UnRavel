@@ -395,8 +395,6 @@ router.get("/api/:roomCode/game/player-stats", async (req, res) => {
   // Get sanitized player stats
   const playerStatsSanitized: Record<string, PlayerStatsSanitized> = {};
   Object.entries(roomState.game.playerStats).forEach(([uid, playerStats]) => {
-    // Check if player state exists
-    if (!(`player:${uid}` in state)) return;
     playerStatsSanitized[uid] = getSanitizedPlayerStats(playerStats);
   });
 

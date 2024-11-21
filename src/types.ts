@@ -4,6 +4,7 @@ export interface PlayerSanitized {
 }
 
 export interface PlayerStatsSanitized {
+  username: string;
   interactions: Interaction[];
   guesses: string[];
 }

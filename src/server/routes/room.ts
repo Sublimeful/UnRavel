@@ -133,9 +133,19 @@ router.post("/api/:roomCode/join", async (req, res) => {
   roomState.players.add(player.uid);
   player.room = roomCode;
 
-  // Initialize player stats if the game is in progress
+  // If the game is in progress
   if (roomState.game.state === "in progress") {
-    roomState.game.playerStats[uid] = { interactions: [], guesses: [] };
+    if (uid in roomState.game.playerStats) {
+      // If this is NOT their first time joining, then only change the username
+      roomState.game.playerStats[uid].username = player.username;
+    } else {
+      // If this is their first time joining, then initialize their player stats
+      roomState.game.playerStats[uid] = {
+        username: player.username,
+        interactions: [],
+        guesses: [],
+      };
+    }
   }
 
   // Inform other players in the room of the added player
@@ -326,7 +336,13 @@ router.post("/api/:roomCode/start-game", async (req, res) => {
 
   // Initialize player stats
   roomState.players.forEach((uid) => {
-    roomState.game.playerStats[uid] = { interactions: [], guesses: [] };
+    if (!(`player:${uid}` in state)) return;
+    const _player = state[`player:${uid}`] as Player;
+    roomState.game.playerStats[uid] = {
+      username: _player.username,
+      interactions: [],
+      guesses: [],
+    };
   });
 
   // Generate the secret term
