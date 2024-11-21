@@ -34,7 +34,7 @@ router.post("/api/auth/signin-session", async (req, res) => {
       httpOnly: true,
       secure: true,
       // Maximum security sameSite restriction
-      // Cookie will only be sent in requests on the same domain
+      // Cookie will not be included in any cross-site requests
       sameSite: "strict",
     });
 

@@ -29,6 +29,9 @@ export async function signIn(email: string, password: string) {
     cookie.set("csrfToken", csrfToken, {
       maxAge: expiresIn,
       secure: true,
+      // Maximum security sameSite restriction
+      // Cookie will not be included in any cross-site requests
+      sameSite: "strict",
     });
 
     const res = await fetch(
