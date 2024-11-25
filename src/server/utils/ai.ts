@@ -43,6 +43,16 @@ async function promptAI(requestBody: Record<string, any>) {
 }
 
 export async function generateSecretTermFromCategory(category: string) {
+  function tryParse(text: string) {
+    try {
+      return JSON.parse(text);
+    } catch (error) {
+      console.error(error);
+
+      return null;
+    }
+  }
+
   const res = await promptAI({
     model: "gpt-4o",
     messages: [
@@ -68,9 +78,9 @@ export async function generateSecretTermFromCategory(category: string) {
   // Try to parse this "JSON" and return a random term from it. The keyword here is "TRY".
   try {
     // It always seems to format it starting with ```json on the first line and ending with ``` on the last line
-    const terms = JSON.parse(
+    const terms = tryParse(
       res.split("\n").slice(1, res.split("\n").length - 1).join("\n"),
-    ) as string[];
+    ) as string[] || tryParse(res) as string[];
 
     return terms[Math.floor(Math.random() * terms.length)];
   } catch (error) {
