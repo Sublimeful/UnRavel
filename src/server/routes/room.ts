@@ -25,10 +25,16 @@ router.get("/api/room-get", async (req, res) => {
 });
 
 router.post("/api/room-request", async (req, res) => {
-  const { sid } = req.body;
+  const { sid, maxPlayers } = req.body;
 
   // Bad request
-  if (!sid) return res.status(400).send("invalid data");
+  if (!sid || !Number.isInteger(maxPlayers)) {
+    return res.status(400).send("invalid data");
+  }
+
+  if (maxPlayers < 1) {
+    return res.status(400).send("cannot specify max players value below 1");
+  }
 
   function roomCodeGenerator() {
     return Math.random().toString(36).slice(2).toUpperCase();
@@ -52,6 +58,7 @@ router.post("/api/room-request", async (req, res) => {
 
   // Initialize the room state
   const roomState: Room = {
+    maxPlayers,
     players: new Set<string>(),
     host: null,
     // Initialize the game state
@@ -123,6 +130,11 @@ router.post("/api/:roomCode/join", async (req, res) => {
       socket.join(roomCode);
       return res.status(200).send();
     }
+  }
+
+  // Check if room has "room", get it?
+  if (roomState.players.size + 1 > roomState.maxPlayers) {
+    return res.status(400).send("room is full");
   }
 
   // Join room
@@ -211,6 +223,35 @@ router.post("/api/:roomCode/leave", async (req, res) => {
   }
 
   return res.status(200).send();
+});
+
+router.get("/api/:roomCode/max-players", async (req, res) => {
+  const uid = await verifyRequestAndGetUID(req, res);
+  if (!uid) return;
+
+  const roomCode = req.params.roomCode;
+
+  // Check if the room state exists
+  if (!(`room:${roomCode}` in state)) {
+    return res.status(400).send("room not found");
+  }
+
+  const roomState = state[`room:${roomCode}`] as Room;
+
+  if (!(`player:${uid}` in state)) {
+    return res.status(400).send("could not find player");
+  }
+
+  const player = state[`player:${uid}`] as Player;
+
+  // Check if player is in the room
+  if (player.room !== roomCode) {
+    return res.status(400).send("you are not in this room");
+  }
+
+  return res.status(200).send(JSON.stringify({
+    maxPlayers: roomState.maxPlayers,
+  }));
 });
 
 router.get("/api/:roomCode/players", async (req, res) => {

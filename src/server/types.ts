@@ -26,6 +26,7 @@ export interface Game {
 }
 
 export interface Room {
+  maxPlayers: number;
   players: Set<string>;
   host: string | null;
   game: Game;

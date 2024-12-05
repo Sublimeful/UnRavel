@@ -11,19 +11,20 @@ import Room from "./Room";
 export default function CreateARoom() {
   const { setPage } = useContext(PageContext);
   const [username, setUsername] = useState("");
+  const [maxPlayers, setMaxPlayers] = useState(4);
   const [disableCreateRoomBtn, setDisableCreateRoomBtn] = useState(false);
 
   async function roomRequest(event: FormEvent) {
     event.preventDefault();
 
-    if (!socket.id || !username) return;
+    if (!socket.id || !username || !maxPlayers) return;
 
     setDisableCreateRoomBtn(true); // Prevent button spamming
 
     try {
       await playerSignIn(username);
 
-      const roomCode = await apiRoomRequest(socket.id);
+      const roomCode = await apiRoomRequest(socket.id, maxPlayers);
 
       if (!roomCode) return;
 
@@ -59,10 +60,23 @@ export default function CreateARoom() {
           >
           </input>
         </label>
+        <label className="text-left font-light">
+          Max Players
+          <input
+            onInput={(event) =>
+              setMaxPlayers(parseInt(event.currentTarget.value))}
+            type="number"
+            defaultValue={maxPlayers}
+            min={1}
+            className="[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none focus:outline-none text-xl w-full h-14 p-5 bg-[#343434] placeholder:text-[#787878] rounded-lg border border-[#787878] mt-1"
+            required
+          >
+          </input>
+        </label>
         <button
           type="submit"
           className="mx-auto transition-[font-size] w-full min-h-16 mt-8 rounded-lg sm:text-2xl text-xl font-light bg-gradient-to-r from-[#AC1C1C] to-[#2AAAD9] flex items-center justify-center gap-2 disabled:brightness-50"
-          disabled={disableCreateRoomBtn || !username}
+          disabled={disableCreateRoomBtn || !username || !maxPlayers}
         >
           Create Room
           <i className="bi bi-arrow-right"></i>
