@@ -1,15 +1,32 @@
-import { useContext } from "react";
+import { useContext, useState } from "react";
 
 import HowToPlay from "./HowToPlay";
 import PageContext from "./PageContext";
 import JoinARoom from "./JoinARoom";
 import CreateARoom from "./CreateARoom";
+import SignIn from "./SignIn";
+
+import { signOut } from "./api/auth";
 
 export default function MainMenu() {
   const { setPage } = useContext(PageContext);
+  const [disableSignOutBtn, setDisableSignOutBtn] = useState(false);
 
   return (
     <div className="absolute transition-[height,width] lg:h-[90%] h-[98%] md:w-3/4 w-[98%] max-w-xl bg-[#000625] bg-opacity-50 rounded-xl border border-neutral-500 flex flex-col text-white overflow-y-scroll p-10 gap-1">
+      <button
+        onClick={() => {
+          setDisableSignOutBtn(true); // Prevent button spamming
+          signOut().then((success) => {
+            if (success) setPage(<SignIn />);
+            else setDisableSignOutBtn(false);
+          });
+        }}
+        className="self-start text-lg font-light flex items-center justify-center gap-2 mb-2"
+        disabled={disableSignOutBtn}
+      >
+        <i className="bi bi-box-arrow-left"></i>Sign Out
+      </button>
       <div className="w-full flex justify-center">
         <img src="logo.png" className="w-40 aspect-square" />
       </div>

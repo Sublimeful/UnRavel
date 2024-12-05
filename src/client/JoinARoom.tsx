@@ -3,39 +3,50 @@ import { type FormEvent, useContext, useState } from "react";
 import PageContext from "./PageContext";
 import MainMenu from "./MainMenu";
 import CreateARoom from "./CreateARoom";
-import type { RoomCode } from "../types";
-import { playerSignIn, roomJoin as apiRoomJoin } from "./api";
-import { socket } from "./socket";
 import Room from "./Room";
+import Game from "./Game";
+
+import { socket } from "./socket";
+import { roomJoin as apiRoomJoin } from "./api/room";
+import { playerSignIn } from "./api/player";
+import { gameGetState } from "./api/game";
 
 export default function JoinARoom() {
   const { setPage } = useContext(PageContext);
 
-  const [roomCode, setRoomCode] = useState<RoomCode>("");
+  const [roomCode, setRoomCode] = useState<string>("");
   const [username, setUsername] = useState<string>("");
 
-  const [disableBtn, setDisableBtn] = useState(false);
+  const [disableJoinRoomBtn, setDisableJoinRoomBtn] = useState(false);
 
   async function roomJoin(event: FormEvent) {
     event.preventDefault();
 
     if (!socket.id || !roomCode || !username) return;
 
-    setDisableBtn(true); // Disable button spamming
+    setDisableJoinRoomBtn(true); // Prevent button spamming
 
     try {
-      await playerSignIn(socket.id, username);
+      await playerSignIn(username);
 
       const roomExists = await apiRoomJoin(socket.id, roomCode);
 
       // If the room does not exist, then you can't join it
       if (roomExists) {
-        setPage(<Room roomCode={roomCode} />);
+        const gameState = await gameGetState(roomCode);
+
+        if (!gameState) return;
+
+        if (gameState === "idle") {
+          setPage(<Room roomCode={roomCode} />);
+        } else {
+          setPage(<Game roomCode={roomCode} />);
+        }
       } else {
-        setDisableBtn(false);
+        setDisableJoinRoomBtn(false);
       }
     } catch (_) {
-      setDisableBtn(false);
+      setDisableJoinRoomBtn(false);
     }
   }
 
@@ -80,9 +91,9 @@ export default function JoinARoom() {
         </label>
         <button
           className="mx-auto transition-[font-size] w-full min-h-16 mt-8 rounded-lg sm:text-2xl text-xl font-light bg-gradient-to-r from-[#AC1C1C] to-[#2AAAD9] flex items-center justify-center gap-2 disabled:brightness-50"
-          disabled={disableBtn || !roomCode || !username}
+          disabled={disableJoinRoomBtn || !roomCode || !username}
         >
-          Join Game
+          Join Room
           <i className="bi bi-arrow-right"></i>
         </button>
       </form>
@@ -90,8 +101,7 @@ export default function JoinARoom() {
         Don’t have a room code?{" "}
         <a
           onClick={() => setPage(<CreateARoom />)}
-          href="#"
-          className="text-blue-500"
+          className="cursor-pointer text-blue-500"
         >
           Create a new room
         </a>

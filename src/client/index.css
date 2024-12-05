@@ -21,3 +21,8 @@
 ::-webkit-scrollbar-thumb:hover {
   background: #999999;
 }
+
+input[type="password"]::-ms-reveal,
+input[type="password"]::-ms-clear {
+  display: none;
+}

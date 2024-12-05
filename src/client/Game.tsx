@@ -2,26 +2,26 @@ import { type FormEvent, useContext, useEffect, useRef, useState } from "react";
 
 import PageContext from "./PageContext";
 import MainMenu from "./MainMenu";
+import { roomGetPlayers, roomLeave } from "./api/room";
 import {
   gameAsk as apiGameAsk,
   gameGetCategory,
+  gameGetInteractions,
   gameGetTimeLeft,
   gameGuess as apiGameGuess,
-  getPlayer,
-  roomGetPlayers,
-  roomLeave,
-} from "./api";
+} from "./api/game";
+import { getPlayer } from "./api/player";
 import { socket } from "./socket";
-import type { Interaction, PlayerSanitized, RoomCode } from "../types";
+import type { Interaction, PlayerSanitized } from "../types";
 import GameOver from "./GameOver";
 
 interface GameProps {
-  roomCode: RoomCode;
+  roomCode: string;
 }
 
 export default function Game(props: GameProps) {
-  const { roomCode } = props;
   const { setPage } = useContext(PageContext);
+  const { roomCode } = props;
 
   const [timeLeft, setTimeLeft] = useState(0);
   const [question, setQuestion] = useState("");
@@ -31,17 +31,18 @@ export default function Game(props: GameProps) {
   const [players, setPlayers] = useState<PlayerSanitized[]>([]);
   const [category, setCategory] = useState("");
   const [proximity, setProximity] = useState(0);
+  const [disableRoomLeaveBtn, setDisableRoomLeaveBtn] = useState(false);
   const chatBoxRef = useRef<HTMLDivElement>(null);
 
   async function gameAsk(event: FormEvent) {
     event.preventDefault();
 
-    if (!socket.id || !question) return;
+    if (!question) return;
 
     // Reset form to prevent spamming questions
     (event.currentTarget as HTMLFormElement).reset();
 
-    const answer = await apiGameAsk(socket.id, roomCode, question);
+    const answer = await apiGameAsk(roomCode, question);
 
     if (!answer) return;
 
@@ -51,24 +52,20 @@ export default function Game(props: GameProps) {
   async function gameGuess(event: FormEvent) {
     event.preventDefault();
 
-    if (!socket.id || !guess) return;
+    if (!guess) return;
 
     // Reset form to prevent spamming questions
     (event.currentTarget as HTMLFormElement).reset();
 
-    const proximity = await apiGameGuess(socket.id, roomCode, guess);
+    const proximity = await apiGameGuess(roomCode, guess);
 
-    if (!proximity) return;
-
-    setProximity(proximity);
+    if (proximity !== null) setProximity(proximity);
   }
 
   useEffect(() => {
     function syncTimeLeft() {
-      if (!socket.id) return;
-      gameGetTimeLeft(socket.id, roomCode).then((_timeLeft) => {
-        if (!_timeLeft) return;
-        setTimeLeft(_timeLeft);
+      gameGetTimeLeft(roomCode).then((_timeLeft) => {
+        if (_timeLeft !== null) setTimeLeft(_timeLeft);
       });
     }
 
@@ -95,19 +92,11 @@ export default function Game(props: GameProps) {
   }, [timeLeft]);
 
   useEffect(() => {
-    if (!socket.id) return;
-    gameGetCategory(socket.id, roomCode).then((_category) => {
-      if (_category) setCategory(_category);
-    });
-  }, []);
-
-  useEffect(() => {
     function updatePlayerList() {
-      if (!socket.id) return;
-      getPlayer(socket.id).then((_player) => {
+      getPlayer().then((_player) => {
         if (_player) setPlayer(_player);
       });
-      roomGetPlayers(socket.id, roomCode).then((_players) => {
+      roomGetPlayers(roomCode).then((_players) => {
         if (_players) setPlayers(_players);
       });
     }
@@ -119,14 +108,26 @@ export default function Game(props: GameProps) {
 
     socket.once("room-game-end", onceGameEnds);
     socket.on("room-player-left", updatePlayerList);
+    socket.on("room-player-joined", updatePlayerList);
 
     updatePlayerList(); // Initially update the player list
+
+    // Initially get category
+    gameGetCategory(roomCode).then((_category) => {
+      if (_category) setCategory(_category);
+    });
+
+    // Initially get interactions, for when the player reconnects
+    gameGetInteractions(roomCode).then((_interactions) => {
+      if (_interactions) setInteractions(_interactions);
+    });
 
     return () => {
       // Unregister all event listeners when component is unmounted
       // Otherwise they may trigger in the future unexpectedly
       socket.off("room-game-end", onceGameEnds);
       socket.off("room-player-left", updatePlayerList);
+      socket.off("room-player-joined", updatePlayerList);
     };
   }, []);
 
@@ -161,11 +162,18 @@ export default function Game(props: GameProps) {
     <div className="absolute transition-[width] h-[98%] xl:w-[75%] w-[98%] bg-[#000625] bg-opacity-50 rounded-xl border border-neutral-500 flex flex-col items-center px-8 pt-8 text-white overflow-y-scroll overflow-x-clip">
       <div className="flex flex-row w-full justify-between">
         <button
-          onClick={() => {
-            if (socket.id) roomLeave(socket.id, roomCode); // Backbutton pressed leaves game/room
-            setPage(<MainMenu />);
+          onClick={async () => {
+            if (!socket.id) return;
+            setDisableRoomLeaveBtn(true); // Prevent button spamming
+            // If player successfully leaves the room, set page to main menu
+            if (await roomLeave(socket.id, roomCode)) {
+              setPage(<MainMenu />);
+            } else {
+              setDisableRoomLeaveBtn(false);
+            }
           }}
           className="self-start text-lg font-light flex items-center justify-center gap-2"
+          disabled={disableRoomLeaveBtn}
         >
           <i className="bi bi-arrow-left"></i>Leave Game
         </button>
@@ -181,16 +189,16 @@ export default function Game(props: GameProps) {
             <i className="bi bi-people-fill"></i>Players
           </h1>
           {players.sort((a, b) => {
-            if (player && (player.id === a.id || player.id === b.id)) {
-              return (b.id === player.id) ? 1 : -1;
+            if (player && (player.uid === a.uid || player.uid === b.uid)) {
+              return (b.uid === player.uid) ? 1 : -1;
             } else {
               return a.username.localeCompare(b.username);
             }
           }).map((_player) =>
-            (player && _player.id === player.id)
+            (player && _player.uid === player.uid)
               ? (
                 <div
-                  key={_player.id}
+                  key={_player.uid}
                   className="min-h-12 max-h-12 w-full rounded-lg bg-gradient-to-r from-[#AC1C1C] to-[#2AAAD9] flex flex-row items-center px-3"
                 >
                   <h1 className="w-full text-xl text-nowrap break-all truncate">
@@ -200,7 +208,7 @@ export default function Game(props: GameProps) {
               )
               : (
                 <div
-                  key={_player.id}
+                  key={_player.uid}
                   className="min-h-12 max-h-12 w-full rounded-lg bg-[#5e5e5e] flex flex-row items-center px-3"
                 >
                   <h1 className="w-full text-xl text-nowrap break-all truncate">
@@ -235,7 +243,7 @@ export default function Game(props: GameProps) {
             <input
               onInput={(event) => setQuestion(event.currentTarget.value)}
               type="text"
-              placeholder="Ask a close ended question..."
+              placeholder="Ask a question..."
               className="flex-[6_0_0] focus:outline-none text-base w-full bg-[#343434] placeholder:text-[#787878] rounded-lg border border-[#787878] px-3"
               required
             >

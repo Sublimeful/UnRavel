@@ -1,27 +1,74 @@
 import "bootstrap-icons/font/bootstrap-icons.css";
 
-import { Canvas } from "@react-three/fiber";
-import { Vector2 } from "three";
 import { useEffect, useState } from "react";
 
 import Background from "./Background";
-import MainMenu from "./MainMenu";
 import PageContext from "./PageContext";
 
+import MainMenu from "./MainMenu";
+import SignIn from "./SignIn";
+import Room from "./Room";
+import Game from "./Game";
+
 import { socket } from "./socket";
+import { roomGet, roomJoin } from "./api/room";
+import { gameGetState } from "./api/game";
+import { getSession } from "./api/auth";
 
 export default function App() {
-  const [currPage, setPage] = useState<JSX.Element | null>(<MainMenu />);
+  const [currPage, setPage] = useState<JSX.Element | null>(<></>);
 
-  const [_, setIsConnected] = useState(socket.connected);
+  async function reconnect() {
+    try {
+      console.log("Attempting Reconnection");
+
+      const roomCode = await roomGet();
+
+      if (!roomCode) {
+        const uid = await getSession();
+
+        if (!uid) return false;
+
+        setPage(<MainMenu />);
+
+        return true;
+      }
+
+      if (!socket.id) return false;
+
+      await roomJoin(socket.id, roomCode);
+      const gameState = await gameGetState(roomCode);
+
+      if (!gameState) return false;
+
+      if (gameState === "idle") {
+        setPage(<Room roomCode={roomCode} />);
+      } else {
+        setPage(<Game roomCode={roomCode} />);
+      }
+
+      return true;
+    } catch (error) {
+      console.error(error);
+      console.error("could not reconnect");
+
+      return false;
+    }
+  }
 
   useEffect(() => {
     function onConnect() {
-      setIsConnected(true);
+      console.log("Connected");
+      // Attempt reconnection
+      reconnect().then((success) => {
+        if (!success) {
+          setPage(<SignIn />);
+        }
+      });
     }
 
     function onDisconnect() {
-      setIsConnected(false);
+      console.log("Disconnected");
     }
 
     socket.on("connect", onConnect);
@@ -40,13 +87,9 @@ export default function App() {
   return (
     <PageContext.Provider value={{ currPage, setPage }}>
       <div className="h-screen w-screen bg-[#040039] flex items-center justify-center overflow-y-clip overflow-x-clip">
-        <Canvas className="w-full h-full blur-3xl animate-pulse">
-          <Background
-            redCircleInitPos={new Vector2(0.15, 0.75)}
-            blueCircleInitPos={new Vector2(0.22, 0.27)}
-            tealCircleInitPos={new Vector2(0.79, 0.69)}
-          />
-        </Canvas>
+        <div className="w-full h-full blur-3xl animate-pulse">
+          <Background />
+        </div>
         {currPage}
       </div>
     </PageContext.Provider>

@@ -4,63 +4,53 @@ import PageContext from "./PageContext";
 import MainMenu from "./MainMenu";
 import Room from "./Room";
 import { socket } from "./socket";
-import type {
-  PlayerID,
-  PlayerSanitized,
-  PlayerStatsSanitized,
-  RoomCode,
-} from "../types";
+import type { PlayerSanitized, PlayerStatsSanitized } from "../types";
 import {
   gameGetCategory,
   gameGetPlayerStats,
   gameGetSecretTerm,
   gameGetWinner,
-  getPlayer,
-  roomGetPlayers,
-  roomLeave,
-} from "./api";
+} from "./api/game";
+import { roomLeave } from "./api/room";
+import { getPlayer } from "./api/player";
 import Game from "./Game";
 
 interface GameOverProps {
-  roomCode: RoomCode;
+  roomCode: string;
 }
 
 export default function GameOver(props: GameOverProps) {
-  const { roomCode } = props;
   const { setPage } = useContext(PageContext);
+  const { roomCode } = props;
+
   const [player, setPlayer] = useState<PlayerSanitized | null>(null);
-  const [players, setPlayers] = useState<PlayerSanitized[]>([]);
   const [playerStats, setPlayerStats] = useState<
-    Record<PlayerID, PlayerStatsSanitized>
+    Record<string, PlayerStatsSanitized>
   >({});
   const [category, setCategory] = useState("");
   const [winner, setWinner] = useState<PlayerSanitized | null>(null);
   const [secretTerm, setSecretTerm] = useState("");
+  const [disableMainMenuBtn, setDisableMainMenuBtn] = useState(false);
 
   useEffect(() => {
-    if (!socket.id) return;
-    gameGetPlayerStats(socket.id, roomCode).then((_playerStats) => {
+    gameGetPlayerStats(roomCode).then((_playerStats) => {
       if (_playerStats) setPlayerStats(_playerStats);
     });
-    gameGetCategory(socket.id, roomCode).then((_category) => {
+    gameGetCategory(roomCode).then((_category) => {
       if (_category) setCategory(_category);
     });
-    gameGetWinner(socket.id, roomCode).then((_winner) => {
+    gameGetWinner(roomCode).then((_winner) => {
       if (_winner) setWinner(_winner);
     });
-    gameGetSecretTerm(socket.id, roomCode).then((_secretTerm) => {
+    gameGetSecretTerm(roomCode).then((_secretTerm) => {
       if (_secretTerm) setSecretTerm(_secretTerm);
     });
   }, []);
 
   useEffect(() => {
     function updatePlayerList() {
-      if (!socket.id) return;
-      getPlayer(socket.id).then((_player) => {
+      getPlayer().then((_player) => {
         if (_player) setPlayer(_player);
-      });
-      roomGetPlayers(socket.id, roomCode).then((_players) => {
-        if (_players) setPlayers(_players);
       });
     }
 
@@ -70,7 +60,6 @@ export default function GameOver(props: GameOverProps) {
     }
 
     socket.once("room-game-start", onceGameStarts);
-    socket.on("room-player-left", updatePlayerList);
 
     updatePlayerList(); // Initially update the player list
 
@@ -78,7 +67,6 @@ export default function GameOver(props: GameOverProps) {
       // Unregister all event listeners when component is unmounted
       // Otherwise they may trigger in the future unexpectedly
       socket.off("room-game-start", onceGameStarts);
-      socket.off("room-player-left", updatePlayerList);
     };
   }, []);
 
@@ -123,49 +111,47 @@ export default function GameOver(props: GameOverProps) {
           Game Stats
         </h1>
         <ul className="flex-[3_0_0] min-h-40 w-full flex flex-col gap-2 overflow-y-scroll">
-          {players.sort((a, b) => {
-            if (player && (player.id === a.id || player.id === b.id)) {
-              return (b.id === player.id) ? 1 : -1;
-            } else {
-              return a.username.localeCompare(b.username);
-            }
-          }).map((_player) =>
-            // Make sure playerStats[_player.id] exists before we start indexing and getting their stats
-            // playerStats[_player.id] can be undefined if we got the player list before the player stats
-            (_player.id in playerStats) && (
-              <li
-                key={_player.id}
-                className="flex flex-row gap-6 justify-between w-full bg-[#595959] bg-opacity-60 rounded-lg px-3 py-2"
-              >
-                <span className="flex-[1_0_0] text-nowrap break-all truncate">
-                  {_player.username}
-                </span>
-                <div className="max-w-max flex flex-row gap-2 text-[#C0C0C0]">
-                  {player && (
-                    <h1 className="flex flex-row gap-1">
-                      <span className="max-w-16 text-nowrap break-all truncate">
-                        {playerStats[_player.id].interactions.length}
-                      </span>{" "}
-                      {playerStats[_player.id].interactions.length === 1
-                        ? "question"
-                        : "questions"}
-                    </h1>
-                  )}
-                  <h1>•</h1>
-                  {player && (
-                    <h1 className="flex flex-row gap-1">
-                      <span className="max-w-16 text-nowrap break-all truncate">
-                        {playerStats[_player.id].guesses.length}
-                      </span>{" "}
-                      {playerStats[_player.id].guesses.length === 1
-                        ? "guess"
-                        : "guesses"}
-                    </h1>
-                  )}
-                </div>
-              </li>
-            )
-          )}
+          {Object.entries(playerStats).sort(
+            ([uidA, playerStatsA], [uidB, playerStatsB]) => {
+              if (player && (player.uid === uidA || player.uid === uidB)) {
+                return (uidB === player.uid) ? 1 : -1;
+              } else {
+                return playerStatsA.username.localeCompare(
+                  playerStatsB.username,
+                );
+              }
+            },
+          ).map(([uid, playerStats]) => (
+            <li
+              key={uid}
+              className="flex flex-row gap-6 justify-between w-full bg-[#595959] bg-opacity-60 rounded-lg px-3 py-2"
+            >
+              <span className="flex-[1_0_0] text-nowrap break-all truncate">
+                {playerStats.username}
+              </span>
+              <div className="max-w-max flex flex-row gap-2 text-[#C0C0C0]">
+                {player && (
+                  <h1 className="flex flex-row gap-1">
+                    <span className="max-w-16 text-nowrap break-all truncate">
+                      {playerStats.interactions.length}
+                    </span>{" "}
+                    {playerStats.interactions.length === 1
+                      ? "question"
+                      : "questions"}
+                  </h1>
+                )}
+                <h1>•</h1>
+                {player && (
+                  <h1 className="flex flex-row gap-1">
+                    <span className="max-w-16 text-nowrap break-all truncate">
+                      {playerStats.guesses.length}
+                    </span>{" "}
+                    {playerStats.guesses.length === 1 ? "guess" : "guesses"}
+                  </h1>
+                )}
+              </div>
+            </li>
+          ))}
         </ul>
         <h1 className="flex-[1_0_0] min-h-14 max-h-14 p-4 text-lg w-full text-center text-nowrap break-all truncate">
           Total Questions: {Object.values(playerStats).map(({ interactions }) =>
@@ -175,11 +161,18 @@ export default function GameOver(props: GameOverProps) {
         </h1>
       </div>
       <button
-        onClick={() => {
-          if (socket.id) roomLeave(socket.id, roomCode); // Leave room before returning to main menu
-          setPage(<MainMenu />);
+        onClick={async () => {
+          if (!socket.id) return;
+          setDisableMainMenuBtn(true); // Prevent button spamming
+          // If player successfully leaves the room, set page to main menu
+          if (await roomLeave(socket.id, roomCode)) {
+            setPage(<MainMenu />);
+          } else {
+            setDisableMainMenuBtn(false);
+          }
         }}
         className="flex-[1_0_0] mt-3 min-h-10 bg-[#333333] bg-opacity-80 rounded-lg flex justify-center items-center gap-2"
+        disabled={disableMainMenuBtn}
       >
         Main Menu<i className="bi bi-house-door"></i>
       </button>

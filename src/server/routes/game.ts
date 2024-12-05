@@ -1,127 +1,72 @@
 import { Router } from "express";
 
 import { io } from "../socket.ts";
-
 import state from "../state.ts";
+
+import type { Player, Room } from "../types.ts";
+import type { PlayerStatsSanitized } from "../../types.ts";
+
+import { verifyRequestAndGetUID } from "../utils/api.ts";
 import {
   getSanitizedPlayer,
   getSanitizedPlayerStats,
-  getSocketFromAuthHeader,
-} from "../utils/misc.ts";
-import type { Player, Room } from "../types.ts";
-import type {
-  GameSettings,
-  PlayerID,
-  PlayerStatsSanitized,
-} from "../../types.ts";
-import {
-  askClosedEndedQuestion,
-  generateSecretTermFromCategory,
-} from "../utils/ai.ts";
+} from "../utils/player.ts";
+import { askQuestion } from "../utils/ai.ts";
 
 const router = Router();
 
-router.post("/api/:roomCode/start-game", async (req, res) => {
-  const { category } = req.body as GameSettings;
+router.get("/api/:roomCode/game/state", async (req, res) => {
+  const uid = await verifyRequestAndGetUID(req, res);
+  if (!uid) return;
 
-  // Bad request if settings are not sent properly
-  if (!category) {
-    return res.status(400).send("invalid data");
-  }
-
-  // Validate and get socket
-  const socket = getSocketFromAuthHeader(req.headers.authorization);
-
-  // Bad request
-  if (!socket) return res.status(400).send("could not authenticate client");
-
-  // Check if socket is in the requested room
   const roomCode = req.params.roomCode;
-  if (!socket.rooms.has(roomCode)) {
-    return res.status(400).send("you are not in this room");
-  }
 
   // Check if the room state exists
   if (!(`room:${roomCode}` in state)) {
     return res.status(400).send("room not found");
   }
 
-  // Check that the game is in a state where it can be started
   const roomState = state[`room:${roomCode}`] as Room;
-  if (roomState.game.state === "in progress") {
-    return res.status(400).send(
-      "you cannot start a new game while the current one is still in progress",
-    );
+
+  if (!(`player:${uid}` in state)) {
+    return res.status(400).send("could not find player");
   }
 
-  // Check if player is the host
-  if (roomState.host !== socket.id) {
-    return res.status(400).send("you are not the room host");
+  const player = state[`player:${uid}`] as Player;
+
+  // Check if player is in the room
+  if (player.room !== roomCode) {
+    return res.status(400).send("you are not in this room");
   }
 
-  // Set the game winner to null (nobody has won this new game yet)
-  roomState.game.winner = null;
-
-  // Set the game state category
-  roomState.game.category = category;
-
-  // Initialize player stats
-  roomState.players.forEach((sid) => {
-    roomState.game.playerStats[sid] = { interactions: [], guesses: [] };
-  });
-
-  // Generate the secret term
-  const secretTerm = await generateSecretTermFromCategory(category);
-
-  // Something went wrong while generating the secret term
-  if (!secretTerm) {
-    return res.status(500).send("something went wrong");
-  }
-
-  // Set the game state secretTerm
-  roomState.game.secretTerm = secretTerm;
-  console.log(roomCode, "category", category, "secret term", secretTerm);
-
-  // Set the game state to "in progress"
-  roomState.game.state = "in progress";
-
-  // Set the game start time
-  roomState.game.startTime = Date.now();
-
-  // Tell every player the game has started
-  io.to(roomCode).emit("room-game-start");
-
-  // The game will end when the timer runs out
-  roomState.game.endTimeout = setTimeout(() => {
-    // Set the game state to idle
-    roomState.game.state = "idle";
-    // Tell every player the game has ended
-    io.to(roomCode).emit("room-game-end");
-  }, roomState.game.timeLimit);
-
-  return res.status(200).send();
+  return res.status(200).send(JSON.stringify({ state: roomState.game.state }));
 });
 
-router.get("/api/:roomCode/game/time-left", (req, res) => {
-  // Validate and get socket
-  const socket = getSocketFromAuthHeader(req.headers.authorization);
+router.get("/api/:roomCode/game/time-left", async (req, res) => {
+  const uid = await verifyRequestAndGetUID(req, res);
+  if (!uid) return;
 
-  // Bad request
-  if (!socket) return res.status(400).send("could not authenticate client");
-
-  // Check if socket is in the requested room
   const roomCode = req.params.roomCode;
-  if (!socket.rooms.has(roomCode)) {
-    return res.status(400).send("you are not in this room");
-  }
 
   // Check if the room state exists
   if (!(`room:${roomCode}` in state)) {
     return res.status(400).send("room not found");
+  }
+
+  const roomState = state[`room:${roomCode}`] as Room;
+
+  if (!(`player:${uid}` in state)) {
+    return res.status(400).send("could not find player");
+  }
+
+  const player = state[`player:${uid}`] as Player;
+
+  // Check if player is in the room
+  if (player.room !== roomCode) {
+    return res.status(400).send("you are not in this room");
   }
 
   // Check that the game is in progress
-  const roomState = state[`room:${roomCode}`] as Room;
   if (roomState.game.state !== "in progress") {
     return res.status(400).send("game is not in progress");
   }
@@ -133,18 +78,11 @@ router.get("/api/:roomCode/game/time-left", (req, res) => {
   return res.status(200).send(JSON.stringify({ timeLeft }));
 });
 
-router.get("/api/:roomCode/game/category", (req, res) => {
-  // Validate and get socket
-  const socket = getSocketFromAuthHeader(req.headers.authorization);
+router.get("/api/:roomCode/game/category", async (req, res) => {
+  const uid = await verifyRequestAndGetUID(req, res);
+  if (!uid) return;
 
-  // Bad request
-  if (!socket) return res.status(400).send("could not authenticate client");
-
-  // Check if socket is in the requested room
   const roomCode = req.params.roomCode;
-  if (!socket.rooms.has(roomCode)) {
-    return res.status(400).send("you are not in this room");
-  }
 
   // Check if the room state exists
   if (!(`room:${roomCode}` in state)) {
@@ -152,6 +90,17 @@ router.get("/api/:roomCode/game/category", (req, res) => {
   }
 
   const roomState = state[`room:${roomCode}`] as Room;
+
+  if (!(`player:${uid}` in state)) {
+    return res.status(400).send("could not find player");
+  }
+
+  const player = state[`player:${uid}`] as Player;
+
+  // Check if player is in the room
+  if (player.room !== roomCode) {
+    return res.status(400).send("you are not in this room");
+  }
 
   return res.status(200).send(
     JSON.stringify({ category: roomState.game.category }),
@@ -166,31 +115,36 @@ router.post("/api/:roomCode/game/ask", async (req, res) => {
     return res.status(400).send("invalid data");
   }
 
-  // Validate and get socket
-  const socket = getSocketFromAuthHeader(req.headers.authorization);
+  const uid = await verifyRequestAndGetUID(req, res);
+  if (!uid) return;
 
-  // Bad request
-  if (!socket) return res.status(400).send("could not authenticate client");
-
-  // Check if socket is in the requested room
   const roomCode = req.params.roomCode;
-  if (!socket.rooms.has(roomCode)) {
-    return res.status(400).send("you are not in this room");
-  }
 
   // Check if the room state exists
   if (!(`room:${roomCode}` in state)) {
     return res.status(400).send("room not found");
   }
 
-  // Check that the game is in progress
   const roomState = state[`room:${roomCode}`] as Room;
+
+  if (!(`player:${uid}` in state)) {
+    return res.status(400).send("could not find player");
+  }
+
+  const player = state[`player:${uid}`] as Player;
+
+  // Check if player is in the room
+  if (player.room !== roomCode) {
+    return res.status(400).send("you are not in this room");
+  }
+
+  // Check that the game is in progress
   if (roomState.game.state !== "in progress") {
     return res.status(400).send("game is not in progress");
   }
 
   // Ask the ai
-  const answer = await askClosedEndedQuestion(
+  const answer = await askQuestion(
     roomState.game.secretTerm,
     roomState.game.category,
     question,
@@ -202,8 +156,8 @@ router.post("/api/:roomCode/game/ask", async (req, res) => {
   }
 
   // Log the interaction
-  if (socket.id in roomState.game.playerStats) {
-    roomState.game.playerStats[socket.id].interactions.push({
+  if (player.uid in roomState.game.playerStats) {
+    roomState.game.playerStats[player.uid].interactions.push({
       question,
       answer,
     });
@@ -220,32 +174,37 @@ router.post("/api/:roomCode/game/guess", async (req, res) => {
     return res.status(400).send("invalid data");
   }
 
-  // Validate and get socket
-  const socket = getSocketFromAuthHeader(req.headers.authorization);
+  const uid = await verifyRequestAndGetUID(req, res);
+  if (!uid) return;
 
-  // Bad request
-  if (!socket) return res.status(400).send("could not authenticate client");
-
-  // Check if socket is in the requested room
   const roomCode = req.params.roomCode;
-  if (!socket.rooms.has(roomCode)) {
-    return res.status(400).send("you are not in this room");
-  }
 
   // Check if the room state exists
   if (!(`room:${roomCode}` in state)) {
     return res.status(400).send("room not found");
   }
 
-  // Check that the game is in progress
   const roomState = state[`room:${roomCode}`] as Room;
+
+  if (!(`player:${uid}` in state)) {
+    return res.status(400).send("could not find player");
+  }
+
+  const player = state[`player:${uid}`] as Player;
+
+  // Check if player is in the room
+  if (player.room !== roomCode) {
+    return res.status(400).send("you are not in this room");
+  }
+
+  // Check that the game is in progress
   if (roomState.game.state !== "in progress") {
     return res.status(400).send("game is not in progress");
   }
 
   // Log the guess
-  if (socket.id in roomState.game.playerStats) {
-    roomState.game.playerStats[socket.id].guesses.push(guess);
+  if (player.uid in roomState.game.playerStats) {
+    roomState.game.playerStats[player.uid].guesses.push(guess);
   }
 
   function levenshteinDistance(s: string, t: string) {
@@ -276,7 +235,7 @@ router.post("/api/:roomCode/game/guess", async (req, res) => {
     // Clear the endTimeout to prevent it from ending the next game prematurely
     clearTimeout(roomState.game.endTimeout);
     // Set the winner
-    roomState.game.winner = socket.id;
+    roomState.game.winner = player.uid;
     // Set the game state to idle
     roomState.game.state = "idle";
     // Tell every player the game has ended
@@ -286,26 +245,31 @@ router.post("/api/:roomCode/game/guess", async (req, res) => {
   return res.status(200).send(JSON.stringify({ proximity }));
 });
 
-router.get("/api/:roomCode/game/winner", (req, res) => {
-  // Validate and get socket
-  const socket = getSocketFromAuthHeader(req.headers.authorization);
+router.get("/api/:roomCode/game/winner", async (req, res) => {
+  const uid = await verifyRequestAndGetUID(req, res);
+  if (!uid) return;
 
-  // Bad request
-  if (!socket) return res.status(400).send("could not authenticate client");
-
-  // Check if socket is in the requested room
   const roomCode = req.params.roomCode;
-  if (!socket.rooms.has(roomCode)) {
-    return res.status(400).send("you are not in this room");
-  }
 
   // Check if the room state exists
   if (!(`room:${roomCode}` in state)) {
     return res.status(400).send("room not found");
   }
 
-  // Check that the game has ended
   const roomState = state[`room:${roomCode}`] as Room;
+
+  if (!(`player:${uid}` in state)) {
+    return res.status(400).send("could not find player");
+  }
+
+  const player = state[`player:${uid}`] as Player;
+
+  // Check if player is in the room
+  if (player.room !== roomCode) {
+    return res.status(400).send("you are not in this room");
+  }
+
+  // Check that the game has ended
   if (roomState.game.state !== "idle") {
     return res.status(400).send("game has not ended");
   }
@@ -328,26 +292,31 @@ router.get("/api/:roomCode/game/winner", (req, res) => {
   );
 });
 
-router.get("/api/:roomCode/game/secret-term", (req, res) => {
-  // Validate and get socket
-  const socket = getSocketFromAuthHeader(req.headers.authorization);
+router.get("/api/:roomCode/game/secret-term", async (req, res) => {
+  const uid = await verifyRequestAndGetUID(req, res);
+  if (!uid) return;
 
-  // Bad request
-  if (!socket) return res.status(400).send("could not authenticate client");
-
-  // Check if socket is in the requested room
   const roomCode = req.params.roomCode;
-  if (!socket.rooms.has(roomCode)) {
-    return res.status(400).send("you are not in this room");
-  }
 
   // Check if the room state exists
   if (!(`room:${roomCode}` in state)) {
     return res.status(400).send("room not found");
   }
 
-  // Check that the game has ended
   const roomState = state[`room:${roomCode}`] as Room;
+
+  if (!(`player:${uid}` in state)) {
+    return res.status(400).send("could not find player");
+  }
+
+  const player = state[`player:${uid}`] as Player;
+
+  // Check if player is in the room
+  if (player.room !== roomCode) {
+    return res.status(400).send("you are not in this room");
+  }
+
+  // Check that the game has ended
   if (roomState.game.state !== "idle") {
     return res.status(400).send("game has not ended");
   }
@@ -357,37 +326,76 @@ router.get("/api/:roomCode/game/secret-term", (req, res) => {
   );
 });
 
-router.get("/api/:roomCode/game/player-stats", (req, res) => {
-  // Validate and get socket
-  const socket = getSocketFromAuthHeader(req.headers.authorization);
+router.get("/api/:roomCode/game/interactions", async (req, res) => {
+  const uid = await verifyRequestAndGetUID(req, res);
+  if (!uid) return;
 
-  // Bad request
-  if (!socket) return res.status(400).send("could not authenticate client");
-
-  // Check if socket is in the requested room
   const roomCode = req.params.roomCode;
-  if (!socket.rooms.has(roomCode)) {
-    return res.status(400).send("you are not in this room");
-  }
 
   // Check if the room state exists
   if (!(`room:${roomCode}` in state)) {
     return res.status(400).send("room not found");
   }
 
-  // Check that the game has ended
   const roomState = state[`room:${roomCode}`] as Room;
+
+  if (!(`player:${uid}` in state)) {
+    return res.status(400).send("could not find player");
+  }
+
+  const player = state[`player:${uid}`] as Player;
+
+  // Check if player is in the room
+  if (player.room !== roomCode) {
+    return res.status(400).send("you are not in this room");
+  }
+
+  // Check that the game is in progress
+  if (roomState.game.state !== "in progress") {
+    return res.status(400).send("game is not in progress");
+  }
+
+  // Get the interactions if they exist, otherwise empty list
+  const interactions = uid in roomState.game.playerStats
+    ? roomState.game.playerStats[uid].interactions
+    : [];
+
+  return res.status(200).send(JSON.stringify({ interactions }));
+});
+
+router.get("/api/:roomCode/game/player-stats", async (req, res) => {
+  const uid = await verifyRequestAndGetUID(req, res);
+  if (!uid) return;
+
+  const roomCode = req.params.roomCode;
+
+  // Check if the room state exists
+  if (!(`room:${roomCode}` in state)) {
+    return res.status(400).send("room not found");
+  }
+
+  const roomState = state[`room:${roomCode}`] as Room;
+
+  if (!(`player:${uid}` in state)) {
+    return res.status(400).send("could not find player");
+  }
+
+  const player = state[`player:${uid}`] as Player;
+
+  // Check if player is in the room
+  if (player.room !== roomCode) {
+    return res.status(400).send("you are not in this room");
+  }
+
+  // Check that the game has ended
   if (roomState.game.state !== "idle") {
     return res.status(400).send("game has not ended");
   }
 
   // Get sanitized player stats
-  const playerStatsSanitized: Record<PlayerID, PlayerStatsSanitized> = {};
-  Object.entries(roomState.game.playerStats).forEach(([sid, playerStats]) => {
-    // Check if player state exists
-    if (!(`player:${sid}` in state)) return;
-    const player = state[`player:${sid}`] as Player;
-    playerStatsSanitized[player.id] = getSanitizedPlayerStats(playerStats);
+  const playerStatsSanitized: Record<string, PlayerStatsSanitized> = {};
+  Object.entries(roomState.game.playerStats).forEach(([uid, playerStats]) => {
+    playerStatsSanitized[uid] = getSanitizedPlayerStats(playerStats);
   });
 
   return res.status(200).send(

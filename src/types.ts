@@ -1,9 +1,10 @@
 export interface PlayerSanitized {
-  id: PlayerID;
+  uid: string;
   username: string;
 }
 
 export interface PlayerStatsSanitized {
+  username: string;
   interactions: Interaction[];
   guesses: string[];
 }
@@ -16,10 +17,3 @@ export interface Interaction {
   question: string;
   answer: string;
 }
-
-// Socket ID
-export type SID = string;
-
-export type RoomCode = string;
-
-export type PlayerID = string;
