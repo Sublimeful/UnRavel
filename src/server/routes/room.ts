@@ -316,8 +316,17 @@ router.get("/api/:roomCode/host", async (req, res) => {
     return res.status(400).send("you are not in this room");
   }
 
+  // If we are in a ranked game, then host does not exist
+  if (roomState.type === "ranked") {
+    return res.status(400).send("this is a ranked room");
+  }
+
   // Get the host player
   const hostPlayer = state[`player:${roomState.host}`] as Player;
+
+  if (!hostPlayer) {
+    return res.status(400).send("could not find host player");
+  }
 
   return res.status(200).send(JSON.stringify(
     { host: hostPlayer.uid },
