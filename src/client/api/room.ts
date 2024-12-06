@@ -20,7 +20,10 @@ export async function roomGet(): Promise<string | null> {
   }
 }
 
-export async function roomRequest(sid: string): Promise<string | null> {
+export async function roomRequest(
+  sid: string,
+  maxPlayers: number,
+): Promise<string | null> {
   const res = await fetch(
     `/api/room-request`,
     {
@@ -28,7 +31,7 @@ export async function roomRequest(sid: string): Promise<string | null> {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ sid }),
+      body: JSON.stringify({ sid, maxPlayers }),
     },
   );
 
@@ -91,6 +94,27 @@ export async function roomLeave(
   }
 }
 
+export async function roomGetMaxPlayers(
+  roomCode: string,
+): Promise<number | null> {
+  const res = await fetch(
+    `/api/${roomCode}/max-players`,
+    {
+      method: "GET",
+    },
+  );
+
+  if (res.status === 200) {
+    const { maxPlayers } = await res.json();
+
+    return maxPlayers;
+  } else {
+    console.error(await res.text());
+
+    return null;
+  }
+}
+
 export async function roomGetPlayers(
   roomCode: string,
 ): Promise<PlayerSanitized[] | null> {
@@ -105,6 +129,27 @@ export async function roomGetPlayers(
     const players: PlayerSanitized[] = await res.json();
 
     return players;
+  } else {
+    console.error(await res.text());
+
+    return null;
+  }
+}
+
+export async function roomGetType(
+  roomCode: string,
+): Promise<string | null> {
+  const res = await fetch(
+    `/api/${roomCode}/type`,
+    {
+      method: "GET",
+    },
+  );
+
+  if (res.status === 200) {
+    const { type } = await res.json();
+
+    return type;
   } else {
     console.error(await res.text());
 

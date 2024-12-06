@@ -1,6 +1,5 @@
 import { Router } from "express";
 
-import { io } from "../socket.ts";
 import state from "../state.ts";
 
 import type { Player, Room } from "../types.ts";
@@ -12,6 +11,7 @@ import {
   getSanitizedPlayerStats,
 } from "../utils/player.ts";
 import { askQuestion } from "../utils/ai.ts";
+import { gameEnd } from "../utils/game.ts";
 
 const router = Router();
 
@@ -232,14 +232,7 @@ router.post("/api/:roomCode/game/guess", async (req, res) => {
 
   // Player won the game
   if (proximity === 1) {
-    // Clear the endTimeout to prevent it from ending the next game prematurely
-    clearTimeout(roomState.game.endTimeout);
-    // Set the winner
-    roomState.game.winner = player.uid;
-    // Set the game state to idle
-    roomState.game.state = "idle";
-    // Tell every player the game has ended
-    io.to(roomCode).emit("room-game-end");
+    gameEnd(roomCode, player.uid);
   }
 
   return res.status(200).send(JSON.stringify({ proximity }));

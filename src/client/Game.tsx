@@ -29,7 +29,7 @@ export default function Game(props: GameProps) {
   const [interactions, setInteractions] = useState<Interaction[]>([]);
   const [player, setPlayer] = useState<PlayerSanitized | null>(null);
   const [players, setPlayers] = useState<PlayerSanitized[]>([]);
-  const [category, setCategory] = useState("");
+  const [category, setCategory] = useState<string | null>("");
   const [proximity, setProximity] = useState(0);
   const [disableRoomLeaveBtn, setDisableRoomLeaveBtn] = useState(false);
   const chatBoxRef = useRef<HTMLDivElement>(null);
@@ -93,9 +93,7 @@ export default function Game(props: GameProps) {
 
   useEffect(() => {
     function updatePlayerList() {
-      getPlayer().then((_player) => {
-        if (_player) setPlayer(_player);
-      });
+      getPlayer().then(setPlayer);
       roomGetPlayers(roomCode).then((_players) => {
         if (_players) setPlayers(_players);
       });
@@ -113,9 +111,7 @@ export default function Game(props: GameProps) {
     updatePlayerList(); // Initially update the player list
 
     // Initially get category
-    gameGetCategory(roomCode).then((_category) => {
-      if (_category) setCategory(_category);
-    });
+    gameGetCategory(roomCode).then(setCategory);
 
     // Initially get interactions, for when the player reconnects
     gameGetInteractions(roomCode).then((_interactions) => {
@@ -220,7 +216,7 @@ export default function Game(props: GameProps) {
         </div>
         <div className="flex-[3_0_0] min-w-0 flex flex-col gap-3">
           <div className="flex-[2_0_0] bg-[#424242] bg-opacity-70 rounded-lg grid place-items-center text-2xl font-semibold p-5 min-h-0 overflow-y-scroll text-wrap break-all">
-            Category: {category}
+            Category: {category ?? ""}
           </div>
           <div
             ref={chatBoxRef}

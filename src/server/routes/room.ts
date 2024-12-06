@@ -8,6 +8,8 @@ import { generateSecretTermFromCategory } from "../utils/ai.ts";
 import type { Player, Room } from "../types.ts";
 import type { GameSettings } from "../../types.ts";
 import { verifyRequestAndGetUID } from "../utils/api.ts";
+import { gameEnd } from "../utils/game.ts";
+import { changeUserELO, getUserELO } from "../utils/db.ts";
 
 const router = Router();
 
@@ -25,10 +27,16 @@ router.get("/api/room-get", async (req, res) => {
 });
 
 router.post("/api/room-request", async (req, res) => {
-  const { sid } = req.body;
+  const { sid, maxPlayers } = req.body;
 
   // Bad request
-  if (!sid) return res.status(400).send("invalid data");
+  if (!sid || !Number.isInteger(maxPlayers)) {
+    return res.status(400).send("invalid data");
+  }
+
+  if (maxPlayers < 1) {
+    return res.status(400).send("cannot specify max players value below 1");
+  }
 
   function roomCodeGenerator() {
     return Math.random().toString(36).slice(2).toUpperCase();
@@ -52,6 +60,8 @@ router.post("/api/room-request", async (req, res) => {
 
   // Initialize the room state
   const roomState: Room = {
+    type: "custom",
+    maxPlayers,
     players: new Set<string>(),
     host: null,
     // Initialize the game state
@@ -125,6 +135,16 @@ router.post("/api/:roomCode/join", async (req, res) => {
     }
   }
 
+  // Cannot join a ranked room
+  if (roomState.type === "ranked") {
+    return res.status(400).send("cannot joined a ranked room");
+  }
+
+  // Check if room has "room", get it?
+  if (roomState.players.size + 1 > roomState.maxPlayers) {
+    return res.status(400).send("room is full");
+  }
+
   // Join room
   console.log(
     `player ${player.uid} ${player.username} has joined room ${roomCode}`,
@@ -144,6 +164,7 @@ router.post("/api/:roomCode/join", async (req, res) => {
         username: player.username,
         interactions: [],
         guesses: [],
+        elo: null,
       };
     }
   }
@@ -195,10 +216,23 @@ router.post("/api/:roomCode/leave", async (req, res) => {
   roomState.players.delete(player.uid);
   player.room = null;
 
-  // If the host leaves the room, then transfer host to the next player
-  // If there is no one to transfer, then the room is destroyed, don't need to handle that here
-  if (roomState.host === player.uid && roomState.players.size > 0) {
-    roomState.host = Array.from(roomState.players)[0];
+  if (roomState.type === "ranked") {
+    if (roomState.game.state === "in progress") {
+      // If the room is a ranked room and is in progress
+      // then the player who left will lose elo points
+      getUserELO(player.uid).then((userELO) => {
+        const loseELO = Math.floor(
+          100 - 100 * Math.pow(Math.E, -0.001 * userELO),
+        );
+        changeUserELO(player.uid, -loseELO);
+      });
+    }
+  } else {
+    if (roomState.host === player.uid && roomState.players.size > 0) {
+      // If the room is a custom room and the host leaves the room, then transfer host to the next player
+      // If there is no one to transfer, then the room is destroyed, don't need to handle that here
+      roomState.host = Array.from(roomState.players)[0];
+    }
   }
 
   // Inform other players in the room of the removed player
@@ -211,6 +245,35 @@ router.post("/api/:roomCode/leave", async (req, res) => {
   }
 
   return res.status(200).send();
+});
+
+router.get("/api/:roomCode/max-players", async (req, res) => {
+  const uid = await verifyRequestAndGetUID(req, res);
+  if (!uid) return;
+
+  const roomCode = req.params.roomCode;
+
+  // Check if the room state exists
+  if (!(`room:${roomCode}` in state)) {
+    return res.status(400).send("room not found");
+  }
+
+  const roomState = state[`room:${roomCode}`] as Room;
+
+  if (!(`player:${uid}` in state)) {
+    return res.status(400).send("could not find player");
+  }
+
+  const player = state[`player:${uid}`] as Player;
+
+  // Check if player is in the room
+  if (player.room !== roomCode) {
+    return res.status(400).send("you are not in this room");
+  }
+
+  return res.status(200).send(JSON.stringify({
+    maxPlayers: roomState.maxPlayers,
+  }));
 });
 
 router.get("/api/:roomCode/players", async (req, res) => {
@@ -250,6 +313,35 @@ router.get("/api/:roomCode/players", async (req, res) => {
   ));
 });
 
+router.get("/api/:roomCode/type", async (req, res) => {
+  const uid = await verifyRequestAndGetUID(req, res);
+  if (!uid) return;
+
+  const roomCode = req.params.roomCode;
+
+  // Check if the room state exists
+  if (!(`room:${roomCode}` in state)) {
+    return res.status(400).send("room not found");
+  }
+
+  const roomState = state[`room:${roomCode}`] as Room;
+
+  if (!(`player:${uid}` in state)) {
+    return res.status(400).send("could not find player");
+  }
+
+  const player = state[`player:${uid}`] as Player;
+
+  // Check if player is in the room
+  if (player.room !== roomCode) {
+    return res.status(400).send("you are not in this room");
+  }
+
+  return res.status(200).send(JSON.stringify(
+    { type: roomState.type },
+  ));
+});
+
 router.get("/api/:roomCode/host", async (req, res) => {
   const uid = await verifyRequestAndGetUID(req, res);
   if (!uid) return;
@@ -274,8 +366,17 @@ router.get("/api/:roomCode/host", async (req, res) => {
     return res.status(400).send("you are not in this room");
   }
 
+  // If we are in a ranked game, then host does not exist
+  if (roomState.type === "ranked") {
+    return res.status(400).send("host does not exist in a ranked room");
+  }
+
   // Get the host player
   const hostPlayer = state[`player:${roomState.host}`] as Player;
+
+  if (!hostPlayer) {
+    return res.status(400).send("could not find host player");
+  }
 
   return res.status(200).send(JSON.stringify(
     { host: hostPlayer.uid },
@@ -342,6 +443,7 @@ router.post("/api/:roomCode/start-game", async (req, res) => {
       username: _player.username,
       interactions: [],
       guesses: [],
+      elo: null,
     };
   });
 
@@ -367,12 +469,10 @@ router.post("/api/:roomCode/start-game", async (req, res) => {
   io.to(roomCode).emit("room-game-start");
 
   // The game will end when the timer runs out
-  roomState.game.endTimeout = setTimeout(() => {
-    // Set the game state to idle
-    roomState.game.state = "idle";
-    // Tell every player the game has ended
-    io.to(roomCode).emit("room-game-end");
-  }, roomState.game.timeLimit);
+  roomState.game.endTimeout = setTimeout(
+    () => gameEnd(roomCode, null),
+    roomState.game.timeLimit,
+  );
 
   return res.status(200).send();
 });

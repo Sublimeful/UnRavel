@@ -47,8 +47,6 @@ export async function generateSecretTermFromCategory(category: string) {
     try {
       return JSON.parse(text);
     } catch (error) {
-      console.error(error);
-
       return null;
     }
   }
@@ -78,9 +76,10 @@ export async function generateSecretTermFromCategory(category: string) {
   // Try to parse this "JSON" and return a random term from it. The keyword here is "TRY".
   try {
     // It always seems to format it starting with ```json on the first line and ending with ``` on the last line
-    const terms = tryParse(
-      res.split("\n").slice(1, res.split("\n").length - 1).join("\n"),
-    ) as string[] || tryParse(res) as string[];
+    const terms = tryParse(res) as string[] ||
+      tryParse(
+        res.split("\n").slice(1, res.split("\n").length - 1).join("\n"),
+      ) as string[];
 
     return terms[Math.floor(Math.random() * terms.length)];
   } catch (error) {

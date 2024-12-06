@@ -11,7 +11,7 @@ import {
   gameGetSecretTerm,
   gameGetWinner,
 } from "./api/game";
-import { roomLeave } from "./api/room";
+import { roomGetType, roomLeave } from "./api/room";
 import { getPlayer } from "./api/player";
 import Game from "./Game";
 
@@ -23,35 +23,29 @@ export default function GameOver(props: GameOverProps) {
   const { setPage } = useContext(PageContext);
   const { roomCode } = props;
 
+  const [roomType, setRoomType] = useState<string | null>(null);
   const [player, setPlayer] = useState<PlayerSanitized | null>(null);
   const [playerStats, setPlayerStats] = useState<
     Record<string, PlayerStatsSanitized>
   >({});
-  const [category, setCategory] = useState("");
+  const [category, setCategory] = useState<string | null>("");
   const [winner, setWinner] = useState<PlayerSanitized | null>(null);
-  const [secretTerm, setSecretTerm] = useState("");
+  const [secretTerm, setSecretTerm] = useState<string | null>("");
   const [disableMainMenuBtn, setDisableMainMenuBtn] = useState(false);
 
   useEffect(() => {
     gameGetPlayerStats(roomCode).then((_playerStats) => {
       if (_playerStats) setPlayerStats(_playerStats);
     });
-    gameGetCategory(roomCode).then((_category) => {
-      if (_category) setCategory(_category);
-    });
-    gameGetWinner(roomCode).then((_winner) => {
-      if (_winner) setWinner(_winner);
-    });
-    gameGetSecretTerm(roomCode).then((_secretTerm) => {
-      if (_secretTerm) setSecretTerm(_secretTerm);
-    });
+    gameGetCategory(roomCode).then(setCategory);
+    gameGetWinner(roomCode).then(setWinner);
+    gameGetSecretTerm(roomCode).then(setSecretTerm);
+    roomGetType(roomCode).then(setRoomType);
   }, []);
 
   useEffect(() => {
     function updatePlayerList() {
-      getPlayer().then((_player) => {
-        if (_player) setPlayer(_player);
-      });
+      getPlayer().then(setPlayer);
     }
 
     function onceGameStarts() {
@@ -70,15 +64,30 @@ export default function GameOver(props: GameOverProps) {
     };
   }, []);
 
+  function calculateWinELO(currELO: number) {
+    return Math.ceil(1000 / (.00039 * Math.pow(currELO, 2) + 10));
+  }
+
+  function calculateLoseELO(currELO: number) {
+    return Math.floor(100 - 100 * Math.pow(Math.E, -0.001 * currELO));
+  }
+
   return (
     <div className="absolute transition-[height,width] h-[98%] w-[98%] max-w-3xl bg-[#000625] bg-opacity-50 rounded-xl border border-neutral-500 flex flex-col text-white overflow-y-scroll p-10 gap-1">
-      <div className="flex flex-row w-full justify-between">
-        <button
-          onClick={() => setPage(<Room roomCode={roomCode} />)}
-          className="self-start text-lg font-light flex items-center justify-center gap-2"
-        >
-          <i className="bi bi-arrow-left"></i>Back to Room
-        </button>
+      <div
+        className={`flex flex-row w-full ${
+          roomType === "custom" ? "justify-between" : "justify-end"
+        }`}
+      >
+        {roomType === "custom" &&
+          (
+            <button
+              onClick={() => setPage(<Room roomCode={roomCode} />)}
+              className="self-start text-lg font-light flex items-center justify-center gap-2"
+            >
+              <i className="bi bi-arrow-left"></i>Back to Room
+            </button>
+          )}
         <img src="logo.png" className="w-12 aspect-square" />
       </div>
       <h1 className="text-5xl font-bold text-center">
@@ -100,10 +109,10 @@ export default function GameOver(props: GameOverProps) {
       <div className="flex-[3_0_0] flex flex-col min-h-40 gap-2 mt-3 p-2 bg-[#333333] bg-opacity-80 rounded-lg overflow-y-scroll">
         <h1 className="m-auto text-xl text-center">The secret term was:</h1>
         <h1 className="m-auto text-3xl font-semibold text-cyan-400 text-center text-wrap break-all">
-          {secretTerm}
+          {secretTerm ?? ""}
         </h1>
         <h1 className="m-auto text-center text-wrap break-all">
-          Category: {category}
+          Category: {category ?? ""}
         </h1>
       </div>
       <div className="flex-[7_0_0] flex flex-col items-center mt-3 px-5 bg-[#333333] bg-opacity-60 rounded-lg">
@@ -124,14 +133,14 @@ export default function GameOver(props: GameOverProps) {
           ).map(([uid, playerStats]) => (
             <li
               key={uid}
-              className="flex flex-row gap-6 justify-between w-full bg-[#595959] bg-opacity-60 rounded-lg px-3 py-2"
+              className="flex flex-row items-center gap-6 justify-between w-full bg-[#595959] bg-opacity-60 rounded-lg px-3 py-2"
             >
               <span className="flex-[1_0_0] text-nowrap break-all truncate">
                 {playerStats.username}
               </span>
               <div className="max-w-max flex flex-row gap-2 text-[#C0C0C0]">
                 {player && (
-                  <h1 className="flex flex-row gap-1">
+                  <h1 className="flex flex-row items-center gap-1">
                     <span className="max-w-16 text-nowrap break-all truncate">
                       {playerStats.interactions.length}
                     </span>{" "}
@@ -140,15 +149,38 @@ export default function GameOver(props: GameOverProps) {
                       : "questions"}
                   </h1>
                 )}
-                <h1>•</h1>
+                <h1 className="flex items-center">•</h1>
                 {player && (
-                  <h1 className="flex flex-row gap-1">
-                    <span className="max-w-16 text-nowrap break-all truncate">
+                  <h1 className="flex flex-row items-center gap-1">
+                    <span className="max-w-16 text-center break-all truncate">
                       {playerStats.guesses.length}
                     </span>{" "}
                     {playerStats.guesses.length === 1 ? "guess" : "guesses"}
                   </h1>
                 )}
+                {roomType === "ranked" && playerStats.elo !== null &&
+                  (
+                    <div className="flex flex-row items-center gap-2">
+                      <span className="max-w-16 text-white font-semibold text-xl text-nowrap break-all truncate">
+                        {playerStats.elo + ((winner && winner.uid === uid)
+                          ? calculateWinELO(playerStats.elo)
+                          : -calculateLoseELO(playerStats.elo))}
+                      </span>
+                      {winner && winner.uid === uid
+                        ? (
+                          <div className="flex flex-col font-semibold items-center text-green-500">
+                            <i className="bi bi-graph-up-arrow"></i>
+                            <span>{calculateWinELO(playerStats.elo)}</span>
+                          </div>
+                        )
+                        : (
+                          <div className="flex flex-col font-semibold items-center text-red-500">
+                            <i className="bi bi-graph-down-arrow"></i>
+                            <span>{calculateLoseELO(playerStats.elo)}</span>
+                          </div>
+                        )}
+                    </div>
+                  )}
               </div>
             </li>
           ))}

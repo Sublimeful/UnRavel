@@ -5,8 +5,10 @@ import PageContext from "./PageContext";
 import JoinARoom from "./JoinARoom";
 import CreateARoom from "./CreateARoom";
 import SignIn from "./SignIn";
+import Matchmaking from "./Matchmaking";
 
 import { signOut } from "./api/auth";
+import Rankings from "./Rankings";
 
 export default function MainMenu() {
   const { setPage } = useContext(PageContext);
@@ -34,8 +36,11 @@ export default function MainMenu() {
       <h2 className="text-center text-3xl font-light">
         The Ultimate Guessing Game
       </h2>
-      <button className="mx-auto transition-[width,font-size] sm:w-3/4 w-full min-h-16 mt-8 rounded sm:text-2xl text-xl font-light bg-gradient-to-r from-[#AC1C1C] to-[#003089] flex items-center justify-center gap-2">
-        Join a Random Room
+      <button
+        onClick={() => setPage(<Matchmaking />)}
+        className="mx-auto transition-[width,font-size] sm:w-3/4 w-full min-h-16 mt-8 rounded sm:text-2xl text-xl font-light bg-gradient-to-r from-[#AC1C1C] to-[#003089] flex items-center justify-center gap-2"
+      >
+        Ranked Matchmaking
         <i className="bi bi-shuffle"></i>
       </button>
       <div className="mx-auto transition-[width] sm:w-3/4 w-full mt-5 flex flex-row gap-2">
@@ -54,6 +59,13 @@ export default function MainMenu() {
           <i className="bi bi-people-fill"></i>
         </button>
       </div>
+      <button
+        onClick={() => setPage(<Rankings />)}
+        className="mx-auto transition-[width,font-size] sm:w-3/4 w-full min-h-16 mt-5 rounded sm:text-2xl text-xl font-light bg-gradient-to-r from-[#ff8400] to-[#ffe600] flex items-center justify-center gap-2"
+      >
+        Rankings
+        <i className="bi bi-trophy-fill"></i>
+      </button>
       <button
         onClick={() => setPage(<HowToPlay />)}
         className="mx-auto transition-[width,font-size] sm:w-3/4 w-full min-h-16 mt-5 rounded sm:text-2xl text-xl font-light bg-[#595858] flex items-center justify-center gap-2"

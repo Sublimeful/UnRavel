@@ -1,6 +1,7 @@
 {
   "version": "4",
   "specifiers": {
+    "npm:@datastructures-js/priority-queue@^6.3.1": "6.3.1",
     "npm:@socket.io/admin-ui@~0.5.1": "0.5.1_socket.io@4.8.1",
     "npm:@types/body-parser@^1.19.5": "1.19.5",
     "npm:@types/cookie-parser@^1.4.7": "1.4.7",
@@ -30,6 +31,15 @@
   "npm": {
     "@alloc/quick-lru@5.2.0": {
       "integrity": "sha512-UrcABB+4bUrFABwbluTIBErXwvbsU/V7TZWfmbgJfbkwiBuziS9gxdODUyuiecfdGQ85jglMW6juS3+z5TsKLw=="
+    },
+    "@datastructures-js/heap@4.3.3": {
+      "integrity": "sha512-UcUu/DLh/aM4W3C8zZfwxxm6/6FIZUlm3mcAXuNOCa6Aj4iizNvNXQyb8DjZQH2jKSQbMRyNlngP6TPimuGjpQ=="
+    },
+    "@datastructures-js/priority-queue@6.3.1": {
+      "integrity": "sha512-eoxkWql/j0VJ0UFMFTpnyJz4KbEEVQ6aZ/JuJUgenu0Im4tYKylAycNGsYCHGXiVNEd7OKGVwfx1Ac3oYkuu7A==",
+      "dependencies": [
+        "@datastructures-js/heap"
+      ]
     },
     "@esbuild/aix-ppc64@0.21.5": {
       "integrity": "sha512-1SDgH6ZSPTlggy1yI6+Dbkiz8xzpHJEVAlF/AM1tHPLsf5STom9rwtjE4hKAF20FfXXNTFqEYXyJNWh1GiZedQ=="
@@ -2503,6 +2513,7 @@
   "workspace": {
     "packageJson": {
       "dependencies": [
+        "npm:@datastructures-js/priority-queue@^6.3.1",
         "npm:@socket.io/admin-ui@~0.5.1",
         "npm:@types/cookie-parser@^1.4.7",
         "npm:@types/cors@^2.8.17",
