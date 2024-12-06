@@ -58,6 +58,7 @@ router.post("/api/room-request", async (req, res) => {
 
   // Initialize the room state
   const roomState: Room = {
+    type: "custom",
     maxPlayers,
     players: new Set<string>(),
     host: null,

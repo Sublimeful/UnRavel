@@ -61,7 +61,7 @@ export default function HowToPlay() {
       </div>
       <div className="mt-8 self-start">
         <h1 className="text-xl font-bold">Tips for Success</h1>
-        <div className="list-disc text-gray-400">
+        <div className="list-disc text-gray-400 mt-2">
           <li>Ask strategic questions to narrow down possibilities quickly.</li>
           <li>
             Pay close attention to the AI's answers

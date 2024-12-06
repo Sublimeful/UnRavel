@@ -1,3 +1,4 @@
+import type { MaxPriorityQueue } from "@datastructures-js/priority-queue";
 import type { Interaction } from "../types";
 
 export interface Player {
@@ -26,8 +27,11 @@ export interface Game {
 }
 
 export interface Room {
+  type: "custom" | "ranked";
   maxPlayers: number;
   players: Set<string>;
   host: string | null;
   game: Game;
 }
+
+export type MatchmakingQueue = MaxPriorityQueue<number>;
