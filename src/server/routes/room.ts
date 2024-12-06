@@ -9,6 +9,7 @@ import type { Player, Room } from "../types.ts";
 import type { GameSettings } from "../../types.ts";
 import { verifyRequestAndGetUID } from "../utils/api.ts";
 import { gameEnd } from "../utils/game.ts";
+import { changeUserELO, getUserELO } from "../utils/db.ts";
 
 const router = Router();
 
@@ -139,6 +140,11 @@ router.post("/api/:roomCode/join", async (req, res) => {
     return res.status(400).send("room is full");
   }
 
+  // Cannot join a ranked room
+  if (roomState.type === "ranked") {
+    return res.status(400).send("cannot joined a ranked room");
+  }
+
   // Join room
   console.log(
     `player ${player.uid} ${player.username} has joined room ${roomCode}`,
@@ -210,15 +216,23 @@ router.post("/api/:roomCode/leave", async (req, res) => {
   roomState.players.delete(player.uid);
   player.room = null;
 
-  // If this room is a ranked room, then the remaining player wins
   if (roomState.type === "ranked") {
-    gameEnd(roomCode, [...roomState.players][0]);
-  }
-
-  // If the host leaves the room, then transfer host to the next player
-  // If there is no one to transfer, then the room is destroyed, don't need to handle that here
-  if (roomState.host === player.uid && roomState.players.size > 0) {
-    roomState.host = Array.from(roomState.players)[0];
+    if (roomState.game.state === "in progress") {
+      // If the room is a ranked room and is in progress
+      // then the player who left will lose elo points
+      getUserELO(player.uid).then((userELO) => {
+        const loseELO = Math.floor(
+          100 - 100 * Math.pow(Math.E, -0.001 * userELO),
+        );
+        changeUserELO(player.uid, -loseELO);
+      });
+    }
+  } else {
+    if (roomState.host === player.uid && roomState.players.size > 0) {
+      // If the room is a custom room and the host leaves the room, then transfer host to the next player
+      // If there is no one to transfer, then the room is destroyed, don't need to handle that here
+      roomState.host = Array.from(roomState.players)[0];
+    }
   }
 
   // Inform other players in the room of the removed player

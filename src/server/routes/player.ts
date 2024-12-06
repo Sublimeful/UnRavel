@@ -6,6 +6,7 @@ import { getSanitizedPlayer } from "../utils/player.ts";
 import type { Player } from "../types.ts";
 import { verifyRequestAndGetUID } from "../utils/api.ts";
 import { db } from "../firebase.ts";
+import { getUserELO } from "../utils/db.ts";
 
 const router = Router();
 
@@ -62,9 +63,7 @@ router.get("/api/elo", async (req, res) => {
   const uid = await verifyRequestAndGetUID(req, res);
   if (!uid) return;
 
-  const userRef = db.collection("users").doc(uid);
-  const userDoc = await userRef.get();
-  const elo = userDoc.exists ? userDoc.get("elo") : 0;
+  const elo = await getUserELO(uid);
 
   return res.status(200).send(JSON.stringify({ elo }));
 });
