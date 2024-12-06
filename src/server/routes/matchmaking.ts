@@ -7,6 +7,7 @@ import randomCategories from "../../RandomCategories.json" with {
   type: "json",
 };
 import { generateSecretTermFromCategory } from "../utils/ai.ts";
+import { gameEnd } from "../utils/game.ts";
 
 const router = Router();
 
@@ -234,12 +235,10 @@ setInterval(async () => {
     io.to(roomCode).emit("room-game-start", roomCode);
 
     // The game will end when the timer runs out
-    roomState.game.endTimeout = setTimeout(() => {
-      // Set the game state to idle
-      roomState.game.state = "idle";
-      // Tell every player the game has ended
-      io.to(roomCode).emit("room-game-end");
-    }, roomState.game.timeLimit);
+    roomState.game.endTimeout = setTimeout(
+      () => gameEnd(roomCode, null),
+      roomState.game.timeLimit,
+    );
   }
 
   if (!matchmakingQueue.isEmpty()) {

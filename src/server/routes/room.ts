@@ -8,6 +8,7 @@ import { generateSecretTermFromCategory } from "../utils/ai.ts";
 import type { Player, Room } from "../types.ts";
 import type { GameSettings } from "../../types.ts";
 import { verifyRequestAndGetUID } from "../utils/api.ts";
+import { gameEnd } from "../utils/game.ts";
 
 const router = Router();
 
@@ -207,6 +208,11 @@ router.post("/api/:roomCode/leave", async (req, res) => {
   socket.leave(roomCode);
   roomState.players.delete(player.uid);
   player.room = null;
+
+  // If this room is a ranked room, then the remaining player wins
+  if (roomState.type === "ranked") {
+    gameEnd(roomCode, [...roomState.players][0]);
+  }
 
   // If the host leaves the room, then transfer host to the next player
   // If there is no one to transfer, then the room is destroyed, don't need to handle that here
@@ -418,12 +424,10 @@ router.post("/api/:roomCode/start-game", async (req, res) => {
   io.to(roomCode).emit("room-game-start");
 
   // The game will end when the timer runs out
-  roomState.game.endTimeout = setTimeout(() => {
-    // Set the game state to idle
-    roomState.game.state = "idle";
-    // Tell every player the game has ended
-    io.to(roomCode).emit("room-game-end");
-  }, roomState.game.timeLimit);
+  roomState.game.endTimeout = setTimeout(
+    () => gameEnd(roomCode, null),
+    roomState.game.timeLimit,
+  );
 
   return res.status(200).send();
 });
