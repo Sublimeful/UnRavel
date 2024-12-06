@@ -158,6 +158,7 @@ router.post("/api/:roomCode/join", async (req, res) => {
         username: player.username,
         interactions: [],
         guesses: [],
+        elo: null,
       };
     }
   }
@@ -298,6 +299,35 @@ router.get("/api/:roomCode/players", async (req, res) => {
   ));
 });
 
+router.get("/api/:roomCode/type", async (req, res) => {
+  const uid = await verifyRequestAndGetUID(req, res);
+  if (!uid) return;
+
+  const roomCode = req.params.roomCode;
+
+  // Check if the room state exists
+  if (!(`room:${roomCode}` in state)) {
+    return res.status(400).send("room not found");
+  }
+
+  const roomState = state[`room:${roomCode}`] as Room;
+
+  if (!(`player:${uid}` in state)) {
+    return res.status(400).send("could not find player");
+  }
+
+  const player = state[`player:${uid}`] as Player;
+
+  // Check if player is in the room
+  if (player.room !== roomCode) {
+    return res.status(400).send("you are not in this room");
+  }
+
+  return res.status(200).send(JSON.stringify(
+    { type: roomState.type },
+  ));
+});
+
 router.get("/api/:roomCode/host", async (req, res) => {
   const uid = await verifyRequestAndGetUID(req, res);
   if (!uid) return;
@@ -399,6 +429,7 @@ router.post("/api/:roomCode/start-game", async (req, res) => {
       username: _player.username,
       interactions: [],
       guesses: [],
+      elo: null,
     };
   });
 

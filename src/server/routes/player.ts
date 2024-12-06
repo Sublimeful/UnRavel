@@ -5,11 +5,15 @@ import state from "../state.ts";
 import { getSanitizedPlayer } from "../utils/player.ts";
 import type { Player } from "../types.ts";
 import { verifyRequestAndGetUID } from "../utils/api.ts";
+import { db } from "../firebase.ts";
 
 const router = Router();
 
 router.post("/api/player-sign-in", async (req, res) => {
   const { username } = req.body;
+
+  // Bad request
+  if (!username) return res.status(400).send("invalid data");
 
   const uid = await verifyRequestAndGetUID(req, res);
   if (!uid) return;
@@ -42,6 +46,17 @@ router.get("/api/player", async (req, res) => {
   return res.status(200).send(
     JSON.stringify(getSanitizedPlayer(state[`player:${uid}`] as Player)),
   );
+});
+
+router.get("/api/elo", async (req, res) => {
+  const uid = await verifyRequestAndGetUID(req, res);
+  if (!uid) return;
+
+  const userRef = db.collection("users").doc(uid);
+  const userDoc = await userRef.get();
+  const elo = userDoc.exists ? userDoc.get("elo") : 0;
+
+  return res.status(200).send(JSON.stringify({ elo }));
 });
 
 export default router;

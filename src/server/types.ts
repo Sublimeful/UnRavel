@@ -11,6 +11,7 @@ export interface PlayerStats {
   username: string;
   interactions: Interaction[];
   guesses: string[];
+  elo: number | null;
 }
 
 export interface Game {

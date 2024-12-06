@@ -12,5 +12,6 @@ export function getSanitizedPlayerStats(
     username: playerStats.username,
     interactions: playerStats.interactions,
     guesses: playerStats.guesses,
+    elo: playerStats.elo,
   };
 }

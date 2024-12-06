@@ -43,3 +43,22 @@ export async function getPlayer(): Promise<PlayerSanitized | null> {
     return null;
   }
 }
+
+export async function getElo(): Promise<number | null> {
+  const res = await fetch(
+    `/api/elo`,
+    {
+      method: "GET",
+    },
+  );
+
+  if (res.status === 200) {
+    const { elo } = await res.json();
+
+    return elo;
+  } else {
+    console.error(await res.text());
+
+    return null;
+  }
+}

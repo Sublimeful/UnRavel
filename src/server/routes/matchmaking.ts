@@ -8,6 +8,7 @@ import randomCategories from "../../RandomCategories.json" with {
 };
 import { generateSecretTermFromCategory } from "../utils/ai.ts";
 import { gameEnd } from "../utils/game.ts";
+import { db } from "../firebase.ts";
 
 const router = Router();
 
@@ -75,8 +76,6 @@ setInterval(async () => {
   }
 
   matchmakingDequeue.clear();
-
-  console.log("Matchmaking Queue", matchmakingQueue.toArray());
 
   function roomCodeGenerator() {
     return Math.random().toString(36).slice(2).toUpperCase();
@@ -174,13 +173,19 @@ setInterval(async () => {
     };
 
     // Initialize player stats
-    roomState.players.forEach((uid) => {
+    roomState.players.forEach(async (uid) => {
       if (!(`player:${uid}` in state)) return;
       const _player = state[`player:${uid}`] as Player;
+
+      const userRef = db.collection("users").doc(uid);
+      const userDoc = await userRef.get();
+      const elo = userDoc.exists ? userDoc.get("elo") : 0;
+
       roomState.game.playerStats[uid] = {
         username: _player.username,
         interactions: [],
         guesses: [],
+        elo,
       };
     });
 

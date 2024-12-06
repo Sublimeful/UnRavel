@@ -136,6 +136,27 @@ export async function roomGetPlayers(
   }
 }
 
+export async function roomGetType(
+  roomCode: string,
+): Promise<string | null> {
+  const res = await fetch(
+    `/api/${roomCode}/type`,
+    {
+      method: "GET",
+    },
+  );
+
+  if (res.status === 200) {
+    const { type } = await res.json();
+
+    return type;
+  } else {
+    console.error(await res.text());
+
+    return null;
+  }
+}
+
 export async function roomGetHost(
   roomCode: string,
 ): Promise<string | null> {
