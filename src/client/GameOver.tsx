@@ -28,34 +28,24 @@ export default function GameOver(props: GameOverProps) {
   const [playerStats, setPlayerStats] = useState<
     Record<string, PlayerStatsSanitized>
   >({});
-  const [category, setCategory] = useState("");
+  const [category, setCategory] = useState<string | null>("");
   const [winner, setWinner] = useState<PlayerSanitized | null>(null);
-  const [secretTerm, setSecretTerm] = useState("");
+  const [secretTerm, setSecretTerm] = useState<string | null>("");
   const [disableMainMenuBtn, setDisableMainMenuBtn] = useState(false);
 
   useEffect(() => {
     gameGetPlayerStats(roomCode).then((_playerStats) => {
       if (_playerStats) setPlayerStats(_playerStats);
     });
-    gameGetCategory(roomCode).then((_category) => {
-      if (_category) setCategory(_category);
-    });
-    gameGetWinner(roomCode).then((_winner) => {
-      if (_winner) setWinner(_winner);
-    });
-    gameGetSecretTerm(roomCode).then((_secretTerm) => {
-      if (_secretTerm) setSecretTerm(_secretTerm);
-    });
-    roomGetType(roomCode).then((_roomType) => {
-      if (_roomType) setRoomType(_roomType);
-    });
+    gameGetCategory(roomCode).then(setCategory);
+    gameGetWinner(roomCode).then(setWinner);
+    gameGetSecretTerm(roomCode).then(setSecretTerm);
+    roomGetType(roomCode).then(setRoomType);
   }, []);
 
   useEffect(() => {
     function updatePlayerList() {
-      getPlayer().then((_player) => {
-        if (_player) setPlayer(_player);
-      });
+      getPlayer().then(setPlayer);
     }
 
     function onceGameStarts() {
@@ -119,10 +109,10 @@ export default function GameOver(props: GameOverProps) {
       <div className="flex-[3_0_0] flex flex-col min-h-40 gap-2 mt-3 p-2 bg-[#333333] bg-opacity-80 rounded-lg overflow-y-scroll">
         <h1 className="m-auto text-xl text-center">The secret term was:</h1>
         <h1 className="m-auto text-3xl font-semibold text-cyan-400 text-center text-wrap break-all">
-          {secretTerm}
+          {secretTerm ?? ""}
         </h1>
         <h1 className="m-auto text-center text-wrap break-all">
-          Category: {category}
+          Category: {category ?? ""}
         </h1>
       </div>
       <div className="flex-[7_0_0] flex flex-col items-center mt-3 px-5 bg-[#333333] bg-opacity-60 rounded-lg">

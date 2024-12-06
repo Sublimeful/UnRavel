@@ -6,7 +6,7 @@ import { getSanitizedPlayer } from "../utils/player.ts";
 import type { Player } from "../types.ts";
 import { verifyRequestAndGetUID } from "../utils/api.ts";
 import { db } from "../firebase.ts";
-import { getUserELO } from "../utils/db.ts";
+import { getUserELO, getUsername } from "../utils/db.ts";
 
 const router = Router();
 
@@ -43,6 +43,18 @@ router.post("/api/player-sign-in", async (req, res) => {
   state[`player:${uid}`] = { uid, username, room: null };
 
   return res.status(200).send();
+});
+
+router.get("/api/username", async (req, res) => {
+  const uid = await verifyRequestAndGetUID(req, res);
+  if (!uid) return;
+
+  const username = await getUsername(uid);
+
+  // Sanitize the data before sending it to the user
+  return res.status(200).send(
+    JSON.stringify({ username }),
+  );
 });
 
 router.get("/api/player", async (req, res) => {

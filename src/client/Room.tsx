@@ -58,18 +58,12 @@ export default function Room(props: RoomProps) {
 
   useEffect(() => {
     function updateMaxPlayers() {
-      roomGetMaxPlayers(roomCode).then((_maxPlayers) => {
-        setMaxPlayers(_maxPlayers);
-      });
+      roomGetMaxPlayers(roomCode).then(setMaxPlayers);
     }
 
     function updatePlayerList() {
-      roomGetHost(roomCode).then((_host) => {
-        if (_host) setHost(_host);
-      });
-      getPlayer().then((_player) => {
-        if (_player) setPlayer(_player);
-      });
+      roomGetHost(roomCode).then(setHost);
+      getPlayer().then(setPlayer);
       roomGetPlayers(roomCode).then((_players) => {
         if (_players) setPlayers(_players);
       });

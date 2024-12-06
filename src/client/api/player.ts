@@ -44,7 +44,26 @@ export async function getPlayer(): Promise<PlayerSanitized | null> {
   }
 }
 
-export async function getElo(): Promise<number | null> {
+export async function getUsername(): Promise<string | null> {
+  const res = await fetch(
+    `/api/username`,
+    {
+      method: "GET",
+    },
+  );
+
+  if (res.status === 200) {
+    const { username } = await res.json();
+
+    return username;
+  } else {
+    console.error(await res.text());
+
+    return null;
+  }
+}
+
+export async function getUserELO(): Promise<number | null> {
   const res = await fetch(
     `/api/elo`,
     {
