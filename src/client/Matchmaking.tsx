@@ -2,6 +2,7 @@ import { type FormEvent, useContext, useState } from "react";
 
 import PageContext from "./PageContext";
 import MainMenu from "./MainMenu";
+import MatchmakingQueue from "./MatchMakingQueue";
 
 import { socket } from "./socket";
 import { playerSignIn } from "./api/player";
@@ -21,6 +22,7 @@ export default function Matchmaking() {
     try {
       await playerSignIn(username);
 
+      setPage(<MatchmakingQueue />);
     } catch (_) {
       setDisableBeginMatchmakingBtn(false);
     }
@@ -37,8 +39,8 @@ export default function Matchmaking() {
         </button>
         <img src="logo.png" className="w-24 aspect-square" />
       </div>
-      <h1 className="text-center text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-[#55CED2] to-[#DB1F3C]">
-        Create a Room
+      <h1 className="text-center text-5xl leading-normal font-bold bg-clip-text text-transparent bg-gradient-to-r from-[#55CED2] to-[#DB1F3C]">
+        Matchmaking
       </h1>
       <form className="mt-8 flex flex-col gap-8" onSubmit={beginMatchmaking}>
         <label className="text-left font-light">

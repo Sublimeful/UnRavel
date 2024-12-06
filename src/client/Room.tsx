@@ -14,7 +14,7 @@ import { socket } from "./socket";
 import type { PlayerSanitized } from "../types";
 import Game from "./Game";
 import type { GameSettings } from "../types";
-import randomCategories from "./RandomCategories.json" with { type: "json" };
+import randomCategories from "../RandomCategories.json" with { type: "json" };
 
 interface RoomProps {
   roomCode: string;

@@ -34,4 +34,6 @@ export interface Room {
   game: Game;
 }
 
-export type MatchmakingQueue = MaxPriorityQueue<number>;
+export type MatchmakingQueue = MaxPriorityQueue<
+  { uid: string; sid: string; priority: number }
+>;

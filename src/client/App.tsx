@@ -14,6 +14,7 @@ import { socket } from "./socket";
 import { roomGet, roomJoin } from "./api/room";
 import { gameGetState } from "./api/game";
 import { getSession } from "./api/auth";
+import MatchmakingQueue from "./MatchMakingQueue";
 
 export default function App() {
   const [currPage, setPage] = useState<JSX.Element | null>(<></>);
@@ -29,7 +30,7 @@ export default function App() {
 
         if (!uid) return false;
 
-        setPage(<MainMenu />);
+        setPage(<MatchmakingQueue />);
 
         return true;
       }
