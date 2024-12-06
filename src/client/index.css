@@ -8,6 +8,12 @@
   }
 }
 
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 ::-webkit-scrollbar {
   width: 0.5rem;
   border-radius: 0.5rem;
