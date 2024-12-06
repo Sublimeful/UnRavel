@@ -135,14 +135,14 @@ router.post("/api/:roomCode/join", async (req, res) => {
     }
   }
 
-  // Check if room has "room", get it?
-  if (roomState.players.size + 1 > roomState.maxPlayers) {
-    return res.status(400).send("room is full");
-  }
-
   // Cannot join a ranked room
   if (roomState.type === "ranked") {
     return res.status(400).send("cannot joined a ranked room");
+  }
+
+  // Check if room has "room", get it?
+  if (roomState.players.size + 1 > roomState.maxPlayers) {
+    return res.status(400).send("room is full");
   }
 
   // Join room
@@ -368,7 +368,7 @@ router.get("/api/:roomCode/host", async (req, res) => {
 
   // If we are in a ranked game, then host does not exist
   if (roomState.type === "ranked") {
-    return res.status(400).send("this is a ranked room");
+    return res.status(400).send("host does not exist in a ranked room");
   }
 
   // Get the host player
