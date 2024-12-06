@@ -25,16 +25,57 @@ router.post("/api/matchmaking-queue-enter", async (req, res) => {
     return res.status(400).send("could not find player");
   }
 
-  const matchmakingQueue = state["matchmaking-queue"] as MatchmakingQueue;
+  const matchmakingQueue = state["matchmaking:queue"] as MatchmakingQueue;
+
+  if (
+    matchmakingQueue.toArray().find((qPlayer) =>
+      qPlayer.uid === uid && qPlayer.sid === sid
+    )
+  ) {
+    return res.status(400).send("already in queue");
+  }
 
   matchmakingQueue.enqueue({ uid, sid, priority: 0 });
 
   return res.status(200).send();
 });
 
+router.post("/api/matchmaking-queue-leave", async (req, res) => {
+  const uid = await verifyRequestAndGetUID(req, res);
+  if (!uid) return;
+
+  if (!(`player:${uid}` in state)) {
+    return res.status(400).send("could not find player");
+  }
+
+  const matchmakingQueue = state["matchmaking:queue"] as MatchmakingQueue;
+
+  const qPlayer = matchmakingQueue.toArray().find((_qPlayer) =>
+    _qPlayer.uid === uid
+  );
+
+  if (qPlayer) {
+    const matchmakingDequeue = state["matchmaking:dequeue"] as Set<string>;
+    matchmakingDequeue.add(uid);
+
+    return res.status(200).send();
+  } else {
+    return res.status(400).send("you are not in the queue");
+  }
+});
+
 // Matchmaking Logic
 setInterval(async () => {
-  const matchmakingQueue = state["matchmaking-queue"] as MatchmakingQueue;
+  const matchmakingQueue = state["matchmaking:queue"] as MatchmakingQueue;
+  const matchmakingDequeue = state["matchmaking:dequeue"] as Set<string>;
+
+  for (const uid of matchmakingDequeue) {
+    matchmakingQueue.remove((qPlayer) => qPlayer.uid === uid);
+  }
+
+  matchmakingDequeue.clear();
+
+  console.log("Matchmaking Queue", matchmakingQueue.toArray());
 
   function roomCodeGenerator() {
     return Math.random().toString(36).slice(2).toUpperCase();
@@ -46,19 +87,45 @@ setInterval(async () => {
     ];
   }
 
-  function getPlayerFromQueue() {
+  function isValidQueuePlayer(qPlayer: {
+    uid: string;
+    sid: string;
+    priority: number;
+  }) {
+    // Could not find player
+    if (!(`player:${qPlayer.uid}` in state)) return false;
+
+    // Remove from queue if player is in another room
+    if ((state[`player:${qPlayer.uid}`] as Player).room) return false;
+
+    // Socket is not connected, user may have closed the tab
+    const socket = io.sockets.sockets.get(qPlayer.sid);
+    if (!socket) return false;
+
+    return true;
+  }
+
+  function getBackPlayerFromQueue() {
+    while (!matchmakingQueue.isEmpty()) {
+      const qPlayer = matchmakingQueue.back();
+
+      if (!isValidQueuePlayer(qPlayer)) {
+        matchmakingQueue.remove((_qPlayer) => _qPlayer.uid === qPlayer.uid);
+        continue;
+      }
+
+      return qPlayer;
+    }
+    return null;
+  }
+
+  function popFrontPlayerFromQueue() {
     while (!matchmakingQueue.isEmpty()) {
       const qPlayer = matchmakingQueue.pop();
 
-      // Could not find player
-      if (!(`player:${qPlayer.uid}` in state)) continue;
-
-      // Remove from queue if player is in another room
-      if ((state[`player:${qPlayer.uid}`] as Player).room) return;
-
-      // Socket is not connected, user may have closed the tab
-      const socket = io.sockets.sockets.get(qPlayer.sid);
-      if (!socket) continue;
+      if (!isValidQueuePlayer(qPlayer)) {
+        continue;
+      }
 
       return qPlayer;
     }
@@ -67,8 +134,8 @@ setInterval(async () => {
 
   if (matchmakingQueue.size() >= 2) {
     // Match the top 2 highest priority people
-    const qPlayer1 = getPlayerFromQueue();
-    const qPlayer2 = getPlayerFromQueue();
+    const qPlayer1 = popFrontPlayerFromQueue();
+    const qPlayer2 = popFrontPlayerFromQueue();
 
     // Could not get a pair of players
     if (!qPlayer1 || !qPlayer2) {
@@ -164,7 +231,7 @@ setInterval(async () => {
     roomState.game.startTime = Date.now();
 
     // Tell every player the game has started
-    io.to(roomCode).emit("room-game-start");
+    io.to(roomCode).emit("room-game-start", roomCode);
 
     // The game will end when the timer runs out
     roomState.game.endTimeout = setTimeout(() => {
@@ -175,14 +242,10 @@ setInterval(async () => {
     }, roomState.game.timeLimit);
   }
 
-  if (matchmakingQueue.size() >= 2) {
+  if (!matchmakingQueue.isEmpty()) {
     // Push the lowest priority player up
-    const qPlayer = getPlayerFromQueue();
-
-    if (qPlayer) {
-      qPlayer.priority++;
-      matchmakingQueue.enqueue(qPlayer);
-    }
+    const qPlayer = getBackPlayerFromQueue();
+    if (qPlayer) qPlayer.priority++;
   }
 }, 1000);
 

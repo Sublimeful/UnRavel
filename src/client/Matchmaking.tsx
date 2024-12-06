@@ -10,7 +10,9 @@ import { playerSignIn } from "./api/player";
 export default function Matchmaking() {
   const { setPage } = useContext(PageContext);
   const [username, setUsername] = useState("");
-  const [disableBeginMatchmakingBtn, setDisableBeginMatchmakingBtn] = useState(false);
+  const [disableBeginMatchmakingBtn, setDisableBeginMatchmakingBtn] = useState(
+    false,
+  );
 
   async function beginMatchmaking(event: FormEvent) {
     event.preventDefault();

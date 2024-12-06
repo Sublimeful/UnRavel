@@ -1,9 +1,9 @@
 import { MaxPriorityQueue } from "@datastructures-js/priority-queue";
-import type { MatchmakingQueue, Player, Room } from "./types";
 
 // TODO: Switch to redis?
-const state: Record<string, Room | Player | MatchmakingQueue> = {};
+const state: Record<string, any> = {};
 
-state["matchmaking-queue"] = new MaxPriorityQueue();
+state["matchmaking:queue"] = new MaxPriorityQueue();
+state["matchmaking:dequeue"] = new Set();
 
 export default state;
