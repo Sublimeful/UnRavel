@@ -58,7 +58,10 @@ export default function Rankings() {
         <span className="flex-[1_0_0] text-nowrap break-all truncate">
           #{rank !== null ? rank + 1 : "?"}
         </span>
-        <span className="flex-[10_0_0] text-nowrap break-all truncate">
+        <span
+          className="text-nowrap break-all truncate"
+          style={{ "flex": "10 0 0" }}
+        >
           {username ? username + " (You)" : "You"}
         </span>
         <span className="max-w-16 text-white font-semibold text-nowrap break-all truncate">

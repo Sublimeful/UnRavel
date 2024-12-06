@@ -61,7 +61,10 @@ export default function MainMenu() {
       </div>
       <button
         onClick={() => setPage(<Rankings />)}
-        className="mx-auto transition-[width,font-size] sm:w-3/4 w-full min-h-16 mt-5 rounded sm:text-2xl text-xl font-light bg-gradient-to-r from-[#ff8400] to-[#ffe600] flex items-center justify-center gap-2"
+        className="mx-auto transition-[width,font-size] sm:w-3/4 w-full min-h-16 mt-5 rounded sm:text-2xl text-xl font-light flex items-center justify-center gap-2"
+        style={{
+          "backgroundImage": "linear-gradient(to right, #FF8400, #FFE600)",
+        }}
       >
         Rankings
         <i className="bi bi-trophy-fill"></i>

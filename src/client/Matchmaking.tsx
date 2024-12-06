@@ -58,11 +58,8 @@ export default function Matchmaking() {
         </label>
         <button
           type="submit"
-          className="mx-auto transition-[font-size] w-full min-h-16 mt-8 rounded-lg sm:text-2xl text-xl font-light flex items-center justify-center gap-2 disabled:brightness-50"
+          className="mx-auto transition-[font-size] w-full min-h-16 mt-8 rounded-lg sm:text-2xl text-xl font-light bg-gradient-to-r from-[#AC1C1C] to-[#2AAAD9] flex items-center justify-center gap-2 disabled:brightness-50"
           disabled={disableBeginMatchmakingBtn || !username}
-          style={{
-            "backgroundImage": "linear-gradient(to right, #AC1C1C, #2AAAD9)",
-          }}
         >
           Begin Matchmaking
           <i className="bi bi-arrow-right"></i>
