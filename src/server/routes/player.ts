@@ -19,6 +19,16 @@ router.post("/api/player-sign-in", async (req, res) => {
   if (!uid) return;
   console.log(uid, "player-sign-in", "username", username);
 
+  // Update username in db
+  const userRef = db.collection("users").doc(uid);
+  userRef.get().then((userDoc) => {
+    if (!userDoc.exists) {
+      userRef.set({ username });
+    } else {
+      userRef.update("username", username);
+    }
+  });
+
   // Player has already signed in before
   if (`player:${uid}` in state) {
     // Just change the username only
