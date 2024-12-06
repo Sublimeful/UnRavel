@@ -30,9 +30,7 @@ router.post("/api/matchmaking-queue-enter", async (req, res) => {
   const matchmakingQueue = state["matchmaking:queue"] as MatchmakingQueue;
 
   if (
-    matchmakingQueue.toArray().find((qPlayer) =>
-      qPlayer.uid === uid && qPlayer.sid === sid
-    )
+    matchmakingQueue.toArray().find((qPlayer) => qPlayer.uid === uid)
   ) {
     return res.status(400).send("already in queue");
   }

@@ -27,7 +27,10 @@ export default function Rankings() {
 
   return (
     <div className="absolute transition-[height,width] h-[98%] w-[98%] max-w-3xl bg-[#000625] bg-opacity-50 rounded-xl border border-neutral-500 flex flex-col text-white overflow-y-scroll p-10 gap-1">
-      <ol className="flex-[12_0_0] min-h-40 w-full flex flex-col gap-2 overflow-y-scroll">
+      <ol
+        className="min-h-40 w-full flex flex-col gap-2 overflow-y-scroll"
+        style={{ "flex": "12 0 0" }}
+      >
         {Object.entries(rankings).sort().map((
           [uid, { username, elo }],
           _rank,
@@ -48,7 +51,10 @@ export default function Rankings() {
           </li>
         ))}
       </ol>
-      <div className="flex-[1_0_0] flex flex-row items-center gap-6 justify-between w-full bg-[#FFD700] bg-opacity-80 rounded-lg px-5 py-2 text-xl">
+      <div
+        className="flex-[1_0_0] flex flex-row items-center gap-6 justify-between w-full rounded-lg px-5 py-2 text-xl"
+        style={{ "backgroundColor": "rgba(255, 215, 0, 0.8)" }}
+      >
         <span className="flex-[1_0_0] text-nowrap break-all truncate">
           #{rank !== null ? rank + 1 : "?"}
         </span>
