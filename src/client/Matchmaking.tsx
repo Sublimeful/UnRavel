@@ -2,7 +2,7 @@ import { type FormEvent, useContext, useState } from "react";
 
 import PageContext from "./PageContext";
 import MainMenu from "./MainMenu";
-import MatchmakingQueue from "./MatchMakingQueue";
+import MatchmakingQueue from "./MatchmakingQueue";
 
 import { socket } from "./socket";
 import { playerSignIn } from "./api/player";
