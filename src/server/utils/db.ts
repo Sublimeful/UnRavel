@@ -31,6 +31,22 @@ export async function getUsername(uid: string) {
   }
 }
 
+export async function setUsername(uid: string, username: string) {
+  const userRef = db.collection("users").doc(uid);
+
+  try {
+    const userDoc = await userRef.get();
+
+    if (!userDoc.exists) {
+      userRef.set({ username });
+    } else {
+      userRef.update("username", username);
+    }
+  } catch (err) {
+    console.error(err);
+  }
+}
+
 export async function changeUserELO(uid: string, deltaELO: number) {
   // No point in changing elo by 0
   if (deltaELO === 0) return;

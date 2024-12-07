@@ -5,8 +5,7 @@ import state from "../state.ts";
 import { getSanitizedPlayer } from "../utils/player.ts";
 import type { Player } from "../types.ts";
 import { verifyRequestAndGetUID } from "../utils/api.ts";
-import { db } from "../firebase.ts";
-import { getUserELO, getUsername } from "../utils/db.ts";
+import { getUserELO, getUsername, setUsername } from "../utils/db.ts";
 
 const router = Router();
 
@@ -21,14 +20,7 @@ router.post("/api/player-sign-in", async (req, res) => {
   console.log(uid, "player-sign-in", "username", username);
 
   // Update username in db
-  const userRef = db.collection("users").doc(uid);
-  userRef.get().then((userDoc) => {
-    if (!userDoc.exists) {
-      userRef.set({ username });
-    } else {
-      userRef.update("username", username);
-    }
-  });
+  setUsername(uid, username);
 
   // Player has already signed in before
   if (`player:${uid}` in state) {

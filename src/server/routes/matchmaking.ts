@@ -8,7 +8,7 @@ import randomCategories from "../../RandomCategories.json" with {
 };
 import { generateSecretTermFromCategory } from "../utils/ai.ts";
 import { gameEnd } from "../utils/game.ts";
-import { db } from "../firebase.ts";
+import { getUserELO } from "../utils/db.ts";
 
 const router = Router();
 
@@ -164,7 +164,7 @@ setInterval(async () => {
         category,
         secretTerm: "",
         playerStats: {},
-        timeLimit: 1000 * 60 * 15, // 15 minutes
+        timeLimit: 10000, // 15 minutes
         startTime: 0,
         winner: null,
       },
@@ -175,15 +175,11 @@ setInterval(async () => {
       if (!(`player:${uid}` in state)) return;
       const _player = state[`player:${uid}`] as Player;
 
-      const userRef = db.collection("users").doc(uid);
-      const userDoc = await userRef.get();
-      const elo = userDoc.exists ? userDoc.get("elo") : 0;
-
       roomState.game.playerStats[uid] = {
         username: _player.username,
         interactions: [],
         guesses: [],
-        elo,
+        elo: await getUserELO(uid),
       };
     });
 
