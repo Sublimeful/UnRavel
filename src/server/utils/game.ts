@@ -23,7 +23,7 @@ export async function gameEnd(roomCode: string, winner: string | null) {
     if (winner) {
       const winnerELO = await getUserELO(winner);
       const winELO = Math.ceil(1000 / (.00039 * Math.pow(winnerELO, 2) + 10));
-      changeUserELO(winner, winELO);
+      await changeUserELO(winner, winELO);
     }
 
     for (const loser of players) {
@@ -34,7 +34,7 @@ export async function gameEnd(roomCode: string, winner: string | null) {
       const loseELO = Math.floor(
         100 - 100 * Math.pow(Math.E, -0.001 * loserELO),
       );
-      changeUserELO(loser, -loseELO);
+      await changeUserELO(loser, -loseELO);
     }
   }
 }
