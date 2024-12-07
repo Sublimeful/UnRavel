@@ -35,13 +35,7 @@ export async function setUsername(uid: string, username: string) {
   const userRef = db.collection("users").doc(uid);
 
   try {
-    const userDoc = await userRef.get();
-
-    if (!userDoc.exists) {
-      userRef.set({ username });
-    } else {
-      userRef.update("username", username);
-    }
+    await userRef.set({ username }, { merge: true });
   } catch (err) {
     console.error(err);
   }
@@ -54,15 +48,9 @@ export async function changeUserELO(uid: string, deltaELO: number) {
   const userRef = db.collection("users").doc(uid);
 
   try {
-    const userDoc = await userRef.get();
+    const userELO = await getUserELO(uid);
 
-    const userELO = userDoc.exists ? userDoc.get("elo") : 0;
-
-    if (!userDoc.exists) {
-      userRef.set({ elo: deltaELO });
-    } else {
-      userRef.update("elo", userELO + deltaELO);
-    }
+    await userRef.set({ elo: userELO + deltaELO }, { merge: true });
   } catch (err) {
     console.error(err);
   }
