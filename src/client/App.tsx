@@ -9,9 +9,10 @@ import MainMenu from "./MainMenu";
 import SignIn from "./SignIn";
 import Room from "./Room";
 import Game from "./Game";
+import GameOver from "./GameOver";
 
 import { socket } from "./socket";
-import { roomGet, roomJoin } from "./api/room";
+import { roomGet, roomGetType, roomJoin } from "./api/room";
 import { gameGetState } from "./api/game";
 import { getSession } from "./api/auth";
 
@@ -37,12 +38,18 @@ export default function App() {
       if (!socket.id) return false;
 
       await roomJoin(socket.id, roomCode);
-      const gameState = await gameGetState(roomCode);
 
-      if (!gameState) return false;
+      const gameState = await gameGetState(roomCode);
+      const roomType = await roomGetType(roomCode);
+
+      if (!gameState || !roomType) return false;
 
       if (gameState === "idle") {
-        setPage(<Room roomCode={roomCode} />);
+        if (roomType === "ranked") {
+          setPage(<GameOver roomCode={roomCode} />);
+        } else {
+          setPage(<Room roomCode={roomCode} />);
+        }
       } else {
         setPage(<Game roomCode={roomCode} />);
       }
