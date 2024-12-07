@@ -9,4 +9,8 @@ export const app = initializeApp({
 });
 
 export const auth = getAuth(app);
+
 export const db = getFirestore(app);
+
+// Mitigate RST_STREAM error
+db.settings({ preferRest: true });
