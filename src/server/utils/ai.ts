@@ -53,6 +53,7 @@ export async function generateSecretTermFromCategory(category: string) {
 
   const res = await promptAI({
     model: "gpt-4o",
+    temperature: 0.2,
     messages: [
       {
         role: "system",

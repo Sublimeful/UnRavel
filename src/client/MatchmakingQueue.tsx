@@ -6,7 +6,6 @@ import {
   matchmakingQueueLeave as apiMatchmakingQueueLeave,
 } from "./api/matchmaking";
 import { socket } from "./socket";
-import Game from "./Game";
 
 export default function MatchmakingQueue() {
   const { setPage } = useContext(PageContext);
@@ -17,28 +16,17 @@ export default function MatchmakingQueue() {
   }
 
   function matchmakingQueueLeave() {
+    apiMatchmakingQueueLeave();
     setPage(<Matchmaking />);
   }
 
   useEffect(() => {
-    function onceGameStarts(roomCode: string) {
-      // Switch to the game page when the game starts again
-      setPage(<Game roomCode={roomCode} />);
-    }
-
     // Place user in queue
     matchmakingQueueJoin();
 
-    // Socket IO event fires when we find a match
-    socket.once("room-game-start", onceGameStarts);
-
     return () => {
-      // Leave the queue
-      apiMatchmakingQueueLeave();
-
       // Unregister all event listeners when component is unmounted
       // Otherwise they may trigger in the future unexpectedly
-      socket.off("room-game-start", onceGameStarts);
     };
   });
 

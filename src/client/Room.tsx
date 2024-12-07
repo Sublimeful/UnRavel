@@ -12,7 +12,6 @@ import {
 import { getPlayer } from "./api/player";
 import { socket } from "./socket";
 import type { PlayerSanitized } from "../types";
-import Game from "./Game";
 import type { GameSettings } from "../types";
 import randomCategories from "../RandomCategories.json" with { type: "json" };
 
@@ -69,13 +68,6 @@ export default function Room(props: RoomProps) {
       });
     }
 
-    function onceGameStarts() {
-      // Switch to the game page when the game starts again
-      setPage(<Game roomCode={roomCode} />);
-    }
-
-    // Switch to the game page when the game starts
-    socket.once("room-game-start", onceGameStarts);
     socket.on("room-player-left", updatePlayerList);
     socket.on("room-player-joined", updatePlayerList);
 
@@ -85,7 +77,6 @@ export default function Room(props: RoomProps) {
     return () => {
       // Unregister all event listeners when component is unmounted
       // Otherwise they may trigger in the future unexpectedly
-      socket.off("room-game-start", onceGameStarts);
       socket.off("room-player-left", updatePlayerList);
       socket.off("room-player-joined", updatePlayerList);
     };

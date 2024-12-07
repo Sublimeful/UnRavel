@@ -72,9 +72,6 @@ setInterval(async () => {
   const matchmakingRequestQueue =
     state["matchmaking:request"] as MatchmakingRequestQueue;
 
-  console.log("matchmakingQueue", matchmakingQueue.toArray());
-  console.log("matchmakingRequestQueue", matchmakingRequestQueue.toArray());
-
   while (!matchmakingRequestQueue.isEmpty()) {
     const request = matchmakingRequestQueue.pop();
 

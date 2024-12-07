@@ -78,8 +78,26 @@ export default function App() {
       console.log("Disconnected");
     }
 
+    async function onGameStart() {
+      const roomCode = await roomGet();
+      // If there is no roomcode, don't do anything
+      if (!roomCode) return;
+      // Switch to the game page when the game starts
+      setPage(<Game roomCode={roomCode} />);
+    }
+
+    async function onGameEnd() {
+      const roomCode = await roomGet();
+      // If there is no roomcode, don't do anything
+      if (!roomCode) return;
+      // Once the game ends, set the page to game over screen
+      setPage(<GameOver roomCode={roomCode} />);
+    }
+
     socket.on("connect", onConnect);
     socket.on("disconnect", onDisconnect);
+    socket.on("room-game-start", onGameStart);
+    socket.on("room-game-end", onGameEnd);
 
     socket.connect(); // Connect to the websocket server
 
@@ -88,6 +106,8 @@ export default function App() {
       // Otherwise they may trigger in the future unexpectedly
       socket.off("connect", onConnect);
       socket.off("disconnect", onDisconnect);
+      socket.off("room-game-start", onGameStart);
+      socket.off("room-game-end", onGameEnd);
     };
   }, []);
 

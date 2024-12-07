@@ -13,7 +13,6 @@ import {
 import { getPlayer } from "./api/player";
 import { socket } from "./socket";
 import type { Interaction, PlayerSanitized } from "../types";
-import GameOver from "./GameOver";
 
 interface GameProps {
   roomCode: string;
@@ -99,12 +98,6 @@ export default function Game(props: GameProps) {
       });
     }
 
-    function onceGameEnds() {
-      // Once the game ends, set the page to game over screen
-      setPage(<GameOver roomCode={roomCode} />);
-    }
-
-    socket.once("room-game-end", onceGameEnds);
     socket.on("room-player-left", updatePlayerList);
     socket.on("room-player-joined", updatePlayerList);
 
@@ -121,7 +114,6 @@ export default function Game(props: GameProps) {
     return () => {
       // Unregister all event listeners when component is unmounted
       // Otherwise they may trigger in the future unexpectedly
-      socket.off("room-game-end", onceGameEnds);
       socket.off("room-player-left", updatePlayerList);
       socket.off("room-player-joined", updatePlayerList);
     };
