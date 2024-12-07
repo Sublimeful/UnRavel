@@ -7,7 +7,9 @@ export async function getUserELO(uid: string): Promise<number | null> {
   try {
     const userDoc = await userRef.get();
 
-    const userELO = userDoc.exists ? userDoc.get("elo") : 0;
+    const userELO = userDoc.exists && userDoc.get("elo")
+      ? userDoc.get("elo")
+      : 0;
 
     return userELO;
   } catch (err) {
@@ -22,7 +24,9 @@ export async function getUsername(uid: string): Promise<string | null> {
   try {
     const userDoc = await userRef.get();
 
-    const username = userDoc.exists ? userDoc.get("username") : null;
+    const username = userDoc.exists && userDoc.get("username")
+      ? userDoc.get("username")
+      : null;
 
     return username;
   } catch (err) {
@@ -42,9 +46,6 @@ export async function setUsername(uid: string, username: string) {
 }
 
 export async function changeUserELO(uid: string, deltaELO: number) {
-  // No point in changing elo by 0
-  if (deltaELO === 0) return;
-
   const userRef = db.collection("users").doc(uid);
 
   try {
@@ -64,11 +65,14 @@ export async function getUserRank(uid: string): Promise<number | null> {
   try {
     const userELO = await getUserELO(uid);
     const rank = (await usersRef.where(
-      Filter.or(
-        Filter.where("elo", ">", userELO),
-        Filter.and(
-          Filter.where("elo", "==", userELO),
-          Filter.where(FieldPath.documentId(), "<", uid),
+      Filter.and(
+        Filter.where("elo", "!=", NaN),
+        Filter.or(
+          Filter.where("elo", ">", userELO),
+          Filter.and(
+            Filter.where("elo", "==", userELO),
+            Filter.where(FieldPath.documentId(), "<", uid),
+          ),
         ),
       ),
     ).count().get()).data().count;
