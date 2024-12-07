@@ -1,7 +1,7 @@
 import { db } from "../firebase.ts";
 import { FieldPath, Filter } from "firebase-admin/firestore";
 
-export async function getUserELO(uid: string) {
+export async function getUserELO(uid: string): Promise<number | null> {
   const userRef = db.collection("users").doc(uid);
 
   try {
@@ -12,11 +12,11 @@ export async function getUserELO(uid: string) {
     return userELO;
   } catch (err) {
     console.error(err);
-    return -1;
+    return null;
   }
 }
 
-export async function getUsername(uid: string) {
+export async function getUsername(uid: string): Promise<string | null> {
   const userRef = db.collection("users").doc(uid);
 
   try {
@@ -50,13 +50,15 @@ export async function changeUserELO(uid: string, deltaELO: number) {
   try {
     const userELO = await getUserELO(uid);
 
+    if (userELO === null) return;
+
     await userRef.set({ elo: userELO + deltaELO }, { merge: true });
   } catch (err) {
     console.error(err);
   }
 }
 
-export async function getUserRank(uid: string) {
+export async function getUserRank(uid: string): Promise<number | null> {
   const usersRef = db.collection("users");
 
   try {
@@ -73,7 +75,7 @@ export async function getUserRank(uid: string) {
     return rank;
   } catch (err) {
     console.error(err);
-    return -1;
+    return null;
   }
 }
 
