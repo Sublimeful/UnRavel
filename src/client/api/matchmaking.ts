@@ -1,8 +1,8 @@
-export async function matchmakingQueueEnter(
+export async function matchmakingQueueJoin(
   sid: string,
 ): Promise<boolean> {
   const res = await fetch(
-    `/api/matchmaking-queue-enter`,
+    `/api/matchmaking-queue-join`,
     {
       method: "POST",
       headers: {

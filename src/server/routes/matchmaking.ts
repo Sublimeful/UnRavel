@@ -2,7 +2,12 @@ import { Router } from "express";
 import { io } from "../socket.ts";
 import { verifyRequestAndGetUID } from "../utils/api.ts";
 import state from "../state.ts";
-import type { MatchmakingQueue, Player, Room } from "../types.ts";
+import type {
+  MatchmakingQueue,
+  MatchmakingRequestQueue,
+  Player,
+  Room,
+} from "../types.ts";
 import randomCategories from "../../RandomCategories.json" with {
   type: "json",
 };
@@ -12,7 +17,7 @@ import { getUserELO } from "../utils/db.ts";
 
 const router = Router();
 
-router.post("/api/matchmaking-queue-enter", async (req, res) => {
+router.post("/api/matchmaking-queue-join", async (req, res) => {
   const { sid } = req.body;
 
   // Bad request
@@ -27,15 +32,15 @@ router.post("/api/matchmaking-queue-enter", async (req, res) => {
     return res.status(400).send("could not find player");
   }
 
-  const matchmakingQueue = state["matchmaking:queue"] as MatchmakingQueue;
+  const matchmakingRequestQueue =
+    state["matchmaking:request"] as MatchmakingRequestQueue;
 
-  if (
-    matchmakingQueue.toArray().find((qPlayer) => qPlayer.uid === uid)
-  ) {
-    return res.status(400).send("already in queue");
-  }
-
-  matchmakingQueue.enqueue({ uid, sid, priority: 0 });
+  matchmakingRequestQueue.enqueue({
+    type: "join",
+    timestamp: Date.now(),
+    uid,
+    sid,
+  });
 
   return res.status(200).send();
 });
@@ -48,32 +53,55 @@ router.post("/api/matchmaking-queue-leave", async (req, res) => {
     return res.status(400).send("could not find player");
   }
 
-  const matchmakingQueue = state["matchmaking:queue"] as MatchmakingQueue;
+  const matchmakingRequestQueue =
+    state["matchmaking:request"] as MatchmakingRequestQueue;
 
-  const qPlayer = matchmakingQueue.toArray().find((_qPlayer) =>
-    _qPlayer.uid === uid
-  );
+  matchmakingRequestQueue.enqueue({
+    type: "leave",
+    timestamp: Date.now(),
+    uid,
+    sid: null,
+  });
 
-  if (qPlayer) {
-    const matchmakingDequeue = state["matchmaking:dequeue"] as Set<string>;
-    matchmakingDequeue.add(uid);
-
-    return res.status(200).send();
-  } else {
-    return res.status(400).send("you are not in the queue");
-  }
+  return res.status(200).send();
 });
 
 // Matchmaking Logic
 setInterval(async () => {
   const matchmakingQueue = state["matchmaking:queue"] as MatchmakingQueue;
-  const matchmakingDequeue = state["matchmaking:dequeue"] as Set<string>;
+  const matchmakingRequestQueue =
+    state["matchmaking:request"] as MatchmakingRequestQueue;
 
-  for (const uid of matchmakingDequeue) {
-    matchmakingQueue.remove((qPlayer) => qPlayer.uid === uid);
+  console.log("matchmakingQueue", matchmakingQueue.toArray());
+  console.log("matchmakingRequestQueue", matchmakingRequestQueue.toArray());
+
+  while (!matchmakingRequestQueue.isEmpty()) {
+    const request = matchmakingRequestQueue.pop();
+
+    if (request.type === "join") {
+      if (!request.sid) continue; // This shouldn't happen, but oh well
+      if (!isValidQueuePlayer(request.uid, request.sid)) continue;
+
+      const qPlayerPrevious = matchmakingQueue.toArray().find((qPlayer) =>
+        qPlayer.uid === request.uid
+      );
+
+      // Check if player is already in queue
+      if (qPlayerPrevious) {
+        // Simply replace the sid and reset the priority
+        qPlayerPrevious.sid = request.sid;
+        qPlayerPrevious.priority = 0;
+      } else {
+        matchmakingQueue.enqueue({
+          uid: request.uid,
+          sid: request.sid,
+          priority: 0,
+        });
+      }
+    } else {
+      matchmakingQueue.remove((qPlayer) => qPlayer.uid === request.uid);
+    }
   }
-
-  matchmakingDequeue.clear();
 
   function roomCodeGenerator() {
     return Math.random().toString(36).slice(2).toUpperCase();
@@ -85,19 +113,18 @@ setInterval(async () => {
     ];
   }
 
-  function isValidQueuePlayer(qPlayer: {
-    uid: string;
-    sid: string;
-    priority: number;
-  }) {
+  function isValidQueuePlayer(
+    uid: string,
+    sid: string,
+  ) {
     // Could not find player
-    if (!(`player:${qPlayer.uid}` in state)) return false;
+    if (!(`player:${uid}` in state)) return false;
 
     // Remove from queue if player is in another room
-    if ((state[`player:${qPlayer.uid}`] as Player).room) return false;
+    if ((state[`player:${uid}`] as Player).room) return false;
 
     // Socket is not connected, user may have closed the tab
-    const socket = io.sockets.sockets.get(qPlayer.sid);
+    const socket = io.sockets.sockets.get(sid);
     if (!socket) return false;
 
     return true;
@@ -107,7 +134,7 @@ setInterval(async () => {
     while (!matchmakingQueue.isEmpty()) {
       const qPlayer = matchmakingQueue.back();
 
-      if (!isValidQueuePlayer(qPlayer)) {
+      if (!isValidQueuePlayer(qPlayer.uid, qPlayer.sid)) {
         matchmakingQueue.remove((_qPlayer) => _qPlayer.uid === qPlayer.uid);
         continue;
       }
@@ -121,7 +148,7 @@ setInterval(async () => {
     while (!matchmakingQueue.isEmpty()) {
       const qPlayer = matchmakingQueue.pop();
 
-      if (!isValidQueuePlayer(qPlayer)) {
+      if (!isValidQueuePlayer(qPlayer.uid, qPlayer.sid)) {
         continue;
       }
 

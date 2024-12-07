@@ -1,8 +1,8 @@
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect } from "react";
 import PageContext from "./PageContext";
 import Matchmaking from "./Matchmaking";
 import {
-  matchmakingQueueEnter as apiMatchmakingQueueEnter,
+  matchmakingQueueJoin as apiMatchmakingQueueJoin,
   matchmakingQueueLeave as apiMatchmakingQueueLeave,
 } from "./api/matchmaking";
 import { socket } from "./socket";
@@ -10,36 +10,32 @@ import Game from "./Game";
 
 export default function MatchmakingQueue() {
   const { setPage } = useContext(PageContext);
-  const [disableMatchmakingQueueLeaveBtn, setDisableMatchmakingQueueLeaveBtn] =
-    useState(false);
 
-  async function matchmakingQueueEnter() {
+  function matchmakingQueueJoin() {
     if (!socket.id) return;
-    apiMatchmakingQueueEnter(socket.id);
+    apiMatchmakingQueueJoin(socket.id);
   }
 
-  async function matchmakingQueueLeave() {
-    setDisableMatchmakingQueueLeaveBtn(true); // Prevent button spamming
-    if (await apiMatchmakingQueueLeave()) {
-      setPage(<Matchmaking />);
-    } else {
-      setDisableMatchmakingQueueLeaveBtn(false);
-    }
+  function matchmakingQueueLeave() {
+    setPage(<Matchmaking />);
   }
 
   useEffect(() => {
-    // Place user in queue
-    matchmakingQueueEnter();
-
     function onceGameStarts(roomCode: string) {
       // Switch to the game page when the game starts again
       setPage(<Game roomCode={roomCode} />);
     }
 
+    // Place user in queue
+    matchmakingQueueJoin();
+
     // Socket IO event fires when we find a match
     socket.once("room-game-start", onceGameStarts);
 
     return () => {
+      // Leave the queue
+      apiMatchmakingQueueLeave();
+
       // Unregister all event listeners when component is unmounted
       // Otherwise they may trigger in the future unexpectedly
       socket.off("room-game-start", onceGameStarts);
@@ -52,7 +48,6 @@ export default function MatchmakingQueue() {
         <button
           onClick={matchmakingQueueLeave}
           className="self-start text-lg font-light flex items-center justify-center gap-2"
-          disabled={disableMatchmakingQueueLeaveBtn}
         >
           <i className="bi bi-arrow-left"></i>Leave Queue
         </button>
