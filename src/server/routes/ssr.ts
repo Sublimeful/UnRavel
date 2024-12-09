@@ -14,6 +14,7 @@ const vite = await createViteServer({
     hmr: {
       path: "vite-hmr",
       clientPort: process.env["NODE_ENV"] === "production" ? 443 : undefined,
+      overlay: false,
     },
   },
   appType: "custom",
