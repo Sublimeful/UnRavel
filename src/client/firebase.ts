@@ -2,12 +2,13 @@ import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyBMjD4wCaz0REdhquMLrJn-N1UcrlPIR-I",
-  authDomain: "unravel-23a19.firebaseapp.com",
-  projectId: "unravel-23a19",
-  storageBucket: "unravel-23a19.firebasestorage.app",
-  messagingSenderId: "678401170876",
-  appId: "1:678401170876:web:84b66e22f4cfc42c16dfb9",
+  apiKey: "AIzaSyDBC-EArNBr7wSgSzJ4CfG9I90DBpeZ5KQ",
+  authDomain: "unravel-583a0.firebaseapp.com",
+  projectId: "unravel-583a0",
+  storageBucket: "unravel-583a0.firebasestorage.app",
+  messagingSenderId: "669036715638",
+  appId: "1:669036715638:web:30d4f4e2e41496f2338957",
+  measurementId: "G-0LN910V0TF",
 };
 
 const app = initializeApp(firebaseConfig);

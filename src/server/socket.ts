@@ -1,15 +1,9 @@
 import { Server } from "socket.io";
-import { instrument } from "@socket.io/admin-ui";
 
 export const io = new Server({
   cors: {
     origin: "http://localhost:5173",
   },
-});
-
-instrument(io, {
-  auth: false,
-  mode: "development",
 });
 
 io.on("connection", (socket) => {
