@@ -1,3 +1,4 @@
+import "dotenv/config";
 import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
@@ -22,6 +23,8 @@ app.use(matchmakingRoutes);
 app.use(rankingsRoutes);
 app.use(ssr);
 
-app.listen(5173, () => {
-  console.log("Server running at: http://localhost:5173");
+const PORT = process.env["NODE_ENV"] === "development" ? 5173 : 80;
+
+app.listen(PORT, () => {
+  console.log(`Server running at: http://localhost:${PORT}`);
 });
