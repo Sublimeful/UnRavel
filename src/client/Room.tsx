@@ -166,7 +166,7 @@ export default function Room(props: RoomProps) {
                   onInput={(event) =>
                     setGameSettings({
                       ...gameSettings,
-                      category: event.currentTarget.value,
+                      timeLimit: parseInt(event.currentTarget.value),
                     })}
                   type="number"
                   defaultValue={gameSettings.timeLimit}
