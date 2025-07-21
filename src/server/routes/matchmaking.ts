@@ -188,7 +188,7 @@ setInterval(async () => {
         category,
         secretTerm: "",
         playerStats: {},
-        timeLimit: 1000 * 60 * 15, // 15 minutes
+        timeLimit: 1000 * 60 * 2, // 2 minutes
         startTime: 0,
         winner: null,
       },

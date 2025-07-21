@@ -12,6 +12,7 @@ export interface PlayerStatsSanitized {
 
 export interface GameSettings {
   category: string;
+  timeLimit: number;
 }
 
 export interface Interaction {

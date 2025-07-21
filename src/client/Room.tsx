@@ -31,6 +31,7 @@ export default function Room(props: RoomProps) {
   const [disableRoomLeaveBtn, setDisableRoomLeaveBtn] = useState(false);
   const [gameSettings, setGameSettings] = useState<GameSettings>({
     category: getRandomCategory(),
+    timeLimit: 60 * 2, // 2 minutes
   });
 
   function getRandomCategory() {
@@ -159,6 +160,27 @@ export default function Room(props: RoomProps) {
               <i className="bi bi-gear-fill text-white text-xl" />
               Game Settings
             </h1>
+            <div className="flex flex-row gap-3 mt-1">
+              <div className="flex-[1_0_0] relative flex items-center">
+                <input
+                  onInput={(event) =>
+                    setGameSettings({
+                      ...gameSettings,
+                      category: event.currentTarget.value,
+                    })}
+                  type="number"
+                  defaultValue={gameSettings.timeLimit}
+                  min={10}
+                  max={3600}
+                  className="[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none focus:outline-none text-xl w-full h-14 p-5 pr-16 bg-[#595959] rounded-lg peer mt-1"
+                  required
+                >
+                </input>
+                <span className="absolute left-5 text-[#989898] pointer-events-none peer-focus:text-xs peer-focus:-translate-y-[1.1rem] peer-[&:not(:focus):valid]:text-xs peer-[&:not(:focus):valid]:-translate-y-[1.1rem] transition-all">
+                  Time Limit (seconds)
+                </span>
+              </div>
+            </div>
             <div className="flex flex-row gap-3 mt-1">
               <div className="flex-[1_0_0] relative flex items-center">
                 <input

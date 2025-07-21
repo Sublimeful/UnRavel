@@ -70,7 +70,7 @@ router.post("/api/room-request", async (req, res) => {
       category: "",
       secretTerm: "",
       playerStats: {},
-      timeLimit: 1000 * 60 * 15, // 15 minutes for now, subject to change (i.e. through game settings)
+      timeLimit: 1000 * 60 * 2, // 2 minutes by default
       startTime: 0,
       winner: null,
     },
@@ -385,10 +385,10 @@ router.get("/api/:roomCode/host", async (req, res) => {
 });
 
 router.post("/api/:roomCode/start-game", async (req, res) => {
-  const { category } = req.body as GameSettings;
+  const { category, timeLimit } = req.body as GameSettings;
 
   // Bad request if settings are not sent properly
-  if (!category) {
+  if (!category || !timeLimit) {
     return res.status(400).send("invalid data");
   }
 
@@ -432,6 +432,9 @@ router.post("/api/:roomCode/start-game", async (req, res) => {
 
   // Set the game state category
   roomState.game.category = category;
+
+  // Set the game state time limit
+  roomState.game.timeLimit = timeLimit * 1000;
 
   // Clear playerStats, removing players from previous games that have already left
   roomState.game.playerStats = {};
