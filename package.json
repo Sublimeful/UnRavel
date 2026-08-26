@@ -30,14 +30,11 @@
     "cors": "^2.8.5",
     "dotenv": "^16.6.1",
     "express": "^4.21.2",
-    "firebase": "^11.10.0",
-    "firebase-admin": "^13.4.0",
     "langchain": "^0.3.30",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "socket.io": "^4.8.1",
     "socket.io-client": "^4.8.1",
-    "universal-cookie": "^7.2.2",
     "zod": "^4.0.5"
   }
 }

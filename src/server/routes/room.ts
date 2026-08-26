@@ -220,13 +220,13 @@ router.post("/api/:roomCode/leave", async (req, res) => {
     if (roomState.game.state === "in progress") {
       // If the room is a ranked room and is in progress
       // then the player who left will lose elo points
-      getUserELO(player.uid).then((userELO) => {
-        if (userELO === null) return;
+      const userELO = getUserELO(player.uid);
+      if (userELO !== null) {
         const loseELO = Math.floor(
           100 - 100 * Math.pow(Math.E, -0.001 * userELO),
         );
         changeUserELO(player.uid, -loseELO);
-      });
+      }
     }
   } else {
     if (roomState.host === player.uid && roomState.players.size > 0) {

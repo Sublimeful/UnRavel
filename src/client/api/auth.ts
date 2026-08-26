@@ -1,51 +1,19 @@
-import { auth } from "../firebase";
-import {
-  createUserWithEmailAndPassword,
-  signInWithEmailAndPassword,
-} from "firebase/auth";
-import Cookies from "universal-cookie";
-
-export async function register(email: string, password: string) {
+export async function register(
+  username: string,
+  password: string,
+): Promise<boolean> {
   try {
-    await createUserWithEmailAndPassword(auth, email, password);
-
-    return true;
-  } catch (error) {
-    console.error(error);
-
-    return false;
-  }
-}
-
-export async function signIn(email: string, password: string) {
-  try {
-    const user = (await signInWithEmailAndPassword(auth, email, password)).user;
-    const idToken = await user.getIdToken();
-    const csrfToken = crypto.randomUUID();
-
-    // Set csrfToken expiration to 1 day
-    const expiresIn = 60 * 60 * 24;
-    const cookie = new Cookies(null, { path: "/" });
-    cookie.set("csrfToken", csrfToken, {
-      maxAge: expiresIn,
-      secure: true,
-      // Maximum security sameSite restriction
-      // Cookie will not be included in any cross-site requests
-      sameSite: "strict",
-    });
-
     const res = await fetch(
-      `/api/auth/signin-session`,
+      `/api/auth/register`,
       {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ idToken, csrfToken }),
+        body: JSON.stringify({ username, password }),
       },
     );
 
-    // If sign in succeeds, return true, else return false
     return res.status === 200;
   } catch (error) {
     console.error(error);
@@ -54,7 +22,31 @@ export async function signIn(email: string, password: string) {
   }
 }
 
-export async function getSession() {
+export async function signIn(
+  username: string,
+  password: string,
+): Promise<boolean> {
+  try {
+    const res = await fetch(
+      `/api/auth/signin`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ username, password }),
+      },
+    );
+
+    return res.status === 200;
+  } catch (error) {
+    console.error(error);
+
+    return false;
+  }
+}
+
+export async function getSession(): Promise<string | null> {
   const res = await fetch(
     `/api/auth/session`,
     {
@@ -73,7 +65,7 @@ export async function getSession() {
   }
 }
 
-export async function signOut() {
+export async function signOut(): Promise<boolean> {
   const res = await fetch(
     `/api/auth/signout`,
     {

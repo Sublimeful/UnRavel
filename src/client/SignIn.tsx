@@ -14,7 +14,7 @@ import GameOver from "./GameOver";
 
 export default function SignIn() {
   const { setPage } = useContext(PageContext);
-  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [disableSignInBtn, setDisableSignInBtn] = useState(false);
   const passwordInputRef = useRef<HTMLInputElement>(null);
@@ -59,7 +59,7 @@ export default function SignIn() {
     setDisableSignInBtn(true); // Prevent button spamming
 
     // Go to main menu page after successful sign in and reconnect fails
-    if (await apiSignIn(email, password)) {
+    if (await apiSignIn(username, password)) {
       if (!(await reconnect())) {
         setPage(<MainMenu />);
       }
@@ -81,11 +81,11 @@ export default function SignIn() {
         onSubmit={signIn}
       >
         <label className="text-left font-light">
-          Email
+          Username
           <input
-            onInput={(event) => setEmail(event.currentTarget.value)}
-            type="email"
-            placeholder="Enter your email"
+            onInput={(event) => setUsername(event.currentTarget.value)}
+            type="text"
+            placeholder="Enter your username"
             className="focus:outline-none text-xl w-full h-14 p-5 bg-[#343434] placeholder:text-[#787878] rounded-lg border border-[#787878] mt-1"
             required
           >

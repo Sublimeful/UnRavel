@@ -1,104 +1,139 @@
-import { db } from "../firebase.ts";
-import { FieldPath, Filter } from "firebase-admin/firestore";
+import path from "node:path";
+import { DatabaseSync } from "node:sqlite";
 
-export async function getUserELO(uid: string): Promise<number | null> {
-  const userRef = db.collection("users").doc(uid);
+const dbPath = process.env["DATABASE_PATH"] ?? path.resolve("unravel.db");
 
+export const db = new DatabaseSync(dbPath);
+
+db.exec(`
+  CREATE TABLE IF NOT EXISTS users (
+    uid TEXT PRIMARY KEY,
+    username TEXT NOT NULL,
+    password_hash TEXT NOT NULL,
+    elo INTEGER NOT NULL DEFAULT 0,
+    created_at INTEGER NOT NULL
+  );
+
+  CREATE TABLE IF NOT EXISTS sessions (
+    token TEXT PRIMARY KEY,
+    uid TEXT NOT NULL,
+    created_at INTEGER NOT NULL,
+    expires_at INTEGER NOT NULL
+  );
+`);
+
+export interface UserRow {
+  uid: string;
+  username: string;
+  password_hash: string;
+  elo: number;
+  created_at: number;
+}
+
+export function createUser(
+  uid: string,
+  username: string,
+  passwordHash: string,
+) {
+  db.prepare(
+    "INSERT INTO users (uid, username, password_hash, created_at) VALUES (?, ?, ?, ?)",
+  ).run(uid, username, passwordHash, Date.now());
+}
+
+export function getUserByUid(uid: string): UserRow | null {
+  return db.prepare("SELECT * FROM users WHERE uid = ?").get(uid) as unknown as
+    | UserRow
+    | null;
+}
+
+export function getUserByUsername(username: string): UserRow | null {
+  return db.prepare("SELECT * FROM users WHERE username = ?").get(username) as
+    unknown as
+    | UserRow
+    | null;
+}
+
+export function getUserELO(uid: string): number | null {
   try {
-    const userDoc = await userRef.get();
+    const row = db.prepare("SELECT elo FROM users WHERE uid = ?").get(uid) as
+      | { elo: number }
+      | null;
 
-    const userELO = userDoc.exists && userDoc.get("elo")
-      ? userDoc.get("elo")
-      : 0;
-
-    return userELO;
+    return row ? row.elo : 0;
   } catch (err) {
     console.error(err);
     return null;
   }
 }
 
-export async function getUsername(uid: string): Promise<string | null> {
-  const userRef = db.collection("users").doc(uid);
-
+export function getUsername(uid: string): string | null {
   try {
-    const userDoc = await userRef.get();
+    const row = db.prepare("SELECT username FROM users WHERE uid = ?").get(uid) as
+      | { username: string }
+      | null;
 
-    const username = userDoc.exists && userDoc.get("username")
-      ? userDoc.get("username")
-      : null;
-
-    return username;
+    return row ? row.username : null;
   } catch (err) {
     console.error(err);
     return null;
   }
 }
 
-export async function setUsername(uid: string, username: string) {
-  const userRef = db.collection("users").doc(uid);
-
+export function setUsername(uid: string, username: string) {
   try {
-    await userRef.set({ username }, { merge: true });
+    db.prepare("UPDATE users SET username = ? WHERE uid = ?").run(
+      username,
+      uid,
+    );
   } catch (err) {
     console.error(err);
   }
 }
 
-export async function changeUserELO(uid: string, deltaELO: number) {
-  const userRef = db.collection("users").doc(uid);
-
+export function changeUserELO(uid: string, deltaELO: number) {
   try {
-    const userELO = await getUserELO(uid);
+    const userELO = getUserELO(uid);
 
     if (userELO === null) return;
 
-    await userRef.set({ elo: userELO + deltaELO }, { merge: true });
+    db.prepare("UPDATE users SET elo = ? WHERE uid = ?").run(
+      userELO + deltaELO,
+      uid,
+    );
   } catch (err) {
     console.error(err);
   }
 }
 
-export async function getUserRank(uid: string): Promise<number | null> {
-  const usersRef = db.collection("users");
-
+export function getUserRank(uid: string): number | null {
   try {
-    const userELO = await getUserELO(uid);
-    const rank = (await usersRef.where(
-      Filter.and(
-        Filter.where("elo", "!=", NaN),
-        Filter.or(
-          Filter.where("elo", ">", userELO),
-          Filter.and(
-            Filter.where("elo", "==", userELO),
-            Filter.where(FieldPath.documentId(), "<", uid),
-          ),
-        ),
-      ),
-    ).count().get()).data().count;
-    return rank;
+    const userELO = getUserELO(uid);
+
+    if (userELO === null) return null;
+
+    const row = db.prepare(
+      `SELECT COUNT(*) AS count FROM users
+       WHERE elo > ? OR (elo = ? AND uid < ?)`,
+    ).get(userELO, userELO, uid) as { count: number };
+
+    return row.count + 1;
   } catch (err) {
     console.error(err);
     return null;
   }
 }
 
-export async function getRankings(): Promise<{
+export function getRankings(): {
   uid: string;
   username?: string;
   elo?: number;
-}[]> {
-  const usersRef = db.collection("users");
-
+}[] {
   try {
-    const top50Doc = await usersRef.orderBy("elo", "desc").orderBy(
-      FieldPath.documentId(),
-      "asc",
-    ).limit(50).get();
-    return top50Doc.docs.map((userDoc) => ({
-      uid: userDoc.id,
-      ...userDoc.data(),
-    }));
+    const rows = db.prepare(
+      "SELECT uid, username, elo FROM users ORDER BY elo DESC, uid ASC LIMIT 50",
+    ).all() as { uid: string; username: string; elo: number }[];
+
+    return rows.map(({ uid, username, elo }) => ({ uid, username, elo }));
   } catch (err) {
     console.error(err);
     return [];

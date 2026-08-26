@@ -176,3 +176,11 @@ dist
 
 # Firebase service account key
 serviceAccountKey.json
+
+# Local database
+*.sqlite
+*.sqlite-shm
+*.sqlite-wal
+*.db
+*.db-shm
+*.db-wal

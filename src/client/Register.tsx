@@ -7,7 +7,7 @@ import { register as apiRegister } from "./api/auth";
 
 export default function Register() {
   const { setPage } = useContext(PageContext);
-  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [disableRegisterBtn, setDisableRegisterBtn] = useState(false);
@@ -22,7 +22,7 @@ export default function Register() {
     setDisableRegisterBtn(true); // Prevent button spamming
 
     // Go to sign in page after successful registration
-    if (await apiRegister(email, password)) {
+    if (await apiRegister(username, password)) {
       setPage(<SignIn />);
     } else {
       setDisableRegisterBtn(false);
@@ -42,11 +42,11 @@ export default function Register() {
         onSubmit={register}
       >
         <label className="text-left font-light">
-          Email
+          Username
           <input
-            onInput={(event) => setEmail(event.currentTarget.value)}
-            type="email"
-            placeholder="Enter your email"
+            onInput={(event) => setUsername(event.currentTarget.value)}
+            type="text"
+            placeholder="Enter your username"
             className="focus:outline-none text-xl w-full h-14 p-5 bg-[#343434] placeholder:text-[#787878] rounded-lg border border-[#787878] mt-1"
             required
           >
