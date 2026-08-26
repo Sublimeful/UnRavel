@@ -67,7 +67,7 @@ export default function Rankings() {
         style={{ backgroundColor: rankColor((rank ?? 0) - 1) }}
       >
         <span className="flex-[1_0_0] text-nowrap break-all truncate">
-          #{rank !== null ? rank + 1 : "?"}
+          #{rank !== null ? rank : "?"}
         </span>
         <span
           className="text-nowrap break-all truncate"
