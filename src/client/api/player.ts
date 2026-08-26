@@ -1,8 +1,6 @@
 import type { PlayerSanitized } from "../../types";
 
-export async function playerSignIn(
-  username: string,
-): Promise<boolean> {
+export async function playerSignIn(): Promise<boolean> {
   const res = await fetch(
     `/api/player-sign-in`,
     {
@@ -10,9 +8,6 @@ export async function playerSignIn(
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({
-        username,
-      }),
     },
   );
 

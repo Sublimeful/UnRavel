@@ -5,22 +5,17 @@ import state from "../state.ts";
 import { getSanitizedPlayer } from "../utils/player.ts";
 import type { Player } from "../types.ts";
 import { verifyRequestAndGetUID } from "../utils/api.ts";
-import { getUserELO, getUsername, setUsername } from "../utils/db.ts";
+import { getUserELO, getUsername } from "../utils/db.ts";
 
 const router = Router();
 
 router.post("/api/player-sign-in", async (req, res) => {
-  const { username } = req.body;
-
-  // Bad request
-  if (!username) return res.status(400).send("invalid data");
-
   const uid = await verifyRequestAndGetUID(req, res);
   if (!uid) return;
-  console.log(uid, "player-sign-in", "username", username);
 
-  // Update username in db
-  setUsername(uid, username);
+  const username = await getUsername(uid);
+  if (!username) return res.status(400).send("could not find username");
+  console.log(uid, "player-sign-in", "username", username);
 
   // Player has already signed in before
   if (`player:${uid}` in state) {

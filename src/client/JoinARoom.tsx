@@ -15,19 +15,18 @@ export default function JoinARoom() {
   const { setPage } = useContext(PageContext);
 
   const [roomCode, setRoomCode] = useState<string>("");
-  const [username, setUsername] = useState<string>("");
 
   const [disableJoinRoomBtn, setDisableJoinRoomBtn] = useState(false);
 
   async function roomJoin(event: FormEvent) {
     event.preventDefault();
 
-    if (!socket.id || !roomCode || !username) return;
+    if (!socket.id || !roomCode) return;
 
     setDisableJoinRoomBtn(true); // Prevent button spamming
 
     try {
-      await playerSignIn(username);
+      await playerSignIn();
 
       const roomExists = await apiRoomJoin(socket.id, roomCode);
 
@@ -78,20 +77,9 @@ export default function JoinARoom() {
           <i className="bi bi-people-fill text-[#7d7d7d] text-xl absolute right-5 top-11">
           </i>
         </label>
-        <label className="text-left font-light">
-          Your Name
-          <input
-            onInput={(event) => setUsername(event.currentTarget.value)}
-            type="text"
-            placeholder="Enter your name"
-            className="focus:outline-none text-xl w-full h-14 p-5 bg-[#343434] placeholder:text-[#787878] rounded-lg border border-[#787878] mt-1"
-            required
-          >
-          </input>
-        </label>
         <button
           className="mx-auto transition-[font-size] w-full min-h-16 mt-8 rounded-lg sm:text-2xl text-xl font-light bg-gradient-to-r from-[#AC1C1C] to-[#2AAAD9] flex items-center justify-center gap-2 disabled:brightness-50"
-          disabled={disableJoinRoomBtn || !roomCode || !username}
+          disabled={disableJoinRoomBtn || !roomCode}
         >
           Join Room
           <i className="bi bi-arrow-right"></i>
