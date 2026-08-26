@@ -47,14 +47,23 @@ const FACT_CHECK_SYSTEM =
   "well-known animals, or fixed definitions. " +
   "If you perform a search, base your answer only on the search results and never contradict them.";
 
-async function chatCompletion(
+interface ToolCallDelta {
+  index: number;
+  id?: string;
+  function?: { name?: string; arguments?: string };
+}
+
+async function* streamChatCompletion(
   messages: ChatMessage[],
   tools?: typeof WEB_SEARCH_TOOL[],
-): Promise<{ content: string | null; toolCalls: ToolCall[] } | null> {
+): AsyncGenerator<string, { content: string; toolCalls: ToolCall[] } | null, unknown> {
   if (!API_KEY) {
     console.error("OMNIROUTE_API_KEY is not set");
     return null;
   }
+
+  const toolAccum = new Map<number, { id: string; name: string; args: string }>();
+  let content = "";
 
   try {
     const res = await fetch(`${BASE_URL}/api/v1/chat/completions`, {
@@ -65,7 +74,7 @@ async function chatCompletion(
       },
       body: JSON.stringify({
         model: MODEL,
-        stream: false,
+        stream: true,
         messages,
         ...(tools ? { tools } : {}),
       }),
@@ -76,29 +85,67 @@ async function chatCompletion(
       return null;
     }
 
-    const json = await res.json() as {
-      choices?: { message?: { content?: string | null; tool_calls?: {
-        id?: string;
-        function?: { name?: string; arguments?: string };
-      }[] } }[];
-    };
+    const reader = res.body?.getReader();
+    if (!reader) return null;
 
-    const message = json.choices?.[0]?.message;
-    if (!message) return null;
+    const decoder = new TextDecoder();
+    let buffer = "";
 
-    const toolCalls: ToolCall[] = (message.tool_calls ?? [])
-      .filter((tc) => tc.id && tc.function?.name)
-      .map((tc) => ({
-        id: tc.id as string,
-        name: tc.function!.name!,
-        arguments: parseJSONObject(tc.function?.arguments ?? null),
-      }));
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
 
-    return { content: message.content ?? null, toolCalls };
+      buffer += decoder.decode(value, { stream: true });
+      const lines = buffer.split("\n");
+      buffer = lines.pop() ?? "";
+
+      for (const line of lines) {
+        const trimmed = line.trim();
+        if (!trimmed.startsWith("data:")) continue;
+
+        const payload = trimmed.slice(5).trim();
+        if (!payload || payload === "[DONE]") continue;
+
+        let json: {
+          choices?: { delta?: { content?: string; tool_calls?: ToolCallDelta[] } }[];
+        };
+        try {
+          json = JSON.parse(payload);
+        } catch {
+          continue;
+        }
+
+        const delta = json.choices?.[0]?.delta;
+        if (!delta) continue;
+
+        if (delta.content) {
+          content += delta.content;
+          yield delta.content;
+        }
+
+        for (const tc of delta.tool_calls ?? []) {
+          const acc = toolAccum.get(tc.index) ?? { id: "", name: "", args: "" };
+          if (tc.id) acc.id = tc.id;
+          if (tc.function?.name) acc.name = tc.function.name;
+          if (tc.function?.arguments) acc.args += tc.function.arguments;
+          toolAccum.set(tc.index, acc);
+        }
+      }
+    }
   } catch (error) {
     console.error("OmniRoute query error:", error);
     return null;
   }
+
+  const toolCalls: ToolCall[] = [...toolAccum.values()]
+    .filter((tc) => tc.id && tc.name)
+    .map((tc) => ({
+      id: tc.id,
+      name: tc.name,
+      arguments: parseJSONObject(tc.args),
+    }));
+
+  return { content, toolCalls };
 }
 
 function parseJSONObject(text: string | null): Record<string, unknown> {
@@ -156,40 +203,55 @@ async function webSearch(query: string): Promise<string> {
   }
 }
 
-async function runToolLoop(
+async function* runToolLoop(
   systemPrompt: string,
   userPrompt: string,
-): Promise<string | null> {
+): AsyncGenerator<string, string | null, unknown> {
   const messages: ChatMessage[] = [
     { role: "system", content: `${systemPrompt}\n\n${FACT_CHECK_SYSTEM}` },
     { role: "user", content: userPrompt },
   ];
 
   for (let i = 0; i < MAX_TOOL_ITERATIONS; i++) {
-    const response = await chatCompletion(messages, [WEB_SEARCH_TOOL]);
-    if (!response) return null;
+    const full = yield* streamChatCompletion(messages, [WEB_SEARCH_TOOL]);
+    if (!full) return null;
 
     // Process tool calls first, even if the model also emitted content.
-    if (response.toolCalls.length === 0) {
-      return response.content;
+    if (full.toolCalls.length === 0) {
+      return full.content;
     }
 
     messages.push({
       role: "assistant",
-      content: response.content,
-      tool_calls: response.toolCalls.map((tc) => ({
+      content: full.content,
+      tool_calls: full.toolCalls.map((tc) => ({
         id: tc.id,
         type: "function",
         function: { name: tc.name, arguments: JSON.stringify(tc.arguments) },
       })),
     });
 
-    for (const tc of response.toolCalls) {
-      if (tc.name === "web_search") {
-        const query = typeof tc.arguments["query"] === "string"
-          ? tc.arguments["query"]
-          : "";
-        console.log("AI web_search:", query);
+    for (const tc of full.toolCalls) {
+      // Normalize tool names: OpenAI-style web_search, antigravity/gemini's
+      // native google_search:search, and any *search variant.
+      const isSearch = tc.name === "web_search" ||
+        tc.name === "google_search:search" ||
+        tc.name.includes("search");
+
+      if (isSearch) {
+        // Gemini passes queries as an array or as a `q` shorthand;
+        // OpenAI passes a single string under `query`.
+        let query = "";
+        if (typeof tc.arguments["query"] === "string") {
+          query = tc.arguments["query"];
+        } else if (Array.isArray(tc.arguments["queries"])) {
+          query = tc.arguments["queries"]
+            .filter((q): q is string => typeof q === "string")
+            .join(" ");
+        } else if (typeof tc.arguments["q"] === "string") {
+          query = tc.arguments["q"];
+        }
+        console.log("AI search:", tc.name, query);
         const results = query ? await webSearch(query) : "";
         messages.push({
           role: "tool",
@@ -210,7 +272,7 @@ async function runToolLoop(
 }
 
 export async function generateSecretTermFromCategory(category: string) {
-  const response = await runToolLoop(
+  const gen = runToolLoop(
     "You are generating terms for a guessing game. " +
       "Respond with ONLY a JSON array of 5 random terms from the given category. " +
       "Ensure every term actually exists in the real world for the given category. " +
@@ -218,6 +280,15 @@ export async function generateSecretTermFromCategory(category: string) {
       "then respond with the JSON array. Do not search more than once.",
     `Category: ${category}`,
   );
+
+  let response: string | null = null;
+  for (;;) {
+    const { done, value } = await gen.next();
+    if (done) {
+      response = value;
+      break;
+    }
+  }
 
   if (!response) return null;
 
@@ -248,26 +319,26 @@ export async function* streamAskQuestion(
   category: string,
   question: string,
 ): AsyncGenerator<string, void, unknown> {
-  const answer = await runToolLoop(
+  const answer = yield* runToolLoop(
     buildQuestionSystemPrompt(secretTerm, category),
     `Question: ${question}`,
   );
 
   if (!answer) return;
-
-  // Chunk the answer so the client still renders it incrementally
-  for (const chunk of answer.match(/[\s\S]{1,40}/g) ?? []) {
-    yield chunk;
-  }
 }
 
 export async function askQuestion(
   secretTerm: string,
   category: string,
   question: string,
-) {
-  return runToolLoop(
+): Promise<string | null> {
+  const gen = runToolLoop(
     buildQuestionSystemPrompt(secretTerm, category),
     `Question: ${question}`,
   );
+
+  for (;;) {
+    const { done, value } = await gen.next();
+    if (done) return value;
+  }
 }
