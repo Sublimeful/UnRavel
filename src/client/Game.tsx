@@ -230,11 +230,11 @@ export default function Game(props: GameProps) {
           >
             {interactions.map((interaction, index) => (
               <div key={index}>
-                <h1 className="flex gap-2 text-wrap break-all">
+                <h1 className="flex gap-2 text-wrap break-words">
                   <span className="font-bold text-nowrap">Player:</span>
                   {interaction.question}
                 </h1>
-                <h1 className="flex gap-2 text-[#28dded] ml-8 text-wrap break-all">
+                <h1 className="flex gap-2 text-[#28dded] ml-8 text-wrap break-words">
                   <span className="font-bold text-nowrap">AI:</span>
                   {interaction.answer}
                 </h1>
@@ -242,16 +242,16 @@ export default function Game(props: GameProps) {
             ))}
             {pendingQuestion && (
               <div>
-                <h1 className="flex gap-2 text-wrap break-all">
+                <h1 className="flex gap-2 text-wrap break-words">
                   <span className="font-bold text-nowrap">Player:</span>
                   {pendingQuestion}
                 </h1>
-                <h1 className="flex gap-2 text-[#28dded] ml-8 text-wrap break-all">
+                <h1 className="flex gap-2 text-[#28dded] ml-8 text-wrap break-words">
                   <span className="font-bold text-nowrap">AI:</span>
                   {pendingAnswer}
-                  {pendingAnswer && (
-                    <i className="bi bi-caret-left-fill animate-pulse"></i>
-                  )}
+                  {pendingAnswer
+                    ? <i className="bi bi-caret-left-fill animate-pulse"></i>
+                    : <span className="animate-pulse">...</span>}
                 </h1>
               </div>
             )}
