@@ -74,7 +74,7 @@ router.post("/api/auth/signin", async (req, res) => {
   res.cookie("session", sessionToken, {
     maxAge: SESSION_DURATION_MS,
     httpOnly: true,
-    secure: true,
+    secure: process.env["COOKIE_SECURE"] === "true",
     // Maximum security sameSite restriction
     // Cookie will not be included in any cross-site requests
     sameSite: "strict",
