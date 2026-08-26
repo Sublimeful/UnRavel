@@ -147,6 +147,9 @@ router.post("/api/:roomCode/game/ask", async (req, res) => {
   res.setHeader("Content-Type", "text/event-stream");
   res.setHeader("Cache-Control", "no-cache");
   res.setHeader("Connection", "keep-alive");
+  // Tell nginx not to buffer the stream so chunks arrive incrementally
+  res.setHeader("X-Accel-Buffering", "no");
+  res.flushHeaders();
 
   let answer = "";
   try {
