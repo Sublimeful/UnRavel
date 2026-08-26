@@ -22,19 +22,15 @@
   },
   "dependencies": {
     "@datastructures-js/priority-queue": "^6.3.3",
-    "@langchain/core": "^0.3.66",
-    "@langchain/google-genai": "^0.2.15",
     "@socket.io/admin-ui": "^0.5.1",
     "bootstrap-icons": "^1.13.1",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
     "dotenv": "^16.6.1",
     "express": "^4.21.2",
-    "langchain": "^0.3.30",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "socket.io": "^4.8.1",
-    "socket.io-client": "^4.8.1",
-    "zod": "^4.0.5"
+    "socket.io-client": "^4.8.1"
   }
 }

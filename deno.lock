@@ -11,8 +11,7 @@
     "npm:bootstrap-icons@^1.13.1": "1.13.1",
     "npm:dotenv@^16.6.1": "16.6.1",
     "npm:react-dom@^18.3.1": "18.3.1_react@18.3.1",
-    "npm:react@^18.3.1": "18.3.1",
-    "npm:zod@^4.0.5": "4.0.5"
+    "npm:react@^18.3.1": "18.3.1"
   },
   "npm": {
     "@datastructures-js/heap@4.3.3": {
@@ -690,17 +689,12 @@
     },
     "yocto-queue@0.1.0": {
       "integrity": "sha512-rVksvsnNCdJ/ohGc6xgPwyN8eheCxsiLM8mxuE/t/mOVqJewPuO1miLpTHQiRgTKCLexL4MeAFVagts7HmNZ2Q=="
-    },
-    "zod@4.0.5": {
-      "integrity": "sha512-/5UuuRPStvHXu7RS+gmvRf4NXrNxpSllGwDnCBcJZtQsKrviYXm54yDGV2KYNLT5kq0lHGcl7lqWJLgSaG+tgA=="
     }
   },
   "workspace": {
     "packageJson": {
       "dependencies": [
         "npm:@datastructures-js/priority-queue@^6.3.3",
-        "npm:@langchain/core@~0.3.66",
-        "npm:@langchain/google-genai@~0.2.15",
         "npm:@socket.io/admin-ui@~0.5.1",
         "npm:@types/cookie-parser@^1.4.9",
         "npm:@types/cors@^2.8.19",
@@ -715,14 +709,12 @@
         "npm:cors@^2.8.5",
         "npm:dotenv@^16.6.1",
         "npm:express@^4.21.2",
-        "npm:langchain@~0.3.30",
         "npm:react-dom@^18.3.1",
         "npm:react@^18.3.1",
         "npm:socket.io-client@^4.8.1",
         "npm:socket.io@^4.8.1",
         "npm:tailwindcss@^3.4.17",
-        "npm:vite@^5.4.19",
-        "npm:zod@^4.0.5"
+        "npm:vite@^5.4.19"
       ]
     }
   }
