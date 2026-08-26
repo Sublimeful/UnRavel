@@ -20,6 +20,11 @@ db.exec(`
     created_at INTEGER NOT NULL,
     expires_at INTEGER NOT NULL
   );
+
+  -- Usernames and uids are case-insensitive: no two users may differ
+  -- only by letter case.
+  CREATE UNIQUE INDEX IF NOT EXISTS idx_users_uid_lower ON users (lower(uid));
+  CREATE UNIQUE INDEX IF NOT EXISTS idx_users_username_lower ON users (lower(username));
 `);
 
 export interface UserRow {
@@ -41,14 +46,16 @@ export function createUser(
 }
 
 export function getUserByUid(uid: string): UserRow | null {
-  return db.prepare("SELECT * FROM users WHERE uid = ?").get(uid) as unknown as
+  return db.prepare("SELECT * FROM users WHERE lower(uid) = lower(?)").get(uid) as
+    unknown as
     | UserRow
     | null;
 }
 
 export function getUserByUsername(username: string): UserRow | null {
-  return db.prepare("SELECT * FROM users WHERE username = ?").get(username) as
-    unknown as
+  return db.prepare(
+    "SELECT * FROM users WHERE lower(username) = lower(?) OR lower(uid) = lower(?)",
+  ).get(username, username) as unknown as
     | UserRow
     | null;
 }

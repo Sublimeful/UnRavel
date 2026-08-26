@@ -24,12 +24,14 @@ router.post("/api/auth/register", async (req, res) => {
     password?: string;
   };
 
+  const name = username?.trim();
+
   // Bad request
-  if (!username || !password) {
+  if (!name || !password) {
     return res.status(400).send("invalid data");
   }
 
-  if (username.length > 50) {
+  if (name.length > 50) {
     return res.status(400).send("username too long");
   }
 
@@ -37,13 +39,16 @@ router.post("/api/auth/register", async (req, res) => {
     return res.status(400).send("password must be 8 to 100 characters");
   }
 
-  // Username already taken
-  if (getUserByUid(username) || getUserByUsername(username)) {
+  // UIDs are always lowercase, usernames are case-insensitive
+  const uid = name.toLowerCase();
+
+  // Username already taken (case-insensitive)
+  if (getUserByUid(uid) || getUserByUsername(name)) {
     return res.status(409).send("username already taken");
   }
 
   try {
-    createUser(username, username, hashPassword(password));
+    createUser(uid, name, hashPassword(password));
     return res.status(200).send();
   } catch (error) {
     console.error(error);
@@ -62,7 +67,8 @@ router.post("/api/auth/signin", async (req, res) => {
     return res.status(400).send("invalid data");
   }
 
-  const user = getUserByUid(username) ?? getUserByUsername(username);
+  // UIDs are lowercase, so normalize the lookup; usernames match case-insensitively
+  const user = getUserByUid(username.toLowerCase()) ?? getUserByUsername(username);
 
   // User does not exist or password is wrong
   if (!user || !verifyPassword(password, user.password_hash)) {
