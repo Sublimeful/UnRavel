@@ -5,6 +5,12 @@ import MainMenu from "./MainMenu";
 import { getRank, getRankings } from "./api/rankings";
 import { getUserELO, getUsername } from "./api/player";
 
+const RANK_COLORS = [
+  "rgba(255, 215, 0, 0.85)", // 1st: gold
+  "rgba(192, 192, 192, 0.85)", // 2nd: silver
+  "rgba(205, 127, 50, 0.85)", // 3rd: bronze
+];
+
 export default function Rankings() {
   const { setPage } = useContext(PageContext);
   const [rankings, setRankings] = useState<{
@@ -25,19 +31,21 @@ export default function Rankings() {
     getUserELO().then(setUserELO);
   }, []);
 
+  function rankColor(_rank: number): string {
+    return RANK_COLORS[_rank] ?? "rgba(0, 0, 0, 0.75)";
+  }
+
   return (
     <div className="absolute transition-[height,width] h-[98%] w-[98%] max-w-3xl bg-[#000625] bg-opacity-50 rounded-xl border border-neutral-500 flex flex-col text-white overflow-y-scroll p-10 gap-1">
       <ol
         className="min-h-40 w-full flex flex-col gap-2 overflow-y-scroll"
         style={{ "flex": "12 0 0" }}
       >
-        {Object.entries(rankings).sort().map((
-          [uid, { username, elo }],
-          _rank,
-        ) => (
+        {rankings.map(({ uid, username, elo }, _rank) => (
           <li
             key={uid}
-            className="flex flex-row items-center gap-6 justify-between w-full bg-[#595959] bg-opacity-60 rounded-lg px-3 py-2"
+            className="flex flex-row items-center gap-6 justify-between w-full rounded-lg px-3 py-2"
+            style={{ backgroundColor: rankColor(_rank) }}
           >
             <span className="flex-[1_0_0] text-nowrap break-all truncate">
               #{_rank + 1}
@@ -56,7 +64,7 @@ export default function Rankings() {
       </ol>
       <div
         className="flex-[1_0_0] flex flex-row items-center gap-6 justify-between w-full rounded-lg px-5 py-2 text-xl"
-        style={{ "backgroundColor": "rgba(255, 215, 0, 0.8)" }}
+        style={{ backgroundColor: rankColor((rank ?? 0) - 1) }}
       >
         <span className="flex-[1_0_0] text-nowrap break-all truncate">
           #{rank !== null ? rank + 1 : "?"}
