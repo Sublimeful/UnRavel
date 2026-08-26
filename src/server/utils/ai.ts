@@ -7,7 +7,7 @@ const MODEL = process.env["OMNIROUTE_MODEL"] ?? "free-stack";
 const SEARXNG_URL = (process.env["SEARXNG_URL"] ?? "http://localhost:8080")
   .replace(/\/$/, "");
 
-const MAX_TOOL_ITERATIONS = 2;
+const MAX_TOOL_ITERATIONS = 3;
 
 interface ToolCall {
   id: string;
@@ -169,13 +169,14 @@ async function runToolLoop(
     const response = await chatCompletion(messages, [WEB_SEARCH_TOOL]);
     if (!response) return null;
 
-    if (response.content) return response.content;
-
-    if (response.toolCalls.length === 0) return null;
+    // Process tool calls first, even if the model also emitted content.
+    if (response.toolCalls.length === 0) {
+      return response.content;
+    }
 
     messages.push({
       role: "assistant",
-      content: null,
+      content: response.content,
       tool_calls: response.toolCalls.map((tc) => ({
         id: tc.id,
         type: "function",
@@ -213,7 +214,8 @@ export async function generateSecretTermFromCategory(category: string) {
     "You are generating terms for a guessing game. " +
       "Respond with ONLY a JSON array of 5 random terms from the given category. " +
       "Ensure every term actually exists in the real world for the given category. " +
-      "If you are not confident that real terms exist in this category, use web_search to find them.",
+      "If you are not confident that real terms exist in this category, use web_search once to find them, " +
+      "then respond with the JSON array. Do not search more than once.",
     `Category: ${category}`,
   );
 
