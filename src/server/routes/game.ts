@@ -10,7 +10,7 @@ import {
   getSanitizedPlayer,
   getSanitizedPlayerStats,
 } from "../utils/player.ts";
-import { askQuestion } from "../utils/ai.ts";
+import { streamAskQuestion } from "../utils/ai.ts";
 import { gameEnd } from "../utils/game.ts";
 
 const router = Router();
@@ -143,27 +143,37 @@ router.post("/api/:roomCode/game/ask", async (req, res) => {
     return res.status(400).send("game is not in progress");
   }
 
-  // Ask the ai
-  const answer = await askQuestion(
-    roomState.game.secretTerm,
-    roomState.game.category,
-    question,
-  );
+  // Stream the AI's answer to the client as it is generated
+  res.setHeader("Content-Type", "text/event-stream");
+  res.setHeader("Cache-Control", "no-cache");
+  res.setHeader("Connection", "keep-alive");
 
-  // AI doesn't want to answer the question because it sucks
-  if (!answer) {
-    return res.status(400).send("no answer from ai");
+  let answer = "";
+  try {
+    for await (const chunk of streamAskQuestion(
+      roomState.game.secretTerm,
+      roomState.game.category,
+      question,
+    )) {
+      answer += chunk;
+      res.write(`data: ${JSON.stringify({ chunk })}\n\n`);
+    }
+  } catch (error) {
+    console.error(error);
   }
 
+  res.write("data: [DONE]\n\n");
+  res.end();
+
   // Log the interaction
-  if (player.uid in roomState.game.playerStats) {
+  if (answer && player.uid in roomState.game.playerStats) {
     roomState.game.playerStats[player.uid].interactions.push({
       question,
       answer,
     });
   }
 
-  return res.status(200).send(JSON.stringify({ answer }));
+  return;
 });
 
 router.post("/api/:roomCode/game/guess", async (req, res) => {

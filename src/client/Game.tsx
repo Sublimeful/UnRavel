@@ -26,6 +26,8 @@ export default function Game(props: GameProps) {
   const [question, setQuestion] = useState("");
   const [guess, setGuess] = useState("");
   const [interactions, setInteractions] = useState<Interaction[]>([]);
+  const [pendingQuestion, setPendingQuestion] = useState<string | null>(null);
+  const [pendingAnswer, setPendingAnswer] = useState("");
   const [player, setPlayer] = useState<PlayerSanitized | null>(null);
   const [players, setPlayers] = useState<PlayerSanitized[]>([]);
   const [category, setCategory] = useState<string | null>("");
@@ -38,14 +40,26 @@ export default function Game(props: GameProps) {
 
     if (!question) return;
 
-    // Reset form to prevent spamming questions
+    // Keep the question and reset the form to prevent spamming questions
+    const _question = question;
     (event.currentTarget as HTMLFormElement).reset();
+    setQuestion("");
 
-    const answer = await apiGameAsk(roomCode, question);
+    // Show the answer as it streams in
+    setPendingQuestion(_question);
+    setPendingAnswer("");
+
+    const answer = await apiGameAsk(roomCode, _question, (chunk) => {
+      setPendingAnswer((prev) => prev + chunk);
+    });
+
+    // Hide the streaming placeholder
+    setPendingQuestion(null);
+    setPendingAnswer("");
 
     if (!answer) return;
 
-    setInteractions([...interactions, { question, answer }]);
+    setInteractions([...interactions, { question: _question, answer }]);
   }
 
   async function gameGuess(event: FormEvent) {
@@ -126,7 +140,7 @@ export default function Game(props: GameProps) {
         behavior: "smooth",
       });
     }
-  }, [interactions]);
+  }, [interactions, pendingAnswer]);
 
   function timerFormat(timeLeft: number) {
     const secondInMS = 1000;
@@ -226,6 +240,21 @@ export default function Game(props: GameProps) {
                 </h1>
               </div>
             ))}
+            {pendingQuestion && (
+              <div>
+                <h1 className="flex gap-2 text-wrap break-all">
+                  <span className="font-bold text-nowrap">Player:</span>
+                  {pendingQuestion}
+                </h1>
+                <h1 className="flex gap-2 text-[#28dded] ml-8 text-wrap break-all">
+                  <span className="font-bold text-nowrap">AI:</span>
+                  {pendingAnswer}
+                  {pendingAnswer && (
+                    <i className="bi bi-caret-left-fill animate-pulse"></i>
+                  )}
+                </h1>
+              </div>
+            )}
           </div>
           <form className="flex-[1_0_0] flex flex-row gap-3" onSubmit={gameAsk}>
             <input

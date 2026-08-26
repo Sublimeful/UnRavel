@@ -70,6 +70,7 @@ export async function gameGetCategory(
 export async function gameAsk(
   roomCode: string,
   question: string,
+  onChunk: (chunk: string) => void,
 ): Promise<string | null> {
   const res = await fetch(
     `/api/${roomCode}/game/ask`,
@@ -82,15 +83,49 @@ export async function gameAsk(
     },
   );
 
-  if (res.status === 200) {
-    const { answer } = await res.json();
-
-    return answer;
-  } else {
+  if (!res.ok || !res.body) {
     console.error(await res.text());
 
     return null;
   }
+
+  const reader = res.body.getReader();
+  const decoder = new TextDecoder();
+  let buffer = "";
+  let answer = "";
+
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+
+    buffer += decoder.decode(value, { stream: true });
+
+    for (const line of buffer.split("\n")) {
+      if (line.startsWith("data:")) {
+        const payload = line.slice(5).trim();
+        if (payload === "[DONE]") {
+          return answer;
+        }
+        try {
+          const json = JSON.parse(payload) as {
+            chunk?: string;
+            error?: string;
+          };
+          if (json.error) return null;
+          if (json.chunk) {
+            answer += json.chunk;
+            onChunk(json.chunk);
+          }
+        } catch {
+          // ignore keep-alive / partial lines
+        }
+      }
+    }
+
+    buffer = buffer.split("\n").pop() ?? "";
+  }
+
+  return answer;
 }
 
 export async function gameGuess(

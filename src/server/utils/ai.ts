@@ -103,6 +103,92 @@ export async function generateSecretTermFromCategory(category: string) {
   return terms[Math.floor(Math.random() * terms.length)];
 }
 
+export async function* streamAskQuestion(
+  secretTerm: string,
+  category: string,
+  question: string,
+): AsyncGenerator<string, void, unknown> {
+  if (!API_KEY) {
+    console.error("OMNIROUTE_API_KEY is not set");
+    return;
+  }
+
+  const systemPrompt =
+    `Secret Term: ${secretTerm}\n` +
+    `Category: ${category}\n` +
+    "Context: You're playing a guessing game. Answer questions about the secret term without:\n" +
+    "- Revealing the term or parts of it\n" +
+    "- Giving too many hints\n" +
+    "- Confirming guesses unless exactly correct\n\n" +
+    "Instructions:\n" +
+    "1. Be vague but truthful\n" +
+    "2. Never mention letters or word structure\n" +
+    "3. Only confirm exact matches";
+
+  let res: Response;
+  try {
+    res = await fetch(`${BASE_URL}/api/v1/chat/completions`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${API_KEY}`,
+      },
+      body: JSON.stringify({
+        model: MODEL,
+        stream: true,
+        messages: [
+          { role: "system", content: systemPrompt },
+          { role: "user", content: `Question: ${question}` },
+        ],
+      }),
+    });
+  } catch (error) {
+    console.error("OmniRoute query error:", error);
+    return;
+  }
+
+  if (!res.ok || !res.body) {
+    console.error(`OmniRoute error ${res.status}: ${await res.text()}`);
+    return;
+  }
+
+  const reader = res.body.getReader();
+  const decoder = new TextDecoder();
+  let buffer = "";
+
+  try {
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+
+      buffer += decoder.decode(value, { stream: true });
+
+      for (const line of buffer.split("\n")) {
+        if (line.startsWith("data:")) {
+          const payload = line.slice(5).trim();
+          if (payload === "[DONE]") {
+            buffer = "";
+            return;
+          }
+          try {
+            const json = JSON.parse(payload) as {
+              choices?: { delta?: { content?: string } }[];
+            };
+            const delta = json.choices?.[0]?.delta?.content;
+            if (delta) yield delta;
+          } catch {
+            // ignore keep-alive / partial lines
+          }
+        }
+      }
+
+      buffer = buffer.split("\n").pop() ?? "";
+    }
+  } finally {
+    reader.releaseLock();
+  }
+}
+
 export async function askQuestion(
   secretTerm: string,
   category: string,

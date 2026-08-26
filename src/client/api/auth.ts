@@ -1,7 +1,7 @@
 export async function register(
   username: string,
   password: string,
-): Promise<boolean> {
+): Promise<{ ok: boolean; message: string | null }> {
   try {
     const res = await fetch(
       `/api/auth/register`,
@@ -14,11 +14,15 @@ export async function register(
       },
     );
 
-    return res.status === 200;
+    if (res.status === 200) {
+      return { ok: true, message: null };
+    }
+
+    return { ok: false, message: (await res.text()) || "Registration failed" };
   } catch (error) {
     console.error(error);
 
-    return false;
+    return { ok: false, message: "Could not reach the server" };
   }
 }
 
