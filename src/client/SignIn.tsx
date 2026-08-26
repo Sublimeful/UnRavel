@@ -1,4 +1,4 @@
-import { type FormEvent, useContext, useRef, useState } from "react";
+import { type FormEvent, useContext, useEffect, useRef, useState } from "react";
 
 import PageContext from "./PageContext";
 import Register from "./Register";
@@ -17,7 +17,17 @@ export default function SignIn() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [disableSignInBtn, setDisableSignInBtn] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const passwordInputRef = useRef<HTMLInputElement>(null);
+
+  // Auto-dismiss the error toast
+  useEffect(() => {
+    if (!error) return;
+
+    const timeout = setTimeout(() => setError(null), 4000);
+
+    return () => clearTimeout(timeout);
+  }, [error]);
 
   async function reconnect() {
     try {
@@ -58,18 +68,27 @@ export default function SignIn() {
 
     setDisableSignInBtn(true); // Prevent button spamming
 
+    const result = await apiSignIn(username, password);
+
     // Go to main menu page after successful sign in and reconnect fails
-    if (await apiSignIn(username, password)) {
+    if (result.ok) {
       if (!(await reconnect())) {
         setPage(<MainMenu />);
       }
     } else {
       setDisableSignInBtn(false);
+      setError(result.message ?? "Sign in failed");
     }
   }
 
   return (
     <div className="absolute transition-[height,width] lg:h-[90%] h-[98%] md:w-3/4 w-[98%] max-w-xl bg-[#000625] bg-opacity-50 rounded-xl border border-neutral-500 flex flex-col text-white overflow-y-scroll p-10 gap-2">
+      {error && (
+        <div className="absolute top-4 left-1/2 -translate-x-1/2 z-10 px-5 py-3 rounded-lg bg-red-600 bg-opacity-90 text-white text-sm font-medium shadow-lg flex items-center gap-2">
+          <i className="bi bi-exclamation-triangle-fill"></i>
+          {error}
+        </div>
+      )}
       <div className="w-full flex justify-center">
         <img src="logo.png" className="w-32 aspect-square" />
       </div>

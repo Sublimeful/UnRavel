@@ -29,7 +29,7 @@ export async function register(
 export async function signIn(
   username: string,
   password: string,
-): Promise<boolean> {
+): Promise<{ ok: boolean; message: string | null }> {
   try {
     const res = await fetch(
       `/api/auth/signin`,
@@ -42,11 +42,15 @@ export async function signIn(
       },
     );
 
-    return res.status === 200;
+    if (res.status === 200) {
+      return { ok: true, message: null };
+    }
+
+    return { ok: false, message: (await res.text()) || "Sign in failed" };
   } catch (error) {
     console.error(error);
 
-    return false;
+    return { ok: false, message: "Could not reach the server" };
   }
 }
 
